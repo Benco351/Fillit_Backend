@@ -2,6 +2,8 @@ import express, { Application , NextFunction} from 'express';
 import userRoutes from './routes/userRoutes';
 import availableShiftRoutes from './routes/availableShiftRoutes';
 import requestedShiftRoutes from './routes/requestedShiftRoutes';
+import assignedShiftRoutes from './routes/assignedShiftRoutes';
+
 import cors from 'cors';
 import compression from 'compression';
 
@@ -18,8 +20,6 @@ app.use(compression());
 app.use(cors());
 app.use(express.json());
 app.use(function (req, res, next) {
-
-
     // Website you wish to allow to connect
     res.setHeader('Access-Control-Allow-Origin', '*');
 
@@ -37,15 +37,15 @@ app.use(function (req, res, next) {
     next();
 });
 
-
-
 // Register routes
 app.use('/api/users', userRoutes);
 app.use('/api/available-shifts', availableShiftRoutes);
 app.use('/api/requested-shifts', requestedShiftRoutes);
+app.use('/api/assigned-shifts',assignedShiftRoutes)
 
-
-
-
+//AWS health check route
+app.use('/health', (req, res, {}) => {
+  res.status(200).end();
+});
 
 export default app;

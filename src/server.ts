@@ -2,21 +2,25 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import express from 'express';
-import { connectMongoDB } from './config/mongodb';
-import { connectPostgres, sequelize } from './config/postgres/postgres';
+import { connectMongoDB } from './config/mongodb/db';
+import { connectPostgres, sequelize } from './config/postgres/db';
+import { initModels } from './config/postgres/models'; // adjust the path as needed
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 (async () => {
   try {
-    // Connect to MongoDB
-    await connectMongoDB();
+    // // Connect to MongoDB
+    // await connectMongoDB();
 
     // Connect to PostgreSQL
     await connectPostgres();
 
-    // Sync Sequelize models
+    // Initialize all Sequelize models and associations
+    initModels(sequelize);
+
+    // Sync Sequelize models with the database
     await sequelize.sync();
 
     // Start the server
