@@ -1,10 +1,31 @@
 import { DataTypes, Model, Optional } from "sequelize";
-import { sequelize } from "../config/database"; // Import your Sequelize instance
+import { sequelize } from "../config/postgres/postgres"; // Your Sequelize instance
 
-const AvailableShift = sequelize.define(
-  'AvailableShift',
+// Interface for the model attributes
+interface AvailableShiftAttributes {
+  shiftId: number;
+  start: string;
+  end?: string;
+}
+
+// Optional fields for creation
+type AvailableShiftCreationAttributes = Optional<AvailableShiftAttributes, 'shiftId'>;
+
+// Model class extending Sequelize Model
+class AvailableShift extends Model<AvailableShiftAttributes, AvailableShiftCreationAttributes>
+  implements AvailableShiftAttributes {
+  public shiftId!: number;
+  public start!: string;
+  public end?: string;
+
+  // timestamps (createdAt, updatedAt) if you use them
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+}
+
+// Define the model
+AvailableShift.init(
   {
-    // Model attributes are defined here
     shiftId: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -16,11 +37,14 @@ const AvailableShift = sequelize.define(
     },
     end: {
       type: DataTypes.TIME,
-    }
-  }, 
-  {
-    tablename: 'available_shifts',
+      allowNull: true,
+    },
   },
+  {
+    sequelize,
+    tableName: 'available_shifts', // fixed typo here
+    timestamps: true, // or false if you don't use createdAt/updatedAt
+  }
 );
 
 export default AvailableShift;

@@ -58,19 +58,12 @@ CREATE TABLE employee_groups (
     FOREIGN KEY (etog_group_id_fkey) REFERENCES organization_groups(organization_group_id)
 );
 
-CREATE TABLE announcments (
-    announcment_id serial PRIMARY KEY,
-    announcment_title varchar(100) NOT NULL,
-    announcment_text text,
-    announcment_date date NULL DEFAULT NULL
-);
 
 CREATE TABLE recipients (
     recipients_group_id_fkey integer NOT NULL,
-    recipients_announcment_id_fkey integer NOT NULL,
+    recipients_announcment_id_key integer NOT NULL,
     PRIMARY KEY (recipients_group_id_fkey, recipients_announcment_id_fkey),
     FOREIGN KEY (recipients_group_id_fkey) REFERENCES organization_groups(organization_group_id),
-    FOREIGN KEY (recipients_announcment_id_fkey) REFERENCES announcments(announcment_id)
 );
 
 CREATE TABLE departments (

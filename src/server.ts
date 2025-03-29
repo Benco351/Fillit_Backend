@@ -1,18 +1,30 @@
-import app from './app';
-// import { connectMongoDB, connectPostgres } from './config/database';
 import dotenv from 'dotenv';
-
 dotenv.config();
 
-const PORT: number = parseInt(process.env.PORT || '3000', 10); 
-console.log(process.env.PORT);//UNDEFIEND
+import express from 'express';
+import { connectMongoDB } from './config/mongodb';
+import { connectPostgres, sequelize } from './config/postgres/postgres';
+
+const app = express();
+const PORT = process.env.PORT || 3000;
 
 (async () => {
-  // Connect to both databases before starting the server
-  // await connectMongoDB(); 
-  // await connectPostgres();
+  try {
+    // Connect to MongoDB
+    await connectMongoDB();
 
-  app.listen(PORT, () => {
-    console.log(`Server  a is running on port ${PORT}`);
-  });
+    // Connect to PostgreSQL
+    await connectPostgres();
+
+    // Sync Sequelize models
+    await sequelize.sync();
+
+    // Start the server
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Error starting the server:', error);
+    process.exit(1);
+  }
 })();
