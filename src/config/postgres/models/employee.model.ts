@@ -29,6 +29,7 @@ import {
     @Column({
       type: DataType.STRING(255),
       allowNull: false,
+      unique: true,
     })
     employee_email!: string;
   
@@ -58,4 +59,3 @@ import {
     @HasMany(() => RequestedShift)
     requestedShifts!: RequestedShift[];
   }
-  

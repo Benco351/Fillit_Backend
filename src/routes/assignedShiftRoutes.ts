@@ -7,7 +7,7 @@ const router = Router();
 
 // router.get('/', assignedShiftController.getAssignedShifts);
 // router.post('/', validate(CreateAssignedShiftSchema), assignedShiftController.createAssignedShift);
-// router.delete('/:id', assignedShiftController.deleteAssignedShift); // Uncommented the deleteUser route
+// router.delete('/:id', assignedShiftController.deleteAssignedShift); // Uncommented the deleteEmployee route
 
 export default router;
 

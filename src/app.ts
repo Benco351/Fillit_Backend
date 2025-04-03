@@ -1,5 +1,5 @@
 import express, { Application , NextFunction} from 'express';
-import userRoutes from './routes/userRoutes';
+import employeeRoutes from './routes/employeeRoutes';
 import availableShiftRoutes from './routes/availableShiftRoutes';
 import requestedShiftRoutes from './routes/requestedShiftRoutes';
 import assignedShiftRoutes from './routes/assignedShiftRoutes';
@@ -38,7 +38,7 @@ app.use(function (req, res, next) {
 });
 
 // Register routes
-app.use('/api/users', userRoutes);
+app.use('/api/employees', employeeRoutes);
 app.use('/api/available-shifts', availableShiftRoutes);
 app.use('/api/requested-shifts', requestedShiftRoutes);
 app.use('/api/assigned-shifts',assignedShiftRoutes)

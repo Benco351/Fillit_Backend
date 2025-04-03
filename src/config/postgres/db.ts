@@ -21,11 +21,15 @@ export const sequelize = new Sequelize({
 });
 
 export const connectPostgres = async (): Promise<void> => {
-  try {
-    await sequelize.authenticate();
-    console.log('PostgreSQL connected successfully.');
-  } catch (error) {
-    console.error('PostgreSQL connection error:', error);
-    throw error;
-  }
-};
+    try {
+      await sequelize.authenticate();
+      console.log('PostgreSQL connected successfully.');
+  
+      // Synchronize models with the database
+      await sequelize.sync({ alter: true }); // Use { force: true } to drop and recreate tables (use with caution)
+      console.log('Database tables synchronized.');
+    } catch (error) {
+      console.error('PostgreSQL connection error:', error);
+      throw error;
+    }
+  };

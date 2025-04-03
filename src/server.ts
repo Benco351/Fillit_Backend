@@ -5,8 +5,9 @@ import express from 'express';
 import { connectMongoDB } from './config/mongodb/db';
 import { connectPostgres, sequelize } from './config/postgres/db';
 import { initModels } from './config/postgres/models'; // adjust the path as needed
+import app from './app'; // Import the app instance
 
-const app = express();
+//const app = express();
 const PORT = process.env.PORT || 3000;
 
 (async () => {

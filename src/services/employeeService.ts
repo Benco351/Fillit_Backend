@@ -1,0 +1,108 @@
+//import { Employee } from '../config/postgres/models';
+import { CreateEmployeeDTO } from '../types/employeeSchema';
+import { Employee } from '../config/postgres/models/employee.model'; 
+import { ParamsDictionary } from 'express-serve-static-core';
+import { ParsedQs } from 'qs'; // Import ParsedQs for query parameters
+
+interface EmployeeDTO extends CreateEmployeeDTO {
+}
+
+/**
+ * Creates a new employee in the database.
+ * param data - Employee data to create.
+ * returns The created employee.
+ */
+export const createEmployee = async (data: CreateEmployeeDTO): Promise<Employee> => {
+  const newEmployee = await Employee.create({
+    employee_name: data.name,
+    employee_email: data.email,
+    employee_phone: data.phone, 
+    employee_password: data.password,
+    employee_admin: data.admin,
+  } as any); 
+
+  return newEmployee;
+};
+
+/**
+ * Retrieves an employee by their ID, excluding the password field.
+ * param id - Employee ID.
+ * returns The employee.
+ */
+export const getEmployeeById = async (id: number): Promise<Omit<Employee, 'employee_password'> | null> => {
+  if (!Number.isInteger(id)) {
+    throw new Error(`Invalid employee ID: ${id}`);
+  }
+
+  const employee = await Employee.findOne({
+    where: { employee_id: id },
+    attributes: { exclude: ['employee_password'] }
+  });
+
+  return employee;
+};
+
+/**
+ * Retrieves an employee by their email, excluding the password field.
+ * param email - Employee email.
+ * returns The employee.
+ */
+export const getEmployeeByEmail = async (email: string): Promise<Employee | null> => {
+  const employee = await Employee.findOne({
+    where: { employee_email: email.trim() }, // Ensure email is trimmed to avoid mismatches
+    attributes: { exclude: ['employee_password'] }
+  });
+  return employee;
+};
+
+/**
+ * Retrieves employees based on query parameters.
+ * param params - Query parameters (e.g., admin status).
+ * returns A list of employees matching the filters.
+ */
+export const getEmployeesByParams = async (params: ParsedQs): Promise<Employee[]> => {
+  const filters: any = {};
+  if (params.admin !== undefined) {
+    const adminValue = params.admin.toString().toLowerCase();
+    filters.employee_admin = adminValue === 'true'; // Convert string to boolean
+  }
+
+  const employees = await Employee.findAll({
+    where: filters,
+    attributes: { exclude: ['employee_password'] }
+  });
+  return employees;
+}
+
+/**
+ * Deletes an employee by their ID.
+ * param id - Employee ID.
+ * returns True if the employee was deleted, false otherwise.
+ */
+export const deleteEmployee = async (id: number): Promise<boolean> => {
+  const employee = await Employee.findOne({ where: { employee_id: id } });
+  if (!employee) return false;
+
+  await employee.destroy();
+  return true;
+};
+
+/**
+ * Updates an employee's details by their ID.
+ * param id - Employee ID.
+ * param data - Partial employee data to update.
+ * returns The updated employee or null if not found.
+ */
+export const updateEmployee = async (id: number, data: Partial<CreateEmployeeDTO>): Promise<Employee | null> => {
+  const employee = await Employee.findOne({ where: { employee_id: id } });
+  if (!employee) return null;
+
+  // Dynamically map the incoming data fields to the database column names
+  const mappedData = Object.fromEntries(
+    Object.entries(data).map(([key, value]) => [`employee_${key}`, value])
+  );
+
+  // Update the employee with the mapped data
+  await employee.update(mappedData);
+  return employee;
+};

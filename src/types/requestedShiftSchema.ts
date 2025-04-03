@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const CreateRequestedShiftSchema = z.object({
-  userId: z.number(),
+  employeeId: z.number(),
   shiftSlotId: z.number(),
   notes: z.string().optional(),
 });
