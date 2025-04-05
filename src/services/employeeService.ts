@@ -64,7 +64,18 @@ export const getEmployeesByParams = async (params: ParsedQs): Promise<Employee[]
   const filters: any = {};
   if (params.admin !== undefined) {
     const adminValue = params.admin.toString().toLowerCase();
-    filters.employee_admin = adminValue === 'true'; // Convert string to boolean
+    if (adminValue.toLowerCase() === 'true')
+    {
+      filters.employee_admin = true;
+    }
+    else if (adminValue.toLowerCase() === 'false')
+    {
+      filters.employee_admin = false;
+    }
+    else
+    {
+      throw new Error(`Invalid admin filter value: ${adminValue}`);
+    }
   }
 
   const employees = await Employee.findAll({

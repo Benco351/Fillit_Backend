@@ -60,6 +60,10 @@ export const getEmployees = async (_req: Request, res: Response, next: NextFunct
     logger.info('Fetched employees');
     res.json(apiResponse(employees));
   } catch (err) {
+    if (err instanceof Error && err.message.startsWith('Invalid admin filter value')) {
+      res.status(400).json({ error: err.message });
+      return;
+    }
     logger.error(`getEmployees error: ${err}`);
     next(err);
   }

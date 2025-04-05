@@ -7,7 +7,16 @@ export const CreateEmployeeSchema = z.object({
   password: z.string(),
   admin: z.boolean().optional(),
   phone: z.string().optional()
-  
-});
+}).strict();
 
-export type CreateEmployeeDTO = z.infer<typeof CreateEmployeeSchema>; 
+export const UpdateEmployeeSchema = z.object({
+  name: z.string().min(1).optional(),
+  email: z.string().email().optional(),
+  password: z.string().optional(),
+  admin: z.boolean().optional(),
+  phone: z.string().optional()
+}).strict();
+
+export type UpdateEmployeeDTO = z.infer<typeof UpdateEmployeeSchema>;
+
+export type CreateEmployeeDTO = z.infer<typeof CreateEmployeeSchema>;
