@@ -18,3 +18,8 @@ export const validate = (schema: AnyZodObject) => {
     }
   };
 };
+
+export const validateId = (id: string): number | null => {
+  const empId = Number(id);
+  return isNaN(empId) ? null : empId;
+};

@@ -3,11 +3,7 @@ import * as employeeService from '../services/employeeService';
 import { CreateEmployeeDTO } from '../types/employeeSchema';
 import { apiResponse } from '../utils/apiResponse';
 import { logger } from '../config/logger';
-
-const validateEmployeeId = (id: string): number | null => {
-  const empId = Number(id);
-  return isNaN(empId) ? null : empId;
-};
+import { validateId } from '../middlewares/validateMiddleware';
 
 /**
  * Updates an employee's details by ID. Validates the ID and checks for email conflicts.
@@ -15,7 +11,7 @@ const validateEmployeeId = (id: string): number | null => {
  */
 export const updateEmployee = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const empId = validateEmployeeId(req.params.id);
+    const empId = validateId(req.params.id);
     if (empId === null) {
       res.status(400).json({ error: 'Invalid employee ID. Must be a number.' });
       return; 
@@ -74,7 +70,7 @@ export const getEmployees = async (_req: Request, res: Response, next: NextFunct
  */
 export const getEmployee = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const empId = validateEmployeeId(req.params.id);
+    const empId = validateId(req.params.id);
     if (empId === null) {
       res.status(400).json({ error: 'Invalid employee ID. Must be a number.' });
       return; 
@@ -122,7 +118,7 @@ export const createEmployee = async (req: Request, res: Response, next: NextFunc
 export const deleteEmployee = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
 
-    const empId = validateEmployeeId(req.params.id);
+    const empId = validateId(req.params.id);
     if (empId === null) {
       res.status(400).json({ error: 'Invalid employee ID. Must be a number.' });
       return; 
