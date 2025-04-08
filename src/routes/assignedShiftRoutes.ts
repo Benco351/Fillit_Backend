@@ -5,9 +5,10 @@ import { CreateAssignedShiftSchema } from '../types/assignedShiftSchema';
 
 const router = Router();
 
-// router.get('/', assignedShiftController.getAssignedShifts);
-// router.post('/', validate(CreateAssignedShiftSchema), assignedShiftController.createAssignedShift);
-// router.delete('/:id', assignedShiftController.deleteAssignedShift); // Uncommented the deleteEmployee route
+router.get('/', assignedShiftController.getAssignedShifts);
+router.get('/:id', assignedShiftController.getAssignedShift);
+router.post('/', validate(CreateAssignedShiftSchema), assignedShiftController.createAssignedShift);
+router.delete('/:id', assignedShiftController.deleteAssignedShift); 
 
 export default router;
 

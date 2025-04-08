@@ -58,7 +58,7 @@ export const getRequestedShift = async (req: Request, res: Response, next: NextF
 
     const requestedShift = await requestedShiftService.getRequestedShiftById(shiftId);
     if (!requestedShift) {
-      res.status(404).json({ error: 'Available Shift not found' });
+      res.status(404).json({ error: 'Shift Request not found' });
       return; 
     }
     res.json(apiResponse(requestedShift));
