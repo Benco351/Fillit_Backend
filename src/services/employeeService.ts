@@ -1,11 +1,9 @@
 //import { Employee } from '../config/postgres/models';
-import { CreateEmployeeDTO } from '../types/employeeSchema';
+import { CreateEmployeeDTO, UpdateEmployeeDTO } from '../types/employeeSchema';
 import { Employee } from '../config/postgres/models/employee.model'; 
 import { ParamsDictionary } from 'express-serve-static-core';
 import { ParsedQs } from 'qs'; // Import ParsedQs for query parameters
 
-interface EmployeeDTO extends CreateEmployeeDTO {
-}
 
 /**
  * Creates a new employee in the database.
@@ -104,7 +102,7 @@ export const deleteEmployee = async (id: number): Promise<boolean> => {
  * param data - Partial employee data to update.
  * returns The updated employee or null if not found.
  */
-export const updateEmployee = async (id: number, data: Partial<CreateEmployeeDTO>): Promise<Employee | null> => {
+export const updateEmployee = async (id: number, data: UpdateEmployeeDTO): Promise<Employee | null> => {
   const employee = await Employee.findOne({ where: { employee_id: id } });
   if (!employee) return null;
 

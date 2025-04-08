@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as employeeService from '../services/employeeService';
-import { CreateEmployeeDTO } from '../types/employeeSchema';
+import { CreateEmployeeDTO, UpdateEmployeeDTO } from '../types/employeeSchema';
 import { apiResponse } from '../utils/apiResponse';
 import { logger } from '../config/logger';
 import { validateId } from '../middlewares/validateMiddleware';
@@ -17,7 +17,7 @@ export const updateEmployee = async (req: Request, res: Response, next: NextFunc
       return; 
     }
 
-    const { id, email, ...updateData } = req.body as CreateEmployeeDTO;
+    const { email, ...updateData } = req.body as UpdateEmployeeDTO;
 
     
     if (email) {

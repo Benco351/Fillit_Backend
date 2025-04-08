@@ -107,18 +107,18 @@ export const deleteAvailableShift = async (req: Request, res: Response, next: Ne
  */
 export const updateAvailableShift = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const empId = validateId(req.params.id);
-    if (empId === null) {
+    const shiftId = validateId(req.params.id);
+    if (shiftId === null) {
       res.status(400).json({ error: 'Invalid available shift ID. Must be a number.' });
       return; 
     }
 
-    const employee = await availableShiftService.updateAvailableShift(empId, req.body as UpdateAvailableShiftDTO);
-    if (!employee) {
+    const availableShifts = await availableShiftService.updateAvailableShift(shiftId, req.body as UpdateAvailableShiftDTO);
+    if (!availableShifts) {
       res.status(404).json({ error: 'Available shift not found' });
       return; 
     }
-    res.json(apiResponse(employee, 'Available shift updated'));
+    res.json(apiResponse(availableShifts, 'Available shift updated'));
   } catch (err) {
     logger.error(`updateAvailableShift error: ${err}`);
     next(err);
