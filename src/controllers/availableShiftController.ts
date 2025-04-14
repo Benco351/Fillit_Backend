@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as availableShiftService from '../services/availableShiftService';
-import { CreateAvailableShiftDTO, UpdateAvailableShiftDTO  } from '../types/availableShiftSchema';
+import { CreateAvailableShiftDTO, UpdateAvailableShiftDTO, AvailableShiftQueryDTO  } from '../types/availableShiftSchema';
 import { apiResponse } from '../utils/apiResponse';
 import { logger } from '../config/logger';
 import { validateId } from '../middlewares/validateMiddleware';
@@ -56,7 +56,7 @@ export const getAvailableShiftById = async (req: Request, res: Response, next: N
  */
 export const getAvailableShiftsByParams = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const availableShifts = await availableShiftService.getAvailableShiftsByParams(_req.query);
+    const availableShifts = await availableShiftService.getAvailableShiftsByParams(_req.query as AvailableShiftQueryDTO);
 
     if (!availableShifts || availableShifts.length === 0) {
       res.status(404).json({ error: 'No available shiftss found' });

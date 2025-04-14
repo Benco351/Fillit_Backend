@@ -20,10 +20,10 @@ employee_admin boolean DEFAULT FALSE,
 
 CREATE TABLE assigned_shifts (
     assigned_id serial PRIMARY KEY,
-    assigned_shift_id_fkey integer NOT NULL,
-    assigned_employee_id_fkey integer NOT NULL,
-    FOREIGN KEY (assigned_shift_id_fkey) REFERENCES avaliable_shifts(shift_id),
-    FOREIGN KEY (assigned_employee_id_fkey) REFERENCES employees(employee_id)
+    assigned_shift_id integer NOT NULL,
+    assigned_employee_idy integer NOT NULL,
+    FOREIGN KEY (assigned_shift_id) REFERENCES avaliable_shifts(shift_id),
+    FOREIGN KEY (assigned_employee_id) REFERENCES employees(employee_id)
 );
 
 CREATE TYPE request_status AS ENUM ('pending', 'approved', 'denied');

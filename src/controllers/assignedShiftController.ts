@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as assignedShiftService from '../services/assignedShiftService';
-import { CreateAssignedShiftDTO } from '../types/assignedShiftSchema';
+import { CreateAssignedShiftDTO, AssignedShiftQueryDTO} from '../types/assignedShiftSchema';
 import { apiResponse } from '../utils/apiResponse';
 import { logger } from '../config/logger';
 import { AssignedShift, AvailableShift, Employee, RequestedShift } from '../config/postgres/models';
@@ -24,7 +24,7 @@ export const createAssignedShift = async (req: Request, res: Response, next: Nex
     }
 
     const existingAssignedShift = await AssignedShift.findOne({
-      where: { assigned_employee_id_fkey: employeeId, assigned_shift_id_fkey: shiftSlotId },
+      where: { assigned_employee_id: employeeId, assigned_shift_id: shiftSlotId },
     });
     if (existingAssignedShift) {
       res.status(400).json({ error: 'Assigned shift already exists for this employee and shift slot' });
@@ -91,7 +91,8 @@ export const getAssignedShiftById = async (req: Request, res: Response, next: Ne
 
 export const getAssignedShiftsByParams = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const requestedShifts = await assignedShiftService.getAssignedShiftsByParams(req.query);
+
+    const requestedShifts = await assignedShiftService.getAssignedShiftsByParams(req.query as AssignedShiftQueryDTO);
 
     if (!requestedShifts || requestedShifts.length === 0) {
       res.status(404).json({ error: 'No assigned shifts found' });

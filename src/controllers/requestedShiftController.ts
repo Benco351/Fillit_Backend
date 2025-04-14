@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as requestedShiftService from '../services/requestedShiftService';
-import { CreateRequestedShiftDTO, UpdateRequestedShiftDTO } from '../types/requestedShiftSchema';
+import { CreateRequestedShiftDTO, UpdateRequestedShiftDTO, RequestedShiftQueryDTO } from '../types/requestedShiftSchema';
 import { apiResponse } from '../utils/apiResponse';
 import { logger } from '../config/logger';
 import { validateId } from '../middlewares/validateMiddleware';
@@ -88,7 +88,7 @@ export const getRequestedShiftById = async (req: Request, res: Response, next: N
  */
 export const getRequestedShiftsByParams = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const requestedShifts = await requestedShiftService.getRequestedShiftsByParams(req.query);
+    const requestedShifts = await requestedShiftService.getRequestedShiftsByParams(req.query as RequestedShiftQueryDTO);
 
     if (!requestedShifts || requestedShifts.length === 0) {
       res.status(404).json({ error: 'No requested shifts found' });

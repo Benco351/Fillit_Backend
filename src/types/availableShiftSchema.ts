@@ -14,6 +14,18 @@ export const UpdateAvailableShiftSchema = z.object({
   end: z.string().time().optional()
 }).strict();
 
+
+export const AvailableShiftQuerySchema = z.object({
+  shift_date: z.coerce.date().optional(), 
+  shift_start_before: z.string().time().optional(), 
+  shift_start_after: z.string().time().optional(), 
+  shift_end_before: z.string().time().optional(), 
+  shift_end_after: z.string().time().optional()
+}).strict();
+
+
 export type UpdateAvailableShiftDTO = z.infer<typeof UpdateAvailableShiftSchema>;
 
 export type CreateAvailableShiftDTO = z.infer<typeof CreateAvailableShiftSchema>;
+
+export type AvailableShiftQueryDTO = z.infer<typeof AvailableShiftQuerySchema>;

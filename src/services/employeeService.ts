@@ -1,5 +1,5 @@
 //import { Employee } from '../config/postgres/models';
-import { CreateEmployeeDTO, UpdateEmployeeDTO } from '../types/employeeSchema';
+import { CreateEmployeeDTO, UpdateEmployeeDTO , EmployeeQueryDTO} from '../types/employeeSchema';
 import { Employee } from '../config/postgres/models/employee.model'; 
 import { ParamsDictionary } from 'express-serve-static-core';
 import { ParsedQs } from 'qs'; // Import ParsedQs for query parameters
@@ -57,26 +57,26 @@ export const getEmployeeByEmail = async (email: string): Promise<Employee | null
  * @param {ParsedQs} params - Query parameters (e.g., admin status).
  * @returns {Promise<Employee[]>} A list of employees matching the filters.
  */
-export const getEmployeesByParams = async (params: ParsedQs): Promise<Employee[]> => {
-  const filters: any = {};
-  if (params.admin !== undefined) {
-    const adminValue = params.admin.toString().toLowerCase();
-    if (adminValue.toLowerCase() === 'true')
-    {
-      filters.employee_admin = true;
-    }
-    else if (adminValue.toLowerCase() === 'false')
-    {
-      filters.employee_admin = false;
-    }
-    else
-    {
-      throw new Error(`Invalid admin filter value: ${adminValue}`);
-    }
-  }
+export const getEmployeesByParams = async (params: EmployeeQueryDTO): Promise<Employee[]> => {
+  // const filters: any = {};
+  // if (params.admin !== undefined) {
+  //   const adminValue = params.admin.toString().toLowerCase();
+  //   if (adminValue.toLowerCase() === 'true')
+  //   {
+  //     filters.employee_admin = true;
+  //   }
+  //   else if (adminValue.toLowerCase() === 'false')
+  //   {
+  //     filters.employee_admin = false;
+  //   }
+  //   else
+  //   {
+  //     throw new Error(`Invalid admin filter value: ${adminValue}`);
+  //   }
+  // }
 
   const employees = await Employee.findAll({
-    where: filters,
+    where: params,
     attributes: { exclude: ['employee_password'] }
   });
   return employees;

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as employeeService from '../services/employeeService';
-import { CreateEmployeeDTO, UpdateEmployeeDTO } from '../types/employeeSchema';
+import { CreateEmployeeDTO, UpdateEmployeeDTO, EmployeeQueryDTO } from '../types/employeeSchema';
 import { apiResponse } from '../utils/apiResponse';
 import { logger } from '../config/logger';
 import { validateId } from '../middlewares/validateMiddleware';
@@ -55,7 +55,7 @@ export const updateEmployee = async (req: Request, res: Response, next: NextFunc
  */
 export const getEmployeesByParams = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const employees = await employeeService.getEmployeesByParams(_req.query);
+    const employees = await employeeService.getEmployeesByParams(_req.query as EmployeeQueryDTO);
 
     if (!employees || employees.length === 0) {
       res.status(404).json({ error: 'No employees found' });

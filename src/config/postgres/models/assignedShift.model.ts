@@ -26,14 +26,14 @@ import {
       type: DataType.INTEGER,
       allowNull: false,
     })
-    assigned_shift_id_fkey!: number;
+    assigned_shift_id!: number;
   
     @ForeignKey(() => Employee)
     @Column({
       type: DataType.INTEGER,
       allowNull: false,
     })
-    assigned_employee_id_fkey!: number;
+    assigned_employee_id!: number;
   
     @BelongsTo(() => AvailableShift)
     availableShift!: AvailableShift;

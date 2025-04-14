@@ -1,4 +1,4 @@
-import { CreateRequestedShiftDTO, UpdateRequestedShiftDTO} from '../types/requestedShiftSchema';
+import { CreateRequestedShiftDTO, UpdateRequestedShiftDTO, RequestedShiftQueryDTO} from '../types/requestedShiftSchema';
 import { RequestedShift } from '../config/postgres/models/requestedShift.model'; 
 import { ParsedQs } from 'qs'; // Import ParsedQs for query parameters
 import { request } from 'http';
@@ -41,27 +41,27 @@ export const getRequestedShiftById = async (id: number): Promise<RequestedShift|
  * @param {ParsedQs} params - Query parameters for filtering requested shifts.
  * @returns {Promise<RequestedShift[]>} A list of requested shifts matching the filters.
  */
-export const getRequestedShiftsByParams = async (params: ParsedQs): Promise<RequestedShift[]> => {
+export const getRequestedShiftsByParams = async (params: RequestedShiftQueryDTO): Promise<RequestedShift[]> => {
   const filters: any = {};// CREATE STRCIT TYPE FOR PARAMS!!!!
 
-  // Check if employee ID is provided
-  if (params.employeeId !== undefined) {
-    if (!Number.isInteger(Number(params.employeeId))) {
-      throw new Error(`Invalid employee ID: ${params.employeeId}`);
-    }
-    filters.request_employee_id = params.employeeId;
-  }
+  // // Check if employee ID is provided
+  // if (params.employeeId !== undefined) {
+  //   if (!Number.isInteger(Number(params.employeeId))) {
+  //     throw new Error(`Invalid employee ID: ${params.employeeId}`);
+  //   }
+  //   filters.request_employee_id = params.employeeId;
+  // }
 
-  // Check if status is provided and valid
-  if (params.status !== undefined) {
-    if (!Object.values(RequestStatus).includes(params.status as RequestStatus)) {
-      throw new Error(`Invalid status: ${params.status}`);
-    }
-    filters.request_status = params.status;
-  }
+  // // Check if status is provided and valid
+  // if (params.status !== undefined) {
+  //   if (!Object.values(RequestStatus).includes(params.status as RequestStatus)) {
+  //     throw new Error(`Invalid status: ${params.status}`);
+  //   }
+  //   filters.request_status = params.status;
+  // }
 
   const requestedShifts = await RequestedShift.findAll({
-    where: filters,
+    where: params,
     include: [
       {
         model: AvailableShift,

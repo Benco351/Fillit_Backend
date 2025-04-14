@@ -1,4 +1,4 @@
-import { CreateAssignedShiftDTO } from '../types/assignedShiftSchema';
+import { CreateAssignedShiftDTO, AssignedShiftQueryDTO } from '../types/assignedShiftSchema';
 import { AssignedShift } from '../config/postgres/models/assignedShift.model'; 
 import { AvailableShift, Employee } from '../config/postgres/models';
 import { ParsedQs } from 'qs';
@@ -51,19 +51,19 @@ export const getAssignedShiftById = async (id: number): Promise<AssignedShift | 
  * @param {ParsedQs} params - Query parameters for filtering shifts.
  * @returns {Promise<AssignedShift[]>} A list of assigned shifts.
  */
-export const getAssignedShiftsByParams = async (params: ParsedQs): Promise<AssignedShift[]> => {
-  const filters: any = {};
+export const getAssignedShiftsByParams = async (params: AssignedShiftQueryDTO): Promise<AssignedShift[]> => {
+  //const filters: any = {};
 
   // Check if employee ID is provided
-  if (params.employeeId !== undefined) {
-    if (!Number.isInteger(Number(params.employeeId))) {
-      throw new Error(`Invalid employee ID: ${params.employeeId}`);
-    }
-    filters.request_employee_id = params.employeeId;
-  }
+  // if (params.employeeId !== undefined) {
+    // if (!Number.isInteger(Number(params.employeeId))) {
+    //   throw new Error(`Invalid employee ID: ${params.employeeId}`);
+    // }
+   // filters.request_employee_id = params.employeeId;
+  //}
 
   const requestedShifts = await AssignedShift.findAll({
-    where: filters,
+    where: params,
     include: [
       {
         model: AvailableShift,

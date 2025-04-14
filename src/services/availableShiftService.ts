@@ -1,4 +1,4 @@
-import { CreateAvailableShiftDTO } from '../types/availableShiftSchema';
+import { CreateAvailableShiftDTO, AvailableShiftQueryDTO } from '../types/availableShiftSchema';
 import { AvailableShift } from '../config/postgres/models/availableShift.model'; 
 import { ParamsDictionary } from 'express-serve-static-core';
 import { ParsedQs } from 'qs'; // Import ParsedQs for query parameters
@@ -40,22 +40,22 @@ export const getAvailableShiftById = async (id: number): Promise<AvailableShift 
  * @param {ParsedQs} params - Query parameters for filtering shifts.
  * @returns {Promise<AvailableShift[]>} A list of available shifts.
  */
-export const getAvailableShiftsByParams = async (params: ParsedQs): Promise<AvailableShift[]> => {
+export const getAvailableShiftsByParams = async (params: AvailableShiftQueryDTO): Promise<AvailableShift[]> => {
   const filters: any = {};
 
-  const allowedParams = [
-    'shift_date',
-    'shift_start_before',
-    'shift_start_after',
-    'shift_end_before',
-    'shift_end_after'
-  ];
+  // const allowedParams = [
+  //   'shift_date',
+  //   'shift_start_before',
+  //   'shift_start_after',
+  //   'shift_end_before',
+  //   'shift_end_after'
+  // ];
 
-  for (const key in params) {
-    if (!allowedParams.includes(key)) {
-      throw new Error(`Unsupported parameter: ${key}`);
-    }
-  }
+  // for (const key in params) {
+  //   if (!allowedParams.includes(key)) {
+  //     throw new Error(`Unsupported parameter: ${key}`);
+  //   }
+  // }
 
   if (params.shift_date) {
     filters.shift_date = params.shift_date.toString();
