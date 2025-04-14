@@ -6,8 +6,12 @@ import { logger } from '../config/logger';
 import { validateId } from '../middlewares/validateMiddleware';
 
 /**
- * Updates an employee's details by ID. Validates the ID and checks for email conflicts.
- * Responds with the updated employee or an error message.
+ * Updates an employee's details by ID.
+ * 
+ * @param {Request} req - The request object containing the employee ID and update data.
+ * @param {Response} res - The response object to send the result.
+ * @param {NextFunction} next - The next middleware function.
+ * @returns {Promise<void>} A promise that resolves when the operation is complete.
  */
 export const updateEmployee = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -43,9 +47,13 @@ export const updateEmployee = async (req: Request, res: Response, next: NextFunc
 
 /**
  * Retrieves a list of employees based on query parameters.
- * Responds with the list of employees or an error message if none are found.
+ * 
+ * @param {Request} _req - The request object containing query parameters.
+ * @param {Response} res - The response object to send the result.
+ * @param {NextFunction} next - The next middleware function.
+ * @returns {Promise<void>} A promise that resolves when the operation is complete.
  */
-export const getEmployees = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const getEmployeesByParams = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const employees = await employeeService.getEmployeesByParams(_req.query);
 
@@ -66,9 +74,14 @@ export const getEmployees = async (_req: Request, res: Response, next: NextFunct
 };
 
 /**
- * Fetches a single employee by ID. Validates the ID and responds with the employee or an error message.
+ * Fetches a single employee by ID.
+ * 
+ * @param {Request} req - The request object containing the employee ID.
+ * @param {Response} res - The response object to send the result.
+ * @param {NextFunction} next - The next middleware function.
+ * @returns {Promise<void>} A promise that resolves when the operation is complete.
  */
-export const getEmployee = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const getEmployeeById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const empId = validateId(req.params.id);
     if (empId === null) {
@@ -89,14 +102,17 @@ export const getEmployee = async (req: Request, res: Response, next: NextFunctio
 };
 
 /**
- * Creates a new employee. Checks for email conflicts before creation.
- * Responds with the created employee or an error message.
+ * Creates a new employee.
+ * 
+ * @param {Request} req - The request object containing the employee data.
+ * @param {Response} res - The response object to send the result.
+ * @param {NextFunction} next - The next middleware function.
+ * @returns {Promise<void>} A promise that resolves when the operation is complete.
  */
 export const createEmployee = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { email } = req.body as CreateEmployeeDTO;
 
-   
     const existingEmployee = await employeeService.getEmployeeByEmail(email);
     if (existingEmployee) {
       res.status(400).json({ error: 'An employee with this email already exists.' });
@@ -104,8 +120,8 @@ export const createEmployee = async (req: Request, res: Response, next: NextFunc
     }
 
     const employee = await employeeService.createEmployee(req.body as CreateEmployeeDTO);
-    logger.info(`Created employee ${employee.id}`);
-    res.status(201).json(apiResponse(employee, 'Employee created'));
+    logger.info(`Created employee ${employee.employee_id}`);
+    res.status(201).json(apiResponse({"employee id":employee.employee_id }, 'Employee created'));
   } catch (err) {
     logger.error(`createEmployee error: ${err}`);
     next(err);
@@ -113,7 +129,12 @@ export const createEmployee = async (req: Request, res: Response, next: NextFunc
 };
 
 /**
- * Deletes an employee by ID. Validates the ID and responds with a success message or an error if not found.
+ * Deletes an employee by ID.
+ * 
+ * @param {Request} req - The request object containing the employee ID.
+ * @param {Response} res - The response object to send the result.
+ * @param {NextFunction} next - The next middleware function.
+ * @returns {Promise<void>} A promise that resolves when the operation is complete.
  */
 export const deleteEmployee = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {

@@ -9,6 +9,7 @@ export const CreateRequestedShiftSchema = z.object({
 
 export const UpdateRequestedShiftSchema = z.object({
   status: z.nativeEnum(RequestStatus).optional(),
+  notes: z.string().optional()
 }).strict();
 
 export type UpdateRequestedShiftDTO = z.infer<typeof UpdateRequestedShiftSchema>;

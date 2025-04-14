@@ -7,8 +7,8 @@ import { ParsedQs } from 'qs'; // Import ParsedQs for query parameters
 
 /**
  * Creates a new employee in the database.
- * param data - Employee data to create.
- * returns The created employee.
+ * @param {CreateEmployeeDTO} data - Employee data to create.
+ * @returns {Promise<Employee>} The created employee.
  */
 export const createEmployee = async (data: CreateEmployeeDTO): Promise<Employee> => {
   const newEmployee = await Employee.create({
@@ -16,7 +16,6 @@ export const createEmployee = async (data: CreateEmployeeDTO): Promise<Employee>
     employee_email: data.email,
     employee_phone: data.phone, 
     employee_password: data.password,
-    employee_admin: data.admin,
   } as any); 
 
   return newEmployee;
@@ -24,8 +23,8 @@ export const createEmployee = async (data: CreateEmployeeDTO): Promise<Employee>
 
 /**
  * Retrieves an employee by their ID, excluding the password field.
- * param id - Employee ID.
- * returns The employee.
+ * @param {number} id - Employee ID.
+ * @returns {Promise<Omit<Employee, 'employee_password'> | null>} The employee or null if not found.
  */
 export const getEmployeeById = async (id: number): Promise<Omit<Employee, 'employee_password'> | null> => {
   if (!Number.isInteger(id)) {
@@ -42,8 +41,8 @@ export const getEmployeeById = async (id: number): Promise<Omit<Employee, 'emplo
 
 /**
  * Retrieves an employee by their email, excluding the password field.
- * param email - Employee email.
- * returns The employee.
+ * @param {string} email - Employee email.
+ * @returns {Promise<Employee | null>} The employee or null if not found.
  */
 export const getEmployeeByEmail = async (email: string): Promise<Employee | null> => {
   const employee = await Employee.findOne({
@@ -55,8 +54,8 @@ export const getEmployeeByEmail = async (email: string): Promise<Employee | null
 
 /**
  * Retrieves employees based on query parameters.
- * param params - Query parameters (e.g., admin status).
- * returns A list of employees matching the filters.
+ * @param {ParsedQs} params - Query parameters (e.g., admin status).
+ * @returns {Promise<Employee[]>} A list of employees matching the filters.
  */
 export const getEmployeesByParams = async (params: ParsedQs): Promise<Employee[]> => {
   const filters: any = {};
@@ -85,8 +84,8 @@ export const getEmployeesByParams = async (params: ParsedQs): Promise<Employee[]
 
 /**
  * Deletes an employee by their ID.
- * param id - Employee ID.
- * returns True if the employee was deleted, false otherwise.
+ * @param {number} id - Employee ID.
+ * @returns {Promise<boolean>} True if the employee was deleted, false otherwise.
  */
 export const deleteEmployee = async (id: number): Promise<boolean> => {
   const employee = await Employee.findOne({ where: { employee_id: id } });
@@ -98,9 +97,9 @@ export const deleteEmployee = async (id: number): Promise<boolean> => {
 
 /**
  * Updates an employee's details by their ID.
- * param id - Employee ID.
- * param data - Partial employee data to update.
- * returns The updated employee or null if not found.
+ * @param {number} id - Employee ID.
+ * @param {UpdateEmployeeDTO} data - Partial employee data to update.
+ * @returns {Promise<Employee | null>} The updated employee or null if not found.
  */
 export const updateEmployee = async (id: number, data: UpdateEmployeeDTO): Promise<Employee | null> => {
   const employee = await Employee.findOne({ where: { employee_id: id } });

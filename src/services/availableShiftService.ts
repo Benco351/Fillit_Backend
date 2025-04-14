@@ -1,4 +1,4 @@
-import { CreateAvailableShiftDTO} from '../types/availableShiftSchema';
+import { CreateAvailableShiftDTO } from '../types/availableShiftSchema';
 import { AvailableShift } from '../config/postgres/models/availableShift.model'; 
 import { ParamsDictionary } from 'express-serve-static-core';
 import { ParsedQs } from 'qs'; // Import ParsedQs for query parameters
@@ -6,8 +6,8 @@ import { Op } from 'sequelize'; // Import Op for query operators
 
 /**
  * Creates a new available shift in the database.
- * param data - Data for the new available shift.
- * returns The created available shift.
+ * @param {CreateAvailableShiftDTO} data - Data for the new available shift.
+ * @returns {Promise<AvailableShift>} The created available shift.
  */
 export const createAvailableShift = async (data: CreateAvailableShiftDTO): Promise<AvailableShift> => {
   const newAvailableShift = await AvailableShift.create({
@@ -21,10 +21,10 @@ export const createAvailableShift = async (data: CreateAvailableShiftDTO): Promi
 
 /**
  * Retrieves a specific available shift by ID.
- * param id - ID of the available shift.
- * returns The available shift or null if not found.
+ * @param {number} id - ID of the available shift.
+ * @returns {Promise<AvailableShift | null>} The available shift or null if not found.
  */
-export const getAvailableShiftById = async (id: number): Promise<AvailableShift| null> => {
+export const getAvailableShiftById = async (id: number): Promise<AvailableShift | null> => {
   if (!Number.isInteger(id)) {
     throw new Error(`Invalid available shift ID: ${id}`);
   }
@@ -37,8 +37,8 @@ export const getAvailableShiftById = async (id: number): Promise<AvailableShift|
 
 /**
  * Retrieves available shifts based on query parameters.
- * param params - Query parameters for filtering shifts.
- * returns A list of available shifts.
+ * @param {ParsedQs} params - Query parameters for filtering shifts.
+ * @returns {Promise<AvailableShift[]>} A list of available shifts.
  */
 export const getAvailableShiftsByParams = async (params: ParsedQs): Promise<AvailableShift[]> => {
   const filters: any = {};
@@ -86,8 +86,8 @@ export const getAvailableShiftsByParams = async (params: ParsedQs): Promise<Avai
 
 /**
  * Deletes a specific available shift by ID.
- * param id - ID of the available shift.
- * returns True if the shift was deleted, false if not found.
+ * @param {number} id - ID of the available shift.
+ * @returns {Promise<boolean>} True if the shift was deleted, false if not found.
  */
 export const deleteAvailableShift = async (id: number): Promise<boolean> => {
   const availableShift = await AvailableShift.findOne({ where: { shift_id: id } });
@@ -99,9 +99,9 @@ export const deleteAvailableShift = async (id: number): Promise<boolean> => {
 
 /**
  * Updates a specific available shift by ID.
- * param id - ID of the available shift.
- * param data - Partial data to update the shift.
- * returns The updated available shift or null if not found.
+ * @param {number} id - ID of the available shift.
+ * @param {Partial<CreateAvailableShiftDTO>} data - Partial data to update the shift.
+ * @returns {Promise<AvailableShift | null>} The updated available shift or null if not found.
  */
 export const updateAvailableShift = async (id: number, data: Partial<CreateAvailableShiftDTO>): Promise<AvailableShift | null> => {
   const availableShift = await AvailableShift.findOne({ where: { shift_id: id } });

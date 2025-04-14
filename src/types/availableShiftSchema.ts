@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const CreateAvailableShiftSchema = z.object({
-  id: z.number().optional(),
+  //id: z.number().optional(),
   date: z.coerce.date(), // allows string like "2025-04-10"
   start: z.string().time(),   // validates "HH:MM" or "HH:MM:SS"
   end: z.string().time()

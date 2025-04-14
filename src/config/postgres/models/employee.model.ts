@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import {
     Table,
     Column,
@@ -6,10 +7,13 @@ import {
     AutoIncrement,
     DataType,
     HasMany,
+    BeforeCreate,
+    BeforeUpdate,
   } from 'sequelize-typescript';
   import { AssignedShift } from './assignedShift.model';
   import { RequestedShift } from './requestedShift.model';
-  
+
+
   @Table({
     tableName: 'employees',
     timestamps: false,
@@ -58,4 +62,19 @@ import {
   
     @HasMany(() => RequestedShift)
     requestedShifts!: RequestedShift[];
+
+
+    @BeforeCreate
+    @BeforeUpdate
+    static async hashPassword(instance: Employee) {
+      if (instance.changed('employee_password')) {
+        instance.employee_password = await bcrypt.hash(instance.employee_password, 10);
+      }
+    }
+
+    async validatePassword(password: string): Promise<boolean> {
+      return bcrypt.compare(password, this.employee_password);
+    }
   }
+
+  

@@ -1,14 +1,14 @@
 import { Router } from 'express';
-import * as availableShiftController from '../controllers/availableShiftController';
+import { getAvailableShiftById, getAvailableShiftsByParams, createAvailableShift, deleteAvailableShift, updateAvailableShift } from '../controllers/availableShiftController';
 import { validate } from '../middlewares/validateMiddleware';
 import { CreateAvailableShiftSchema, UpdateAvailableShiftSchema } from '../types/availableShiftSchema';
 
 
 const router = Router();
-router.get('/:id', availableShiftController.getAvailableShift);
-router.get('/', availableShiftController.getAvailableShifts);
-router.post('/', validate(CreateAvailableShiftSchema), availableShiftController.createAvailableShift);
-router.delete('/:id', availableShiftController.deleteAvailableShift);
-router.put('/:id', validate(UpdateAvailableShiftSchema), availableShiftController.updateAvailableShift);
+router.get('/:id', getAvailableShiftById);
+router.get('/', getAvailableShiftsByParams);
+router.post('/', validate(CreateAvailableShiftSchema), createAvailableShift);
+router.delete('/:id', deleteAvailableShift);
+router.put('/:id', validate(UpdateAvailableShiftSchema), updateAvailableShift);
 
-export default router;
+export default router; 

@@ -39,7 +39,7 @@ export const createAssignedShift = async (req: Request, res: Response, next: Nex
     }
 
     const assignedShift = await assignedShiftService.createAssignedShift(req.body as CreateAssignedShiftDTO);
-    logger.info(`Created shift assign ${assignedShift.id}`);
+    logger.info(`Created shift assign ${assignedShift.assigned_id}`);
     res.status(201).json(apiResponse(assignedShift, 'Shift assign created'));
   } catch (err) {
     logger.error(`createAssignedShift: ${err}`);
@@ -68,7 +68,7 @@ export const deleteAssignedShift = async (req: Request, res: Response, next: Nex
 };
 
 
-export const getAssignedShift = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const getAssignedShiftById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const shiftId = validateId(req.params.id);
     if (shiftId === null) {
@@ -89,7 +89,7 @@ export const getAssignedShift = async (req: Request, res: Response, next: NextFu
 };
 
 
-export const getAssignedShifts = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const getAssignedShiftsByParams = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const requestedShifts = await assignedShiftService.getAssignedShiftsByParams(req.query);
 

@@ -5,7 +5,6 @@ export const CreateEmployeeSchema = z.object({
   name: z.string().min(1),
   email: z.string().email(),
   password: z.string(),
-  admin: z.boolean().optional(),
   phone: z.string().optional()
 }).strict();
 

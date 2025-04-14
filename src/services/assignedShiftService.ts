@@ -1,8 +1,13 @@
-import { CreateAssignedShiftDTO} from '../types/assignedShiftSchema';
+import { CreateAssignedShiftDTO } from '../types/assignedShiftSchema';
 import { AssignedShift } from '../config/postgres/models/assignedShift.model'; 
 import { AvailableShift, Employee } from '../config/postgres/models';
 import { ParsedQs } from 'qs';
 
+/**
+ * Creates a new assigned shift in the database.
+ * @param {CreateAssignedShiftDTO} data - Data for the new assigned shift.
+ * @returns {Promise<AssignedShift>} The created assigned shift.
+ */
 export const createAssignedShift = async (data: CreateAssignedShiftDTO): Promise<AssignedShift> => {
   const newAssignedShift = await AssignedShift.create({
     assigned_shift_id_fkey: data.shiftSlotId,
@@ -12,6 +17,11 @@ export const createAssignedShift = async (data: CreateAssignedShiftDTO): Promise
   return newAssignedShift;
 };
 
+/**
+ * Deletes a specific assigned shift by ID.
+ * @param {number} id - ID of the assigned shift.
+ * @returns {Promise<boolean>} True if the shift was deleted, false if not found.
+ */
 export const deleteAssignedShift = async (id: number): Promise<boolean> => {
   const assignedShift = await AssignedShift.findOne({ where: { assigned_id: id } });
   if (!assignedShift) return false;
@@ -20,7 +30,12 @@ export const deleteAssignedShift = async (id: number): Promise<boolean> => {
   return true;
 };
 
-export const getAssignedShiftById = async (id: number): Promise<AssignedShift| null> => {
+/**
+ * Retrieves a specific assigned shift by ID.
+ * @param {number} id - ID of the assigned shift.
+ * @returns {Promise<AssignedShift | null>} The assigned shift or null if not found.
+ */
+export const getAssignedShiftById = async (id: number): Promise<AssignedShift | null> => {
   if (!Number.isInteger(id)) {
     throw new Error(`Invalid assigned shift ID: ${id}`);
   }
@@ -31,7 +46,11 @@ export const getAssignedShiftById = async (id: number): Promise<AssignedShift| n
   return assignedShift;
 };
 
-
+/**
+ * Retrieves assigned shifts based on query parameters.
+ * @param {ParsedQs} params - Query parameters for filtering shifts.
+ * @returns {Promise<AssignedShift[]>} A list of assigned shifts.
+ */
 export const getAssignedShiftsByParams = async (params: ParsedQs): Promise<AssignedShift[]> => {
   const filters: any = {};
 

@@ -14,7 +14,7 @@ import { validateId } from '../middlewares/validateMiddleware';
 export const createAvailableShift = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const availableShift = await  availableShiftService.createAvailableShift(req.body as CreateAvailableShiftDTO); 
-    logger.info(`Created available shift ${availableShift.id}`);
+    logger.info(`Created available shift ${availableShift.shift_id}`);
     res.status(201).json(apiResponse(availableShift, 'Available shift created'));
   } catch (err) {
     logger.error(`createAvailableShift: ${err}`);
@@ -28,7 +28,7 @@ export const createAvailableShift = async (req: Request, res: Response, next: Ne
  * param res - Express response object.
  * param next - Express next middleware function.
  */
-export const getAvailableShift = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const getAvailableShiftById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const shiftId = validateId(req.params.id);
     if (shiftId === null) {
@@ -54,7 +54,7 @@ export const getAvailableShift = async (req: Request, res: Response, next: NextF
  * param res - Express response object.
  * param next - Express next middleware function.
  */
-export const getAvailableShifts = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const getAvailableShiftsByParams = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const availableShifts = await availableShiftService.getAvailableShiftsByParams(_req.query);
 

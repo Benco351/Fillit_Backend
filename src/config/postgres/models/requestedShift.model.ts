@@ -51,7 +51,7 @@ import {
     @Column({
       type: DataType.ENUM(...Object.values(RequestStatus)),
       allowNull: false,
-      defaultValue: RequestStatus.PENDING,
+      defaultValue: RequestStatus.PENDING,// .APPROVED
     })
     request_status!: RequestStatus;
   

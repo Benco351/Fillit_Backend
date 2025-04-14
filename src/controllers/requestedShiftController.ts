@@ -8,8 +8,13 @@ import { Employee } from '../config/postgres/models/employee.model';
 import { AvailableShift } from '../config/postgres/models/availableShift.model';
 import { RequestedShift } from '../config/postgres/models/requestedShift.model';
 
-
-
+/**
+ * Creates a new shift request.
+ * @param {Request} req - The request object containing employeeId and shiftSlotId.
+ * @param {Response} res - The response object.
+ * @param {NextFunction} next - The next middleware function.
+ * @returns {Promise<void>}
+ */
 export const createShiftRequest = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { employeeId, shiftSlotId } = req.body as CreateRequestedShiftDTO;
@@ -39,7 +44,7 @@ export const createShiftRequest = async (req: Request, res: Response, next: Next
 
     // Create the requested shift
     const requestedShift = await requestedShiftService.createRequestedShift(req.body as CreateRequestedShiftDTO);
-    logger.info(`Created shift request ${requestedShift.id}`);
+    logger.info(`Created shift request ${requestedShift.request_id}`);
     res.status(201).json(apiResponse(requestedShift, 'Shift request created'));
   } catch (err) {
     logger.error(`createRequestedShift: ${err}`);
@@ -47,8 +52,14 @@ export const createShiftRequest = async (req: Request, res: Response, next: Next
   }
 };
 
-
-export const getRequestedShift = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+/**
+ * Retrieves a specific requested shift by ID.
+ * @param {Request} req - The request object containing the shift ID in params.
+ * @param {Response} res - The response object.
+ * @param {NextFunction} next - The next middleware function.
+ * @returns {Promise<void>}
+ */
+export const getRequestedShiftById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const shiftId = validateId(req.params.id);
     if (shiftId === null) {
@@ -68,7 +79,14 @@ export const getRequestedShift = async (req: Request, res: Response, next: NextF
   }
 };
 
-export const getRequestedShifts = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+/**
+ * Retrieves requested shifts based on query parameters.
+ * @param {Request} req - The request object containing query parameters.
+ * @param {Response} res - The response object.
+ * @param {NextFunction} next - The next middleware function.
+ * @returns {Promise<void>}
+ */
+export const getRequestedShiftsByParams = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const requestedShifts = await requestedShiftService.getRequestedShiftsByParams(req.query);
 
@@ -88,6 +106,13 @@ export const getRequestedShifts = async (req: Request, res: Response, next: Next
   }
 };
 
+/**
+ * Deletes a specific requested shift by ID.
+ * @param {Request} req - The request object containing the shift ID in params.
+ * @param {Response} res - The response object.
+ * @param {NextFunction} next - The next middleware function.
+ * @returns {Promise<void>}
+ */
 export const deleteRequestedShift = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const shiftId = validateId(req.params.id);
@@ -108,6 +133,13 @@ export const deleteRequestedShift = async (req: Request, res: Response, next: Ne
   }
 };
 
+/**
+ * Updates a specific requested shift by ID.
+ * @param {Request} req - The request object containing the shift ID in params and update data in the body.
+ * @param {Response} res - The response object.
+ * @param {NextFunction} next - The next middleware function.
+ * @returns {Promise<void>}
+ */
 export const updateRequestedShift = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   
   try {
@@ -123,7 +155,6 @@ export const updateRequestedShift = async (req: Request, res: Response, next: Ne
       return; 
     }
     res.json(apiResponse(requestedShifts, 'Requested shift updated'));
-
   
   } catch (err) {
     logger.error(`updateRequestedShift error: ${err}`); 
