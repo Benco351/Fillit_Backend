@@ -1,0 +1,1 @@
+export const NotFound = "Employee not found";
