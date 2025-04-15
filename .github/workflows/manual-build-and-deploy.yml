@@ -1,0 +1,130 @@
+name: Manual Build and Deploy
+
+# Trigger only when manually requested
+on:
+  workflow_dispatch: {}
+
+env:
+  AWS_DEFAULT_REGION: us-east-1
+  REPOSITORY_URI: ${{ secrets.ECR_REPO_URI }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      ########################################
+      # 1. Checkout Code
+      ########################################
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      ########################################
+      # 2. Configure AWS Credentials
+      ########################################
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}   # Include session token if available
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+
+      ########################################
+      # 3. Log in to Amazon ECR
+      ########################################
+      - name: Log in to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
+
+      ########################################
+      # 4. Set Environment Variables for Tagging
+      ########################################
+      - name: Set environment variables
+        id: vars
+        run: |
+          echo "COMMIT_HASH=${GITHUB_SHA:0:7}" >> $GITHUB_ENV
+          echo "IMAGE_TAG=${GITHUB_SHA:0:7}" >> $GITHUB_ENV
+          echo "REPOSITORY_URI=${{ secrets.REPOSITORY_URI }}" >> $GITHUB_ENV
+
+      ########################################
+      # 5. Install Dependencies and Run Tests
+      ########################################
+      - name: Install dependencies and run tests
+        run: |
+          npm install
+
+      ########################################
+      # 6. Build Docker Image
+      ########################################
+      - name: Build Docker Image
+        run: |
+          docker build -t $REPOSITORY_URI:latest .
+          docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
+
+      ########################################
+      # 7. Push Docker Images to Amazon ECR
+      ########################################
+      - name: Push Docker Images
+        run: |
+          docker push $REPOSITORY_URI:latest
+          docker push $REPOSITORY_URI:$IMAGE_TAG
+
+      ########################################
+      # 8. Generate imagedefinitions.json Artifact
+      ########################################
+      - name: Generate imagedefinitions.json
+        run: |
+          printf '[{"name":"nodejs-container","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+
+      - name: Upload imagedefinitions artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: imagedefinitions
+          path: imagedefinitions.json
+
+      ########################################
+      # 9. Prepare Dockerrun.aws.json for Elastic Beanstalk Deployment
+      # Uses a template file with a placeholder (<IMAGE_URI>) to be replaced with the new image URI.
+      ########################################
+      - name: Prepare Dockerrun.aws.json
+        run: |
+          # Replace <IMAGE_URI> placeholder in the template with the new image URI.
+          sed "s|<IMAGE_URI>|${REPOSITORY_URI}:${IMAGE_TAG}|g" Dockerrun.aws.json.template > Dockerrun.aws.json
+          cat Dockerrun.aws.json
+
+      ########################################
+      # 10. Zip the Dockerrun.aws.json file
+      ########################################
+      - name: Create deployment bundle
+        run: |
+          zip eb-deploy.zip Dockerrun.aws.json
+
+      ########################################
+      # 11. Upload the Deployment Bundle to S3 for EB
+      ########################################
+      - name: Upload deployment bundle to S3
+        run: |
+          aws s3 cp eb-deploy.zip s3://${{ secrets.EB_S3_BUCKET }}/eb-deploy.zip
+
+      ########################################
+      # 12. Create a New EB Application Version
+      ########################################
+      - name: Create EB application version
+        id: create_version
+        run: |
+          # Generate a version label based on the commit hash
+          VERSION_LABEL="v-${GITHUB_SHA:0:7}"
+          aws elasticbeanstalk create-application-version \
+            --application-name "${{ secrets.EB_APP_NAME }}" \
+            --version-label "$VERSION_LABEL" \
+            --source-bundle S3Bucket=${{ secrets.EB_S3_BUCKET }},S3Key=eb-deploy.zip
+          echo "::set-output name=version_label::$VERSION_LABEL"
+
+      ########################################
+      # 13. Update the Elastic Beanstalk Environment
+      ########################################
+      - name: Update Elastic Beanstalk environment
+        run: |
+          aws elasticbeanstalk update-environment \
+            --environment-name "${{ secrets.EB_ENV_NAME }}" \
+            --version-label ${{ steps.create_version.outputs.version_label }}
