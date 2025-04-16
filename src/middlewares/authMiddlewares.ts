@@ -2,11 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtHeader, VerifyErrors } from 'jsonwebtoken';
 import https from 'https';
 import jwkToPem from 'jwk-to-pem';
+import { JWKS_URL, COGNITO_ISSUER } from '../assets/constants'; 
 
-const REGION = 'us-east-1'; 
-const USER_POOL_ID = 'us-east-1_XXXXXXXXX';
-const ISSUER = `https://cognito-idp.${REGION}.amazonaws.com/${USER_POOL_ID}`;
-const JWKS_URL = `${ISSUER}/.well-known/jwks.json`;
 
 // Cache for public keys
 let publicKeysCache: Record<string, any> | null = null;
@@ -67,7 +64,7 @@ export const tokenAuthentication = async (req: Request, res: Response, next: Nex
 
     const publicKey = publicKeys[kid];
 
-    jwt.verify(token, publicKey, { issuer: ISSUER }, (err: VerifyErrors | null, decoded: any) => {
+    jwt.verify(token, publicKey, { issuer: COGNITO_ISSUER }, (err: VerifyErrors | null, decoded: any) => {
       if (err) {
         return res.status(401).json({ message: 'Unauthorized', error: err.message });
       }
