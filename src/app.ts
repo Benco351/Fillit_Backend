@@ -1,4 +1,4 @@
-import express, { Application , NextFunction} from 'express';
+import express, { Application } from 'express';
 import employeeRoutes from './routes/employeeRoutes';
 import availableShiftRoutes from './routes/availableShiftRoutes';
 import requestedShiftRoutes from './routes/requestedShiftRoutes';
