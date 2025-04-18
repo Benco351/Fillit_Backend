@@ -22,7 +22,7 @@ const PORT = process.env.PORT || 3000;
     initModels(sequelize);
 
     // Sync Sequelize models with the database
-    await sequelize.sync();
+    await sequelize.sync({alter : true});
 
     // Start the server
     app.listen(PORT, () => {

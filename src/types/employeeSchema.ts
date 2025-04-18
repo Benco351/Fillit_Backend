@@ -2,14 +2,14 @@ import { z } from 'zod';
 
 export const CreateEmployeeSchema = z.object({
   //id: z.number().optional(),
-  name: z.string().min(1),
+  name: z.string().nonempty(),
   email: z.string().email(),
-  password: z.string(),
+  password: z.string().min(1),
   phone: z.string().optional()
 }).strict();
 
 export const UpdateEmployeeSchema = z.object({
-  name: z.string().min(1).optional(),
+  name: z.string().nonempty().optional(),
   email: z.string().email().optional(),
   password: z.string().optional(),
   admin: z.boolean().optional(),
