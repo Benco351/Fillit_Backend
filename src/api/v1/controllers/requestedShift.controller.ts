@@ -1,14 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
-import * as requestedShiftService from '../services/requestedShiftService';
-import { CreateRequestedShiftDTO, UpdateRequestedShiftDTO, RequestedShiftQueryDTO } from '../types/requestedShiftSchema';
-import { apiResponse } from '../utils/apiResponse';
-import { logger } from '../config/logger';
-import { validateId } from '../middlewares/validateMiddleware';
-import { Employee } from '../config/postgres/models/employee.model';
-import { AvailableShift } from '../config/postgres/models/availableShift.model';
-import { RequestedShift } from '../config/postgres/models/requestedShift.model';
-import { EmployeeNotFound, InvalidEmployeeIdStart } from '../assets/messages/employeeMessages';
-import { AvailableShiftNotFound } from '../assets/messages/availableShiftMessages';
+import * as requestedShiftService from '../../../core/services/requestedShift.service';
+import { CreateRequestedShiftDTO, UpdateRequestedShiftDTO, RequestedShiftQueryDTO } from '../../../assets/types/types';
+import { apiResponse } from '../../../utils/apiResponse';
+import { logger } from '../../../config/logger';
+import { validateId } from '../../../middlewares/validateMiddleware';
+import { Employee } from '../../../config/postgres/models/employee.model';
+import { AvailableShift } from '../../../config/postgres/models/availableShift.model';
+import { RequestedShift } from '../../../config/postgres/models/requestedShift.model';
+import { EmployeeNotFound, InvalidEmployeeIdStart } from '../../../assets/messages/employeeMessages';
+import { AvailableShiftNotFound } from '../../../assets/messages/availableShiftMessages';
 import {
   RequestedShiftExists,
   ShiftRequestCreated,
@@ -24,7 +24,7 @@ import {
   GetRequestedShiftErrorLog,
   UpdateRequestedShiftErrorLog,
   FetchedRequestedShiftsLog
-} from '../assets/messages/requestedShiftMessages';
+} from '../../../assets/messages/requestedShiftMessages';
 
 
 /**

@@ -1,15 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
-import * as assignedShiftService from '../services/assignedShiftService';
-import { CreateAssignedShiftDTO, AssignedShiftQueryDTO} from '../types/assignedShiftSchema';
-import { apiResponse } from '../utils/apiResponse';
-import { logger } from '../config/logger';
-import { AssignedShift, AvailableShift, Employee, RequestedShift } from '../config/postgres/models';
-import { RequestStatus } from '../config/postgres/models/requestedShift.model';
-import { validateId } from '../middlewares/validateMiddleware';
+import * as assignedShiftService from '../../../core/services/assignedShift.service';
+import { CreateAssignedShiftDTO, AssignedShiftQueryDTO} from '../../../assets/types/types';
+import { apiResponse } from '../../../utils/apiResponse';
+import { logger } from '../../../config/logger';
+import { AssignedShift, AvailableShift, Employee, RequestedShift } from '../../../config/postgres/models/index';
+import { RequestStatus } from '../../../config/postgres/models/requestedShift.model';
+import { validateId } from '../../../middlewares/validateMiddleware';
 import {
   EmployeeNotFound,
   InvalidEmployeeIdStart
-} from '../assets/messages/employeeMessages';
+} from '../../../assets/messages/employeeMessages';
 import {
   InvalidAssignedShiftId,
   InvalidShiftAssignId,
@@ -25,7 +25,7 @@ import {
   AssignedShiftCreated,
   AssignedShiftDeleted,
   AssignedShiftsRetrieved
-} from '../assets/messages/assignedShiftMessages';
+} from '../../../assets/messages/assignedShiftMessages';
 
 
 export const createAssignedShift = async (req: Request, res: Response, next: NextFunction): Promise<void> => {

@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import * as availableShiftService from '../services/availableShiftService';
-import { CreateAvailableShiftDTO, UpdateAvailableShiftDTO, AvailableShiftQueryDTO  } from '../types/availableShiftSchema';
-import { apiResponse } from '../utils/apiResponse';
-import { logger } from '../config/logger';
-import { validateId } from '../middlewares/validateMiddleware';
+import * as availableShiftService from '../../../core/services/availableShift.service';
+import { CreateAvailableShiftDTO, UpdateAvailableShiftDTO, AvailableShiftQueryDTO  } from '../../../assets/types/types';
+import { apiResponse } from '../../../utils/apiResponse';
+import { logger } from '../../../config/logger';
+import { validateId } from '../../../middlewares/validateMiddleware';
 import {
   InvalidAvailableShiftId,
   AvailableShiftNotFound,
@@ -18,7 +18,7 @@ import {
   AvailableShiftDeleted,
   AvailableShiftUpdated,
   CreateAvailableShiftErrorLog
-} from '../assets/messages/availableShiftMessages';
+} from '../../../assets/messages/availableShiftMessages';
 
 /**
  * Creates a new available shift.

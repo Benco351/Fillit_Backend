@@ -1,7 +1,6 @@
-import { CreateAssignedShiftDTO, AssignedShiftQueryDTO } from '../types/assignedShiftSchema';
-import { AssignedShift } from '../config/postgres/models/assignedShift.model'; 
-import { AvailableShift, Employee } from '../config/postgres/models';
-import { ParsedQs } from 'qs';
+import { CreateAssignedShiftDTO, AssignedShiftQueryDTO } from '../../assets/types/types';
+import { AssignedShift } from '../../config/postgres/models/assignedShift.model';
+import { AvailableShift, Employee } from '../../config/postgres/models';
 
 /**
  * Creates a new assigned shift in the database.
@@ -9,19 +8,16 @@ import { ParsedQs } from 'qs';
  * @returns {Promise<AssignedShift>} The created assigned shift.
  */
 export const createAssignedShift = async (data: CreateAssignedShiftDTO): Promise<AssignedShift> => {
-  const newAssignedShift = await AssignedShift.create({
+  const shiftData: any = {
     assigned_shift_id_fkey: data.shiftSlotId,
     assigned_employee_id_fkey: data.employeeId,
-  } as any); 
-
+  } ; // TODO: Create strict type for shiftData
+ 
+  
+  const newAssignedShift = await AssignedShift.create(shiftData);
   return newAssignedShift;
 };
 
-/**
- * Deletes a specific assigned shift by ID.
- * @param {number} id - ID of the assigned shift.
- * @returns {Promise<boolean>} True if the shift was deleted, false if not found.
- */
 export const deleteAssignedShift = async (id: number): Promise<boolean> => {
   const assignedShift = await AssignedShift.findOne({ where: { assigned_id: id } });
   if (!assignedShift) return false;
@@ -30,11 +26,6 @@ export const deleteAssignedShift = async (id: number): Promise<boolean> => {
   return true;
 };
 
-/**
- * Retrieves a specific assigned shift by ID.
- * @param {number} id - ID of the assigned shift.
- * @returns {Promise<AssignedShift | null>} The assigned shift or null if not found.
- */
 export const getAssignedShiftById = async (id: number): Promise<AssignedShift | null> => {
   if (!Number.isInteger(id)) {
     throw new Error(`Invalid assigned shift ID: ${id}`);
@@ -42,27 +33,11 @@ export const getAssignedShiftById = async (id: number): Promise<AssignedShift | 
   const assignedShift = await AssignedShift.findOne({
     where: { assigned_id: id },
   });
-
   return assignedShift;
 };
 
-/**
- * Retrieves assigned shifts based on query parameters.
- * @param {ParsedQs} params - Query parameters for filtering shifts.
- * @returns {Promise<AssignedShift[]>} A list of assigned shifts.
- */
 export const getAssignedShiftsByParams = async (params: AssignedShiftQueryDTO): Promise<AssignedShift[]> => {
-  //const filters: any = {};
-
-  // Check if employee ID is provided
-  // if (params.employeeId !== undefined) {
-    // if (!Number.isInteger(Number(params.employeeId))) {
-    //   throw new Error(`Invalid employee ID: ${params.employeeId}`);
-    // }
-   // filters.request_employee_id = params.employeeId;
-  //}
-
-  const requestedShifts = await AssignedShift.findAll({
+  const shifts = await AssignedShift.findAll({
     where: params,
     include: [
       {
@@ -75,6 +50,5 @@ export const getAssignedShiftsByParams = async (params: AssignedShiftQueryDTO): 
       },
     ],
   });
-
-  return requestedShifts;
+  return shifts;
 };

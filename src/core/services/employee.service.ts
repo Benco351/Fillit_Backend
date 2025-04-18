@@ -1,9 +1,6 @@
 //import { Employee } from '../config/postgres/models';
-import { CreateEmployeeDTO, UpdateEmployeeDTO , EmployeeQueryDTO} from '../types/employeeSchema';
-import { Employee } from '../config/postgres/models/employee.model'; 
-import { ParamsDictionary } from 'express-serve-static-core';
-import { ParsedQs } from 'qs'; // Import ParsedQs for query parameters
-
+import { CreateEmployeeDTO, UpdateEmployeeDTO , EmployeeQueryDTO} from '../../assets/types/types';
+import { Employee } from '../../config/postgres/models/employee.model'; 
 
 /**
  * Creates a new employee in the database.

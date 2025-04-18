@@ -1,9 +1,7 @@
-import { CreateRequestedShiftDTO, UpdateRequestedShiftDTO, RequestedShiftQueryDTO} from '../types/requestedShiftSchema';
-import { RequestedShift } from '../config/postgres/models/requestedShift.model'; 
-import { ParsedQs } from 'qs'; // Import ParsedQs for query parameters
-import { request } from 'http';
-import { AvailableShift, Employee } from '../config/postgres/models';
-import { RequestStatus } from '../config/postgres/models/requestedShift.model';
+import { CreateRequestedShiftDTO, UpdateRequestedShiftDTO, RequestedShiftQueryDTO} from '../../assets/types/types';
+import { RequestedShift } from '../../config/postgres/models/requestedShift.model'; 
+import { AvailableShift, Employee } from '../../config/postgres/models';
+import { RequestStatus } from '../../config/postgres/models/requestedShift.model';
 
 /**
  * Creates a new requested shift.

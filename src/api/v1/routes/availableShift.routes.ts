@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { getAvailableShiftById, getAvailableShiftsByParams, createAvailableShift, deleteAvailableShift, updateAvailableShift } from '../controllers/availableShiftController';
-import { validate, validateQuery } from '../middlewares/validateMiddleware';
-import { CreateAvailableShiftSchema, UpdateAvailableShiftSchema , AvailableShiftQuerySchema} from '../types/availableShiftSchema';
-import { tokenAuthentication } from '../middlewares/authMiddlewares';
+import { getAvailableShiftById, getAvailableShiftsByParams, createAvailableShift, deleteAvailableShift, updateAvailableShift } from '../controllers/availableShift.controller';
+import { validate, validateQuery } from '../../../middlewares/validateMiddleware';
+import { CreateAvailableShiftSchema, UpdateAvailableShiftSchema , AvailableShiftQuerySchema} from '../../../assets/types/types';
+import { tokenAuthentication } from '../../../middlewares/authMiddleware';
 
 const router = Router();
 router.get('/:id', getAvailableShiftById);

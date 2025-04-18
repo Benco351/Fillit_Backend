@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import * as employeeService from '../services/employeeService';
-import { CreateEmployeeDTO, UpdateEmployeeDTO, EmployeeQueryDTO } from '../types/employeeSchema';
-import { apiResponse } from '../utils/apiResponse';
-import { logger } from '../config/logger';
-import { validateId } from '../middlewares/validateMiddleware';
+import * as employeeService from '../../../core/services/employee.service';
+import { CreateEmployeeDTO, UpdateEmployeeDTO, EmployeeQueryDTO } from '../../../assets/types/types';
+import { apiResponse } from '../../../utils/apiResponse';
+import { logger } from '../../../config/logger';
+import { validateId } from '../../../middlewares/validateMiddleware';
 import {
   InvalidEmployeeId,
   EmailAlreadyTaken,
@@ -20,7 +20,7 @@ import {
   CreateEmployeeErrorLog,
   FetchedEmployees,
   InvalidAdminFilterValue
-} from '../assets/messages/employeeMessages';
+} from '../../../assets/messages/employeeMessages';
 
 
 /**

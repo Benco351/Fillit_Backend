@@ -1,40 +1,49 @@
-    CREATE TABLE avaliable_shifts (
-        shift_id serial PRIMARY KEY,
-        shift_date date NULL DEFAULT NULL,
-        shift_time_start time(6) NULL DEFAULT NULL,
-        shift_time_end time(6) NULL DEFAULT NULL,
-    
-    );
+-- Drop old objects (so you can re‑run cleanly)
+DROP TABLE IF EXISTS requested_shifts CASCADE;
+DROP TABLE IF EXISTS assigned_shifts CASCADE;
+DROP TABLE IF EXISTS employees CASCADE;
+DROP TABLE IF EXISTS available_shifts CASCADE;
+DROP TYPE  IF EXISTS enum_requested_shifts_request_status;
 
+-- Available shifts
+CREATE TABLE available_shifts (
+  shift_id          SERIAL PRIMARY KEY,
+  shift_date        DATE,
+  shift_time_start  TIME(6),
+  shift_time_end    TIME(6)
+);
 
-    CREATE TABLE employees (
-    employee_id serial PRIMARY KEY,
-    employee_name varchar(255) NOT NULL,
-    employee_email varchar(255) NOT NULL,
-    employee_phone varchar(20) NULL DEFAULT NULL,
-    employee_password varchar(255) NOT NULL,
-    employee_admin boolean DEFAULT FALSE,
-    );
+-- Employees
+CREATE TABLE employees (
+  employee_id       SERIAL PRIMARY KEY,
+  employee_name     VARCHAR(255) NOT NULL,
+  employee_email    VARCHAR(255) NOT NULL,
+  employee_phone    VARCHAR(20),
+  employee_password VARCHAR(255) NOT NULL,
+  employee_admin    BOOLEAN DEFAULT FALSE
+);
 
+-- Assigned shifts
+CREATE TABLE assigned_shifts (
+  assigned_id           SERIAL PRIMARY KEY,
+  assigned_shift_id     INTEGER NOT NULL
+    REFERENCES available_shifts(shift_id),
+  assigned_employee_id  INTEGER NOT NULL
+    REFERENCES employees(employee_id)
+);
 
+-- Enum for requested‑shifts
+CREATE TYPE enum_requested_shifts_request_status
+  AS ENUM ('pending','approved','denied');
 
-    CREATE TABLE assigned_shifts (
-        assigned_id serial PRIMARY KEY,
-        assigned_shift_id integer NOT NULL,
-        assigned_employee_id integer NOT NULL,
-        FOREIGN KEY (assigned_shift_id) REFERENCES avaliable_shifts(shift_id),
-        FOREIGN KEY (assigned_employee_id) REFERENCES employees(employee_id)
-    );
-
-CREATE TYPE enum_requested_shifts_request_status AS ENUM ('pending', 'approved', 'denied');
-
-
+-- Requested shifts
 CREATE TABLE requested_shifts (
-    request_id serial PRIMARY KEY,
-    request_shift_id integer NOT NULL,
-    request_employee_id integer NOT NULL,
-    request_notes text NULL DEFAULT NULL,
-    request_status enum_requested_shifts_request_status DEFAULT 'pending',
-    FOREIGN KEY (request_shift_id) REFERENCES avaliable_shifts(shift_id),
-    FOREIGN KEY (request_employee_id) REFERENCES employees(employee_id)
+  request_id          SERIAL PRIMARY KEY,
+  request_shift_id    INTEGER NOT NULL
+    REFERENCES available_shifts(shift_id),
+  request_employee_id INTEGER NOT NULL
+    REFERENCES employees(employee_id),
+  request_notes       TEXT,
+  request_status      enum_requested_shifts_request_status
+    DEFAULT 'pending'
 );
