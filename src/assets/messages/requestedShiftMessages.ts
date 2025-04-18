@@ -1,0 +1,16 @@
+export const RequestedShiftExists = 'Requested shift already exists for this employee and shift slot';
+export const ShiftRequestCreated = 'Shift request created';
+export const ShiftRequestNotFound = 'Shift Request not found';
+export const InvalidShiftRequestId = 'Invalid Shift Request ID. Must be a number.';
+export const NoRequestedShiftsFound = 'No requested shifts found';
+export const RequestedShiftsRetrieved = 'Requested shifts retrieved successfully';
+export const InvalidRequestedShiftId = 'Invalid requested shift ID. Must be a number.';
+export const RequestedShiftDeleted = 'Requested shift deleted';
+export const RequestedShiftNotFound = 'Requested shift not found';
+export const RequestedShiftUpdated = 'Requested shift updated';
+export const FetchedRequestedShiftsLog = "Fetched requested shifts";
+export const CreateRequestedShiftErrorLog = (err: unknown) => `createRequestedShift error: ${err}`;
+export const GetRequestedShiftErrorLog = (err: unknown) => `getRequestedShift error: ${err}`;
+export const UpdateRequestedShiftErrorLog = (err: unknown) => `updateRequestedShift error: ${err}`;
+export const DeleteRequestedShiftErrorLog = (err: unknown) => `deleteRequestedShift error: ${err}`;
+export const CreatedRequestedShiftLog = (id: number) => `Created shift request ${id}`;

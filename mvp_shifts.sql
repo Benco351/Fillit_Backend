@@ -21,12 +21,12 @@ employee_admin boolean DEFAULT FALSE,
 CREATE TABLE assigned_shifts (
     assigned_id serial PRIMARY KEY,
     assigned_shift_id integer NOT NULL,
-    assigned_employee_idy integer NOT NULL,
+    assigned_employee_id integer NOT NULL,
     FOREIGN KEY (assigned_shift_id) REFERENCES avaliable_shifts(shift_id),
     FOREIGN KEY (assigned_employee_id) REFERENCES employees(employee_id)
 );
 
-CREATE TYPE request_status AS ENUM ('pending', 'approved', 'denied');
+CREATE TYPE enum_requested_shifts_request_status AS ENUM ('pending', 'approved', 'denied');
 
 
 CREATE TABLE requested_shifts (
@@ -34,7 +34,7 @@ CREATE TABLE requested_shifts (
     request_shift_id integer NOT NULL,
     request_employee_id integer NOT NULL,
     request_notes text NULL DEFAULT NULL,
-    request_status request_status DEFAULT 'pending',
-    FOREIGN KEY (request_shift_id_fkey) REFERENCES avaliable_shifts(shift_id),
-    FOREIGN KEY (request_employee_id_fkey) REFERENCES employees(employee_id)
+    request_status enum_requested_shifts_request_status DEFAULT 'pending',
+    FOREIGN KEY (request_shift_id) REFERENCES avaliable_shifts(shift_id),
+    FOREIGN KEY (request_employee_id) REFERENCES employees(employee_id)
 );

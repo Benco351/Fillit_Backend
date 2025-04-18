@@ -1,0 +1,13 @@
+export const InvalidAvailableShiftId = "Invalid available shift ID. Must be a number.";
+export const AvailableShiftNotFound = "Available shift not found";
+export const NoAvailableShiftsFound = "No available shifts found";
+export const UnsupportedParamPrefix = "Unsupported parameter:";
+export const CreatedAvailableShiftLog = (id: number) => `Created available shift ${id}`;
+export const FetchedAvailableShiftsLog = "Fetched available shifts";
+export const GetAvailableShiftErrorLog = (err: unknown) => `getAvailableShift error: ${err}`;
+export const GetAvailableShiftsErrorLog = (err: unknown) => `getAvailableShifts: ${err}`;
+export const UpdateAvailableShiftErrorLog = (err: unknown) => `updateAvailableShift error: ${err}`;
+export const CreateAvailableShiftErrorLog = (err: unknown) => `updateAvailableShift error: ${err}`;
+export const AvailableShiftCreated = "Available shift created";
+export const AvailableShiftDeleted = "Available shift deleted";
+export const AvailableShiftUpdated = "Available shift updated";

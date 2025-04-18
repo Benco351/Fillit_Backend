@@ -4,6 +4,21 @@ import { CreateAvailableShiftDTO, UpdateAvailableShiftDTO, AvailableShiftQueryDT
 import { apiResponse } from '../utils/apiResponse';
 import { logger } from '../config/logger';
 import { validateId } from '../middlewares/validateMiddleware';
+import {
+  InvalidAvailableShiftId,
+  AvailableShiftNotFound,
+  NoAvailableShiftsFound,
+  UnsupportedParamPrefix,
+  CreatedAvailableShiftLog,
+  FetchedAvailableShiftsLog,
+  GetAvailableShiftErrorLog,
+  GetAvailableShiftsErrorLog,
+  UpdateAvailableShiftErrorLog,
+  AvailableShiftCreated,
+  AvailableShiftDeleted,
+  AvailableShiftUpdated,
+  CreateAvailableShiftErrorLog
+} from '../assets/messages/availableShiftMessages';
 
 /**
  * Creates a new available shift.
@@ -14,10 +29,10 @@ import { validateId } from '../middlewares/validateMiddleware';
 export const createAvailableShift = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const availableShift = await  availableShiftService.createAvailableShift(req.body as CreateAvailableShiftDTO); 
-    logger.info(`Created available shift ${availableShift.shift_id}`);
-    res.status(201).json(apiResponse(availableShift, 'Available shift created'));
+    logger.info(CreatedAvailableShiftLog(availableShift.shift_id));
+    res.status(201).json(apiResponse(availableShift, AvailableShiftCreated));
   } catch (err) {
-    logger.error(`createAvailableShift: ${err}`);
+    logger.error(CreateAvailableShiftErrorLog(err));
     next(err);
   }
 };
@@ -32,18 +47,18 @@ export const getAvailableShiftById = async (req: Request, res: Response, next: N
   try {
     const shiftId = validateId(req.params.id);
     if (shiftId === null) {
-      res.status(400).json({ error: 'Invalid Available Shift ID. Must be a number.' });
+      res.status(400).json({ error: InvalidAvailableShiftId });
       return; 
     }
 
     const availableShift = await availableShiftService.getAvailableShiftById(shiftId);
     if (!availableShift) {
-      res.status(404).json({ error: 'Available Shift not found' });
+      res.status(404).json({ error: AvailableShiftNotFound });
       return; 
     }
     res.json(apiResponse(availableShift));
   } catch (err) {
-    logger.error(`getAvailableShift error: ${err}`); 
+    logger.error(GetAvailableShiftErrorLog(err)); 
     next(err);
   }
 };
@@ -59,17 +74,17 @@ export const getAvailableShiftsByParams = async (_req: Request, res: Response, n
     const availableShifts = await availableShiftService.getAvailableShiftsByParams(_req.query as AvailableShiftQueryDTO);
 
     if (!availableShifts || availableShifts.length === 0) {
-      res.status(404).json({ error: 'No available shiftss found' });
+      res.status(404).json({ error: NoAvailableShiftsFound });
       return; 
     }
-    logger.info('Fetched available shifts');
+    logger.info(FetchedAvailableShiftsLog);
     res.json(apiResponse(availableShifts));
   } catch (err) {
-    if (err instanceof Error && err.message.startsWith('Unsupported parameter:')) {
+    if (err instanceof Error && err.message.startsWith(UnsupportedParamPrefix)) {
         res.status(400).json({ error: err.message });
         return;
       }
-    logger.error(`getAvailableShifts: ${err}`);
+    logger.error(GetAvailableShiftsErrorLog(err));
     next(err);
   }
 };
@@ -85,15 +100,15 @@ export const deleteAvailableShift = async (req: Request, res: Response, next: Ne
 
     const shiftId = validateId(req.params.id);
     if (shiftId === null) {
-      res.status(400).json({ error: 'Invalid available shift ID. Must be a number.' });
+      res.status(400).json({ error: InvalidAvailableShiftId });
       return; 
     }
     const success = await availableShiftService.deleteAvailableShift(Number(req.params.id));
     if (!success) {
-      res.status(404).json({ error: 'Available shift not found' });
+      res.status(404).json({ error: AvailableShiftNotFound });
       return; 
     }
-    res.json(apiResponse(null, 'Available shift deleted'));
+    res.json(apiResponse(null, AvailableShiftDeleted));
   } catch (err) {
     next(err);
   }
@@ -109,18 +124,18 @@ export const updateAvailableShift = async (req: Request, res: Response, next: Ne
   try {
     const shiftId = validateId(req.params.id);
     if (shiftId === null) {
-      res.status(400).json({ error: 'Invalid available shift ID. Must be a number.' });
+      res.status(400).json({ error: InvalidAvailableShiftId });
       return; 
     }
 
     const availableShifts = await availableShiftService.updateAvailableShift(shiftId, req.body as UpdateAvailableShiftDTO);
     if (!availableShifts) {
-      res.status(404).json({ error: 'Available shift not found' });
+      res.status(404).json({ error: AvailableShiftNotFound });
       return; 
     }
-    res.json(apiResponse(availableShifts, 'Available shift updated'));
+    res.json(apiResponse(availableShifts, AvailableShiftUpdated));
   } catch (err) {
-    logger.error(`updateAvailableShift error: ${err}`);
+    logger.error(UpdateAvailableShiftErrorLog(err));
     next(err);
   }
 };
