@@ -4,6 +4,24 @@ import { CreateEmployeeDTO, UpdateEmployeeDTO, EmployeeQueryDTO } from '../types
 import { apiResponse } from '../utils/apiResponse';
 import { logger } from '../config/logger';
 import { validateId } from '../middlewares/validateMiddleware';
+import {
+  InvalidEmployeeId,
+  EmailAlreadyTaken,
+  EmployeeNotFound,
+  EmployeeUpdated,
+  NoEmployeesFound,
+  CreatedEmployeeLog,
+  EmployeeCreated,
+  EmployeeDeleted,
+  EmailExists,
+  UpdateEmployeeLog,
+  GetEmployeesErrorLog,
+  GetEmployeeErrorLog,
+  CreateEmployeeErrorLog,
+  FetchedEmployees,
+  InvalidAdminFilterValue
+} from '../assets/messages/employeeMessages';
+
 
 /**
  * Updates an employee's details by ID.
@@ -17,7 +35,7 @@ export const updateEmployee = async (req: Request, res: Response, next: NextFunc
   try {
     const empId = validateId(req.params.id);
     if (empId === null) {
-      res.status(400).json({ error: 'Invalid employee ID. Must be a number.' });
+      res.status(400).json({ error: InvalidEmployeeId });
       return; 
     }
 
@@ -28,19 +46,19 @@ export const updateEmployee = async (req: Request, res: Response, next: NextFunc
       console.log(email);
       const existingEmployee = await employeeService.getEmployeeByEmail(email.trim()); 
       if (existingEmployee && existingEmployee.employee_id !== empId) {
-        res.status(400).json({ error: 'This email is already taken by another employee.' });
+        res.status(400).json({ error: EmailAlreadyTaken });
         return; 
       }
     }
 
     const employee = await employeeService.updateEmployee(empId, { email, ...updateData });
     if (!employee) {
-      res.status(404).json({ error: 'Employee not found' });
+      res.status(404).json({ error: EmployeeNotFound });
       return; 
     }
-    res.json(apiResponse(employee, 'Employee updated'));
+    res.json(apiResponse(employee, EmployeeUpdated));
   } catch (err) {
-    logger.error(`updateEmployee error: ${err}`);
+    logger.error(UpdateEmployeeLog(err));
     next(err);
   }
 };
@@ -58,17 +76,17 @@ export const getEmployeesByParams = async (_req: Request, res: Response, next: N
     const employees = await employeeService.getEmployeesByParams(_req.query as EmployeeQueryDTO);
 
     if (!employees || employees.length === 0) {
-      res.status(404).json({ error: 'No employees found' });
+      res.status(404).json({ error: NoEmployeesFound });
       return; 
     }
-    logger.info('Fetched employees');
+    logger.info(FetchedEmployees);
     res.json(apiResponse(employees));
   } catch (err) {
-    if (err instanceof Error && err.message.startsWith('Invalid admin filter value')) {
+    if (err instanceof Error && err.message.startsWith(InvalidAdminFilterValue)) {
       res.status(400).json({ error: err.message });
       return;
     }
-    logger.error(`getEmployees error: ${err}`);
+    logger.error(GetEmployeesErrorLog(err));
     next(err);
   }
 };
@@ -85,18 +103,18 @@ export const getEmployeeById = async (req: Request, res: Response, next: NextFun
   try {
     const empId = validateId(req.params.id);
     if (empId === null) {
-      res.status(400).json({ error: 'Invalid employee ID. Must be a number.' });
+      res.status(400).json({ error: InvalidEmployeeId });
       return; 
     }
 
     const employee = await employeeService.getEmployeeById(empId);
     if (!employee) {
-      res.status(404).json({ error: 'Employee not found' });
+      res.status(404).json({ error: EmployeeNotFound });
       return; 
     }
     res.json(apiResponse(employee));
   } catch (err) {
-    logger.error(`getEmployee error: ${err}`); 
+    logger.error(GetEmployeeErrorLog(err)); 
     next(err);
   }
 };
@@ -115,18 +133,18 @@ export const createEmployee = async (req: Request, res: Response, next: NextFunc
 
     const existingEmployee = await employeeService.getEmployeeByEmail(email);
     if (existingEmployee) {
-      res.status(400).json({ error: 'An employee with this email already exists.' });
+      res.status(400).json({ error: EmailExists });
       return; 
     }
 
     const employee = await employeeService.createEmployee(req.body as CreateEmployeeDTO);
-    logger.info(`Created employee ${employee.employee_id}`);
-    res.status(201).json(apiResponse({"employee_id": employee.employee_id }, 'Employee created'));
+    logger.info(CreatedEmployeeLog(employee.employee_id));
+    res.status(201).json(apiResponse({"employee id":employee.employee_id }, EmployeeCreated));
 
     // SIGNUP THE EMPLOYEE IN COGNITO
     
   } catch (err) {
-    logger.error(`createEmployee error: ${err}`);
+    logger.error(CreateEmployeeErrorLog(err));
     next(err);
   }
 };
@@ -144,15 +162,15 @@ export const deleteEmployee = async (req: Request, res: Response, next: NextFunc
 
     const empId = validateId(req.params.id);
     if (empId === null) {
-      res.status(400).json({ error: 'Invalid employee ID. Must be a number.' });
+      res.status(400).json({ error: InvalidEmployeeId });
       return; 
     }
     const success = await employeeService.deleteEmployee(Number(req.params.id));
     if (!success) {
-      res.status(404).json({ error: 'Employee not found' });
+      res.status(404).json({ error: EmployeeNotFound });
       return; 
     }
-    res.json(apiResponse(null, 'Employee deleted'));
+    res.json(apiResponse(null, EmployeeDeleted));
   } catch (err) {
     next(err);
   }

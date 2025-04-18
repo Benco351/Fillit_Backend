@@ -26,15 +26,15 @@
         FOREIGN KEY (assigned_employee_id) REFERENCES employees(employee_id)
     );
 
-    CREATE TYPE request_status AS ENUM ('pending', 'approved', 'denied');
+CREATE TYPE enum_requested_shifts_request_status AS ENUM ('pending', 'approved', 'denied');
 
 
-    CREATE TABLE requested_shifts (
-        request_id serial PRIMARY KEY,
-        request_shift_id integer NOT NULL,
-        request_employee_id integer NOT NULL,
-        request_notes text NULL DEFAULT NULL,
-        request_status request_status DEFAULT 'pending',
-        FOREIGN KEY (request_shift_id) REFERENCES avaliable_shifts(shift_id),
-        FOREIGN KEY (request_employee_id) REFERENCES employees(employee_id)
-    );
+CREATE TABLE requested_shifts (
+    request_id serial PRIMARY KEY,
+    request_shift_id integer NOT NULL,
+    request_employee_id integer NOT NULL,
+    request_notes text NULL DEFAULT NULL,
+    request_status enum_requested_shifts_request_status DEFAULT 'pending',
+    FOREIGN KEY (request_shift_id) REFERENCES avaliable_shifts(shift_id),
+    FOREIGN KEY (request_employee_id) REFERENCES employees(employee_id)
+);
