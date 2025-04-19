@@ -3,7 +3,7 @@ import app from './app';
 import { connectPostgres, sequelize } from './config/postgres/db';
 import { initModels } from './config/postgres/models';
 
-const PORT = process.env.PORT ?? 3000;
+const PORT = process.env.PORT ?? 8000;
 
 (async () => {
   try {

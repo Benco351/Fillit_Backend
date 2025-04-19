@@ -1,12 +1,14 @@
 {
-  "AWSEBDockerrunVersion": "1",
+  "AWSEBDockerrunVersion": "1",      
   "Image": {
     "Name": "<IMAGE_URI>",
     "Update": "true"
   },
   "Ports": [
-    {
-      "ContainerPort": "8000"
-    }
-  ]
+    { "ContainerPort": "8000", "HostPort": "80" }
+  ],
+  "Volumes": [
+    { "HostDirectory": "/var/app/logs", "ContainerDirectory": "/app/logs" }
+  ],
+  "Logging": "/app/logs"
 }

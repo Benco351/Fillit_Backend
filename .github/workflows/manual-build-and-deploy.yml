@@ -76,7 +76,7 @@ jobs:
 
       # 11. Zip the Dockerrun.aws.json file
       - name: Create deployment bundle
-        run: zip eb-deploy.zip Dockerrun.aws.json
+        run: zip eb-deploy.zip Dockerrun.aws.json Dockerfile
 
       # 12. Upload the Deployment Bundle to S3 for EB
       - name: Upload deployment bundle to S3

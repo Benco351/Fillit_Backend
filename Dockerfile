@@ -1,49 +1,37 @@
-# Build stage
-FROM node:20-alpine AS builder
+# ─── Stage 1: Build ────────────────────────────────────────────────────────────
+FROM node:20 AS builder
 
-# Set working directory
-WORKDIR /app
+# Where your source lives
+WORKDIR /usr/src/app
 
-# Copy package files
-COPY package*.json ./
+# Copy only manifest(s) so we get CI cache on deps install
+COPY package.json package-lock.json tsconfig.json ./
 
-# Install dependencies
+# Install everything (including devDeps)
 RUN npm ci
 
-# Copy source code
+# Bring in the rest of your code
 COPY . .
 
-# Build TypeScript code
+# Compile TS → JS into ./dist
 RUN npm run build
 
-# Production stage
-FROM node:20-alpine AS production
 
-# Set working directory
-WORKDIR /app
+# ─── Stage 2: Production ───────────────────────────────────────────────────────
+FROM node:20-alpine
 
-# Set NODE_ENV
+WORKDIR /usr/src/app
 ENV NODE_ENV=production
 
-# Copy package files
-COPY package*.json ./
+# Copy only runtime deps
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
 
-# Install only production dependencies
-RUN npm ci --only=production
+# Pull built JS from builder
+COPY --from=builder /usr/src/app/dist ./dist
 
-# Copy built files from builder stage
-COPY --from=builder /app/dist ./dist
-
-# Create a non-root user
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-USER appuser
-
-# Expose the port your app runs on
+# Expose whatever port your app listens on
 EXPOSE 8000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:8000/health || exit 1
-
-# Start the application
+# Launch your compiled server
 CMD ["node", "dist/server.js"]
