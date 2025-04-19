@@ -13,9 +13,10 @@ export const sequelize = new Sequelize({
   dialect: 'postgres',
   models: [Employee, AvailableShift, AssignedShift, RequestedShift],
   dialectOptions: {
-    ssl: process.env.PG_SSL === 'true'
+    ssl: 
+    process.env.PG_SSL === 'true'
       ? { require: true, rejectUnauthorized: false }
-      : false,
+      : { require: false, rejectUnauthorized: false }
   },
   logging: false,
 });
