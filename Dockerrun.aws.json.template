@@ -1,0 +1,38 @@
+{
+  "AWSEBDockerrunVersion": "2",
+  "containerDefinitions": [
+    {
+      "name": "nodejs-container",
+      "image": "<IMAGE_URI>",
+      "essential": true,
+      "memory": 1024,
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "containerPort": 8000
+        }
+      ],
+      "environment": [
+        {
+          "name": "NODE_ENV",
+          "value": "development"
+        }
+      ],
+      "mountPoints": [
+        {
+          "sourceVolume": "logs",
+          "containerPath": "/var/app/logs",
+          "readOnly": false
+        }
+      ]
+    }
+  ],
+  "volumes": [
+    {
+      "name": "logs",
+      "host": {
+        "sourcePath": "/var/app/logs"
+      }
+    }
+  ]
+}
