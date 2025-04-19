@@ -68,7 +68,11 @@ export const createAssignedShift = async (req: Request, res: Response, next: Nex
   }
 };
 
-
+/**
+  * Deletes a specific assigned shift by ID.
+  * @param {number} id - ID of the assigned shift.
+  * @returns {Promise<boolean>} True if the shift was deleted, false if not found.
+*/
 export const deleteAssignedShift = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
 
@@ -88,7 +92,11 @@ export const deleteAssignedShift = async (req: Request, res: Response, next: Nex
   }
 };
 
-
+/**
+  * Retrieves a specific assigned shift by ID.
+  * @param {number} id - ID of the assigned shift.
+  * @returns {Promise<AssignedShift | null>} The assigned shift or null if not found.
+*/
 export const getAssignedShiftById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const shiftId = validateId(req.params.id);
@@ -109,7 +117,11 @@ export const getAssignedShiftById = async (req: Request, res: Response, next: Ne
   }
 };
 
-
+/**
+  * Retrieves assigned shifts based on query parameters.
+  * @param {ParsedQs} params - Query parameters for filtering shifts.
+  * @returns {Promise<AssignedShift[]>} A list of assigned shifts.
+*/
 export const getAssignedShiftsByParams = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
 

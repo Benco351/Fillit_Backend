@@ -21,10 +21,22 @@ import {
 } from '../../../assets/messages/availableShiftMessages';
 
 /**
- * Creates a new available shift.
- * param req - Express request object containing shift data in the body.
- * param res - Express response object.
- * param next - Express next middleware function.
+ * Creates a new available shift in the system.
+ * 
+ * @async
+ * @param {Request} req - Express request object containing shift data in the body
+ * @param {Response} res - Express response object
+ * @param {NextFunction} next - Express next middleware function
+ * @returns {Promise<void>} Resolves when the shift is created
+ * @throws {Error} When shift creation fails
+ * 
+ * @example
+ * // Request body example:
+ * {
+ *   "date": "2024-04-19",
+ *   "start": "09:00",
+ *   "end": "17:00"
+ * }
  */
 export const createAvailableShift = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -38,10 +50,17 @@ export const createAvailableShift = async (req: Request, res: Response, next: Ne
 };
 
 /**
- * Retrieves a specific available shift by ID.
- * param req - Express request object containing shift ID in params.
- * param res - Express response object.
- * param next - Express next middleware function.
+ * Retrieves a specific available shift by its ID.
+ * 
+ * @async
+ * @param {Request} req - Express request object containing shift ID in params
+ * @param {Response} res - Express response object
+ * @param {NextFunction} next - Express next middleware function
+ * @returns {Promise<void>} Resolves with the found shift or error response
+ * @throws {Error} When retrieval fails
+ * 
+ * @example
+ * GET /api/available-shifts/123
  */
 export const getAvailableShiftById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -64,10 +83,18 @@ export const getAvailableShiftById = async (req: Request, res: Response, next: N
 };
 
 /**
- * Retrieves all available shifts based on query parameters.
- * param _req - Express request object containing query parameters.
- * param res - Express response object.
- * param next - Express next middleware function.
+ * Retrieves all available shifts based on provided query parameters.
+ * 
+ * @async
+ * @param {Request} _req - Express request object containing query parameters
+ * @param {Response} res - Express response object
+ * @param {NextFunction} next - Express next middleware function
+ * @returns {Promise<void>} Resolves with array of shifts or error response
+ * @throws {Error} When retrieval fails or query parameters are invalid
+ * 
+ * @example
+ * // Query parameters example:
+ * GET /api/available-shifts?shift_date=2024-04-19&shift_start_after=09:00
  */
 export const getAvailableShiftsByParams = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -90,10 +117,17 @@ export const getAvailableShiftsByParams = async (_req: Request, res: Response, n
 };
 
 /**
- * Deletes a specific available shift by ID.
- * param req - Express request object containing shift ID in params.
- * param res - Express response object.
- * param next - Express next middleware function.
+ * Deletes a specific available shift by its ID.
+ * 
+ * @async
+ * @param {Request} req - Express request object containing shift ID in params
+ * @param {Response} res - Express response object
+ * @param {NextFunction} next - Express next middleware function
+ * @returns {Promise<void>} Resolves when the shift is deleted
+ * @throws {Error} When deletion fails
+ * 
+ * @example
+ * DELETE /api/available-shifts/123
  */
 export const deleteAvailableShift = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -115,10 +149,22 @@ export const deleteAvailableShift = async (req: Request, res: Response, next: Ne
 };
 
 /**
- * Updates a specific available shift by ID.
- * param req - Express request object containing shift ID in params and update data in the body.
- * param res - Express response object.
- * param next - Express next middleware function.
+ * Updates a specific available shift by its ID.
+ * 
+ * @async
+ * @param {Request} req - Express request object containing shift ID in params and update data in body
+ * @param {Response} res - Express response object
+ * @param {NextFunction} next - Express next middleware function
+ * @returns {Promise<void>} Resolves with the updated shift
+ * @throws {Error} When update fails
+ * 
+ * @example
+ * // Request body example:
+ * PATCH /api/available-shifts/123
+ * {
+ *   "start": "10:00",
+ *   "end": "18:00"
+ * }
  */
 export const updateAvailableShift = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
