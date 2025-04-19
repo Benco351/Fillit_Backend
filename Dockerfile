@@ -13,7 +13,6 @@ RUN npm ci
 # Bring in the rest of your code
 COPY . .
 
-# Compile TS → JS into ./dist
 RUN npm run build
 
 
