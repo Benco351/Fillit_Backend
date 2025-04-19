@@ -1,9 +1,10 @@
 {
-  "AWSEBDockerrunVersion": 2,
+  "AWSEBDockerrunVersion": 1,
   "containerDefinitions": [
     {
       "name": "nodejs-container",
       "image": "<IMAGE_URI>",
+      "Update": "true",
       "essential": true,
       "memory": 1024,
       "portMappings": [
