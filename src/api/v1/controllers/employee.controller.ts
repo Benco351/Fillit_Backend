@@ -139,7 +139,7 @@ export const createEmployee = async (req: Request, res: Response, next: NextFunc
 
     const employee = await employeeService.createEmployee(req.body as CreateEmployeeDTO);
     logger.info(CreatedEmployeeLog(employee.employee_id));
-    res.status(201).json(apiResponse({"employee id":employee.employee_id }, EmployeeCreated));
+    res.status(201).json(apiResponse({"employee_id":employee.employee_id }, EmployeeCreated));
 
     // SIGNUP THE EMPLOYEE IN COGNITO
     
