@@ -7,8 +7,5 @@
   "Ports": [
     { "ContainerPort": "8000", "HostPort": "80" }
   ],
-  "Volumes": [
-    { "HostDirectory": "/var/app/logs", "ContainerDirectory": "/app/logs" }
-  ],
   "Logging": "/app/logs"
 }
