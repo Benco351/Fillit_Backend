@@ -21,7 +21,7 @@ import {
   FetchedEmployees,
   InvalidAdminFilterValue
 } from '../../../assets/messages/employeeMessages';
-
+import { z } from 'zod';
 
 /**
  * Updates an employee's details by ID.
@@ -172,6 +172,32 @@ export const deleteEmployee = async (req: Request, res: Response, next: NextFunc
     }
     res.json(apiResponse(null, EmployeeDeleted));
   } catch (err) {
+    next(err);
+  }
+};
+
+export const isEmployeeExists = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const emailSchema = z.string().email();
+    const email = emailSchema.parse(req.params.email);
+
+    const existingEmployee = await employeeService.getEmployeeByEmail(email);
+    if (existingEmployee) {
+      res.status(409).json({ message: "The employee with this email already exists" });
+      return; 
+    }
+    else
+    {
+      res.status(200).json({ message: "False" });
+      return; 
+    }
+    // SIGNUP THE EMPLOYEE IN COGNITO
+    
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      res.status(400).json({ error: "Invalid email format" });
+      return;
+    }
     next(err);
   }
 };

@@ -12,11 +12,5 @@ router.post('/', validate(CreateRequestedShiftSchema), createShiftRequest);
 router.delete('/:id', deleteRequestedShift); 
 router.put('/:id', validate(UpdateRequestedShiftSchema), updateRequestedShift);
 
-// router.get('/:id', tokenAuthentication, getRequestedShiftById);
-// router.get('/', tokenAuthentication, validateQuery(RequestedShiftQuerySchema), getRequestedShiftsByParams);
-// router.post('/', tokenAuthentication,validate(CreateRequestedShiftSchema), createShiftRequest);
-// router.delete('/:id', tokenAuthentication, deleteRequestedShift); 
-// router.put('/:id', tokenAuthentication, validate(UpdateRequestedShiftSchema), updateRequestedShift);
-
 
 export default router;

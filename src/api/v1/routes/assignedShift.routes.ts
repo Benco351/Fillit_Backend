@@ -11,10 +11,6 @@ router.get('/:id', getAssignedShiftById);
 router.post('/', validate(CreateAssignedShiftSchema), createAssignedShift);
 router.delete('/:id', deleteAssignedShift); 
 
-// router.get('/', tokenAuthentication, validateQuery(AssignedShiftQuerySchema), getAssignedShiftsByParams);
-// router.get('/:id', tokenAuthentication, getAssignedShiftById);
-// router.post('/', tokenAuthentication, validate(CreateAssignedShiftSchema), createAssignedShift);
-// router.delete('/:id', tokenAuthentication, deleteAssignedShift); 
 
 
 export default router;

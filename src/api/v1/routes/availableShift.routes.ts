@@ -11,10 +11,5 @@ router.post('/', validate(CreateAvailableShiftSchema), createAvailableShift);
 router.delete('/:id', deleteAvailableShift);
 router.put('/:id', validate(UpdateAvailableShiftSchema), updateAvailableShift);
 
-// router.get('/:id', tokenAuthentication, getAvailableShiftById);
-// router.get('/', tokenAuthentication, validateQuery(AvailableShiftQuerySchema), getAvailableShiftsByParams);
-// router.post('/', tokenAuthentication, validate(CreateAvailableShiftSchema), createAvailableShift);
-// router.delete('/:id', tokenAuthentication, deleteAvailableShift);
-// router.put('/:id', tokenAuthentication, validate(UpdateAvailableShiftSchema), updateAvailableShift);
 
 export default router; 
