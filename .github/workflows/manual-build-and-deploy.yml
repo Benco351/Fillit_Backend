@@ -2,9 +2,9 @@ name: Manual Build and Deploy
 
 # Trigger on pushes to development or manually
 on:
-  push:
-    branches:
-      - development
+  # push:
+  #   branches:
+  #     - development
   workflow_dispatch: {}
 
 env:
