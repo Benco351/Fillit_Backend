@@ -50,27 +50,24 @@ export const getEmployeeByEmail = async (email: string): Promise<Employee | null
 };
 
 /**
+ * Checks if an employee exists by their email.
+ * @param {string} email - Employee email.
+ * @returns {Promise<boolean>} True if the employee exists, false otherwise.
+ */
+export const isEmployeeExistsByEmail = async (email: string): Promise<boolean> => {
+  const employee = await Employee.findOne({
+    where: { employee_email: email.trim() },
+    attributes: ['employee_id'] // Only fetch the ID to optimize the query
+  });
+  return !!employee;
+};
+
+/**
  * Retrieves employees based on query parameters.
  * @param {ParsedQs} params - Query parameters (e.g., admin status).
  * @returns {Promise<Employee[]>} A list of employees matching the filters.
  */
 export const getEmployeesByParams = async (params: EmployeeQueryDTO): Promise<Employee[]> => {
-  // const filters: any = {};
-  // if (params.admin !== undefined) {
-  //   const adminValue = params.admin.toString().toLowerCase();
-  //   if (adminValue.toLowerCase() === 'true')
-  //   {
-  //     filters.employee_admin = true;
-  //   }
-  //   else if (adminValue.toLowerCase() === 'false')
-  //   {
-  //     filters.employee_admin = false;
-  //   }
-  //   else
-  //   {
-  //     throw new Error(`Invalid admin filter value: ${adminValue}`);
-  //   }
-  // }
 
   const employees = await Employee.findAll({
     where: params,
