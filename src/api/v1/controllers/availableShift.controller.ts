@@ -34,8 +34,8 @@ import {
  * // Request body example:
  * {
  *   "date": "2024-04-19",
- *   "start": "09:00",
- *   "end": "17:00"
+ *   "start": "09:00:00",
+ *   "end": "17:00:00"
  * }
  */
 export const createAvailableShift = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -94,7 +94,7 @@ export const getAvailableShiftById = async (req: Request, res: Response, next: N
  * 
  * @example
  * // Query parameters example:
- * GET /api/available-shifts?shift_date=2024-04-19&shift_start_after=09:00
+ * GET /api/available-shifts?shift_date=2024-04-19&shift_start_after=09:00:00
  */
 export const getAvailableShiftsByParams = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -162,8 +162,8 @@ export const deleteAvailableShift = async (req: Request, res: Response, next: Ne
  * // Request body example:
  * PATCH /api/available-shifts/123
  * {
- *   "start": "10:00",
- *   "end": "18:00"
+ *   "start": "10:00:00",
+ *   "end": "18:00:00"
  * }
  */
 export const updateAvailableShift = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
