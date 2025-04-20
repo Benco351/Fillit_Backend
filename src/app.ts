@@ -14,11 +14,26 @@ import { errorHandler } from './middlewares/errorMiddleware';
 
 const app: Application = express();
 
+const FRONTEND_URL = process.env.FRONTEND_URL!;
+const whitelist = [FRONTEND_URL];
+
+const corsOptions: cors.CorsOptions = {
+  origin: (incomingOrigin, callback) => {
+    // allow calls with no origin (e.g. mobile clients, curl)
+    if (!incomingOrigin || whitelist.includes(incomingOrigin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS violation: ${incomingOrigin} not in whitelist`));
+    }
+  },
+  credentials: true,
+};
+
 // ── MIDDLEWARES ──
 app
   .use(express.urlencoded({ extended: true }))
   .use(compression())
-  .use(cors({ origin: '*', credentials: true }))
+  .use(cors(corsOptions))
   .use(express.json());
 
 // public heath‑check for AWS load balancer
