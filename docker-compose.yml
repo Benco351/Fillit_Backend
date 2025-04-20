@@ -14,6 +14,7 @@ services:
       - PG_DATABASE=postgres
       - PG_USER=postgres
       - PG_PASSWORD=rootroot
+      - PG_SSL=false
     depends_on:
       db:
         condition: service_healthy

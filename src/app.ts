@@ -33,7 +33,7 @@ const corsOptions: cors.CorsOptions = {
 app
   .use(express.urlencoded({ extended: true }))
   .use(compression())
-  .use(cors(corsOptions))
+  .use(cors(corsOptions)) // { origin: '*', credentials: true }
   .use(express.json());
 
 // public heath‑check for AWS load balancer
@@ -45,9 +45,9 @@ app.use('/api', tokenAuthentication);
 
 // mount versioned routers under /api
 app.use('/api/employees',        employeeRoutes);
-app.use('/api/available‑shifts', availableShiftRoutes);
-app.use('/api/requested‑shifts', requestedShiftRoutes);
-app.use('/api/assigned‑shifts',  assignedShiftRoutes);
+app.use('/api/available-shifts', availableShiftRoutes);
+app.use('/api/requested-shifts', requestedShiftRoutes);
+app.use('/api/assigned-shifts',  assignedShiftRoutes);
 
 // global error handler
 app.use(errorHandler);
