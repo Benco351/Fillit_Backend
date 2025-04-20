@@ -33,7 +33,7 @@ const corsOptions: cors.CorsOptions = {
 app
   .use(express.urlencoded({ extended: true }))
   .use(compression())
-  .use(cors(corsOptions)) // { origin: '*', credentials: true }
+  .use(cors({ origin: '*', credentials: true }))
   .use(express.json());
 
 // public heath‑check for AWS load balancer
