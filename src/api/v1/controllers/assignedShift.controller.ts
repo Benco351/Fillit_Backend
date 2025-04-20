@@ -27,7 +27,14 @@ import {
   AssignedShiftsRetrieved
 } from '../../../assets/messages/assignedShiftMessages';
 
-
+/**
+ * Creates a new assigned shift for an employee.
+ * 
+ * @param {Request} req - The request object containing the employee ID and shift slot ID.
+ * @param {Response} res - The response object to send the result.
+ * @param {NextFunction} next - The next middleware function.
+ * @returns {Promise<void>} A promise that resolves when the operation is complete.
+ */
 export const createAssignedShift = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { employeeId, shiftSlotId } = req.body as CreateAssignedShiftDTO;

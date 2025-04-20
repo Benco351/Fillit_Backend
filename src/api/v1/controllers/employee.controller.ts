@@ -176,23 +176,27 @@ export const deleteEmployee = async (req: Request, res: Response, next: NextFunc
   }
 };
 
+/**
+ * Checks if an employee exists by their email.
+ * 
+ * @param {Request} req - The request object containing the email in the parameters.
+ * @param {Response} res - The response object to send the result.
+ * @param {NextFunction} next - The next middleware function.
+ * @returns {Promise<void>} A promise that resolves when the operation is complete.
+ */
 export const isEmployeeExists = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const emailSchema = z.string().email();
     const email = emailSchema.parse(req.params.email);
 
-    const existingEmployee = await employeeService.getEmployeeByEmail(email);
-    if (existingEmployee) {
+    const exists = await employeeService.isEmployeeExistsByEmail(email);
+    if (exists) {
       res.status(409).json({ message: "The employee with this email already exists" });
       return; 
-    }
-    else
-    {
+    } else {
       res.status(200).json({ message: "False" });
       return; 
     }
-    // SIGNUP THE EMPLOYEE IN COGNITO
-    
   } catch (err) {
     if (err instanceof z.ZodError) {
       res.status(400).json({ error: "Invalid email format" });

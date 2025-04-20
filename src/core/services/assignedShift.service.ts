@@ -9,8 +9,8 @@ import { AvailableShift, Employee } from '../../config/postgres/models';
  */
 export const createAssignedShift = async (data: CreateAssignedShiftDTO): Promise<AssignedShift> => {
   const shiftData: any = {
-    assigned_shift_id_fkey: data.shiftSlotId,
-    assigned_employee_id_fkey: data.employeeId,
+    assigned_shift_id: data.shiftSlotId,
+    assigned_employee_id: data.employeeId,
   } ; // TODO: Create strict type for shiftData
  
   
