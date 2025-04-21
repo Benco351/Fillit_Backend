@@ -34,7 +34,26 @@ import {
  * @param {Response} res - The response object to send the result.
  * @param {NextFunction} next - The next middleware function.
  * @returns {Promise<void>} A promise that resolves when the operation is complete.
+ * 
+ * * @example
+ * // Request body example:
+ * {
+ *   "employeeId": 12,
+ *   "shiftSlotId": 2
+ * }
+ * // Response example:
+ * {
+ *  "status": "ok",
+ *   "message": "Shift assign created",
+ *   "data": {
+ *       "assigned_id": 1,
+ *       "assigned_shift_id": 2,
+ *       "assigned_employee_id": 1
+ *   }
+ *}
  */
+
+
 export const createAssignedShift = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { employeeId, shiftSlotId } = req.body as CreateAssignedShiftDTO;
@@ -79,6 +98,16 @@ export const createAssignedShift = async (req: Request, res: Response, next: Nex
   * Deletes a specific assigned shift by ID.
   * @param {number} id - ID of the assigned shift.
   * @returns {Promise<boolean>} True if the shift was deleted, false if not found.
+  * 
+  * @example
+  * DELETE /api/assigned-shifts/123
+  * 
+  * // Response example:
+  * {
+    "status": "ok",
+    "message": "Assigned shift deleted",
+    "data": null
+}
 */
 export const deleteAssignedShift = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -103,6 +132,20 @@ export const deleteAssignedShift = async (req: Request, res: Response, next: Nex
   * Retrieves a specific assigned shift by ID.
   * @param {number} id - ID of the assigned shift.
   * @returns {Promise<AssignedShift | null>} The assigned shift or null if not found.
+  * 
+  * @example
+  * GET /api/assigned-shifts/123
+  * 
+  * example response:
+  * {
+    "status": "ok",
+    "message": "Success",
+    "data": {
+        "assigned_id": 2,
+        "assigned_shift_id": 1,
+        "assigned_employee_id": 1
+    }
+}
 */
 export const getAssignedShiftById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -128,6 +171,34 @@ export const getAssignedShiftById = async (req: Request, res: Response, next: Ne
   * Retrieves assigned shifts based on query parameters.
   * @param {ParsedQs} params - Query parameters for filtering shifts.
   * @returns {Promise<AssignedShift[]>} A list of assigned shifts.
+  * 
+  *  Available query parameters:
+  * - assigned_employee_id: Filter by employee ID (optional).
+  * 
+  * @example
+  * GET /api/assigned-shifts
+  * 
+  * // Response example:
+  * {
+    "status": "ok",
+    "message": "Assigned shifts retrieved successfully",
+    "data": [
+        {
+            "assigned_id": 1,
+            "assigned_shift_id": 2,
+            "assigned_employee_id": 1,
+            "availableShift": {
+                "shift_date": "2023-10-01",
+                "shift_time_start": "10:00:00",
+                "shift_time_end": "15:00:00"
+            },
+            "employee": {
+                "employee_name": "rudiassss",
+                "employee_email": "isssss@example.com"
+            }
+        }
+    ]
+}
 */
 export const getAssignedShiftsByParams = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {

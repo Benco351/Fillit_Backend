@@ -37,6 +37,17 @@ import {
  *   "start": "09:00:00",
  *   "end": "17:00:00"
  * }
+ * // Response example:
+ * {
+ *  "status": "ok",
+ *   "message": "Available shift created",
+ *   "data": {
+ *       "shift_id": 4,
+ *       "shift_date": "2023-04-19",
+ *       "shift_time_start": "09:00:00",
+ *       "shift_time_end": "13:00:00"
+ *   }
+ *}
  */
 export const createAvailableShift = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -61,6 +72,15 @@ export const createAvailableShift = async (req: Request, res: Response, next: Ne
  * 
  * @example
  * GET /api/available-shifts/123
+ *  "status": "ok",
+ *   "message": "Success",
+ *   "data": {
+ *       "shift_id": 4,
+ *       "shift_date": "2023-04-19",
+ *       "shift_time_start": "09:00:00",
+ *       "shift_time_end": "13:00:00"
+ *   }
+ *}
  */
 export const getAvailableShiftById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -92,10 +112,50 @@ export const getAvailableShiftById = async (req: Request, res: Response, next: N
  * @returns {Promise<void>} Resolves with array of shifts or error response
  * @throws {Error} When retrieval fails or query parameters are invalid
  * 
+ * Available query parameters:
+ * - `shift_date`: Date of the shift (format: YYYY-MM-DD)
+ * - `shift_start_after`: Start time of the shift (format: HH:mm:ss)
+ * - `shift_end_before`: End time of the shift (format: HH:mm:ss)
+ * - `shift_start_before`: Start time of the shift (format: HH:mm:ss)
+ * - `shift_end_after`: End time of the shift (format: HH:mm:ss)
+ * 
  * @example
  * // Query parameters example:
  * GET /api/available-shifts?shift_date=2024-04-19&shift_start_after=09:00:00
- */
+ * 
+ * // Response example:
+ * {
+ *     "status": "ok",
+ *     "message": "Success",
+ *     "data": [
+ *         {
+ *             "shift_id": 1,
+ *             "shift_date": "2023-10-02",
+ *             "shift_time_start": "09:00:00",
+ *             "shift_time_end": "13:00:00"
+ *         },
+ *         {
+ *             "shift_id": 2,
+ *             "shift_date": "2023-10-01",
+ *             "shift_time_start": "09:00:00",
+ *             "shift_time_end": "13:00:00"
+ *         },
+ *         {
+ *             "shift_id": 3,
+ *             "shift_date": "2023-10-01",
+ *             "shift_time_start": "09:00:00",
+ *             "shift_time_end": "13:00:00"
+ *         },
+ *         {
+ *             "shift_id": 4,
+ *             "shift_date": "2023-04-19",
+ *             "shift_time_start": "09:00:00",
+ *             "shift_time_end": "13:00:00"
+ *         }
+ *     ]
+ * }
+*/
+
 export const getAvailableShiftsByParams = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const availableShifts = await availableShiftService.getAvailableShiftsByParams(_req.query as AvailableShiftQueryDTO);
@@ -128,6 +188,13 @@ export const getAvailableShiftsByParams = async (_req: Request, res: Response, n
  * 
  * @example
  * DELETE /api/available-shifts/123
+ * 
+ * // Response example:
+ * {
+    "status": "ok",
+    "message": "Available shift deleted",
+    "data": null
+}
  */
 export const deleteAvailableShift = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -160,11 +227,25 @@ export const deleteAvailableShift = async (req: Request, res: Response, next: Ne
  * 
  * @example
  * // Request body example:
- * PATCH /api/available-shifts/123
+ * PUT /api/available-shifts/123
+ * 
  * {
+ *   "date": "2023-10-01",
  *   "start": "10:00:00",
  *   "end": "18:00:00"
  * }
+ * 
+ * // Response example:
+ * {
+    "status": "ok",
+    "message": "Available shift updated",
+    "data": {
+        "shift_id": 2,
+        "shift_date": "2023-10-01",
+        "shift_time_start": "10:00:00",
+        "shift_time_end": "15:00:00"
+    }
+}
  */
 export const updateAvailableShift = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {

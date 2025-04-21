@@ -33,6 +33,28 @@ import {
  * @param {Response} res - The response object.
  * @param {NextFunction} next - The next middleware function.
  * @returns {Promise<void>}
+ * 
+ * @example
+ * POST /api/requested-shifts
+ * 
+ * Request body:
+ * {
+	  "employeeId": 1,
+    "shiftSlotId": 1
+    "notes": "I would like to request this shift."
+}
+  * Response:
+{
+    "status": "ok",
+    "message": "Shift request created",
+    "data": {
+        "request_notes": null,
+        "request_status": "pending",
+        "request_id": 2,
+        "request_shift_id": 2,
+        "request_employee_id": 1
+    }
+}
  */
 export const createShiftRequest = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -77,6 +99,22 @@ export const createShiftRequest = async (req: Request, res: Response, next: Next
  * @param {Response} res - The response object.
  * @param {NextFunction} next - The next middleware function.
  * @returns {Promise<void>}
+ * 
+ * @example
+ * GET /api/requested-shifts/123
+ * 
+ * Response:
+ * {
+    "status": "ok",
+    "message": "Success",
+    "data": {
+        "request_id": 2,
+        "request_shift_id": 2,
+        "request_employee_id": 1,
+        "request_notes": null,
+        "request_status": "pending"
+    }
+}
  */
 export const getRequestedShiftById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -104,6 +142,52 @@ export const getRequestedShiftById = async (req: Request, res: Response, next: N
  * @param {Response} res - The response object.
  * @param {NextFunction} next - The next middleware function.
  * @returns {Promise<void>}
+ * 
+ * Available query parameters:
+ * - `employeeId`: Filter requested shifts by employee ID.
+ * - `request_status`: Filter requested shifts by request status (e.g., "pending", "approved", "rejected").
+ * 
+ * @example
+ * GET /api/requested-shifts?employeeId=1&request_status=pending
+ * 
+ * {
+    "status": "ok",
+    "message": "Requested shifts retrieved successfully",
+    "data": [
+        {
+            "request_id": 2,
+            "request_shift_id": 2,
+            "request_employee_id": 1,
+            "request_notes": null,
+            "request_status": "pending",
+            "availableShift": {
+                "shift_date": "2023-10-01",
+                "shift_time_start": "10:00:00",
+                "shift_time_end": "15:00:00"
+            },
+            "employee": {
+                "employee_name": "rudiassss",
+                "employee_email": "isssss@example.com"
+            }
+        },
+        {
+            "request_id": 3,
+            "request_shift_id": 1,
+            "request_employee_id": 1,
+            "request_notes": "I want this",
+            "request_status": "pending",
+            "availableShift": {
+                "shift_date": "2023-10-02",
+                "shift_time_start": "09:00:00",
+                "shift_time_end": "13:00:00"
+            },
+            "employee": {
+                "employee_name": "rudiassss",
+                "employee_email": "isssss@example.com"
+            }
+        }
+    ]
+}
  */
 export const getRequestedShiftsByParams = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -131,6 +215,17 @@ export const getRequestedShiftsByParams = async (req: Request, res: Response, ne
  * @param {Response} res - The response object.
  * @param {NextFunction} next - The next middleware function.
  * @returns {Promise<void>}
+ * 
+ * @example
+ * DELETE /api/requested-shifts/123
+ * 
+ * Response:
+ * {
+    "status": "ok",
+    "message": "Requested shift deleted",
+    "data": null
+}
+ * 
  */
 export const deleteRequestedShift = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -158,6 +253,28 @@ export const deleteRequestedShift = async (req: Request, res: Response, next: Ne
  * @param {Response} res - The response object.
  * @param {NextFunction} next - The next middleware function.
  * @returns {Promise<void>}
+ * 
+ * @example
+ * PUT /api/requested-shifts/123
+ * 
+ * request body:
+ * {
+	    "status": "denied"
+  * 	"notes": "I cannot work this shift."
+   }
+ * 
+  * Response:
+  * {
+    "status": "ok",
+    "message": "Requested shift updated",
+    "data": {
+        "request_id": 2,
+        "request_shift_id": 2,
+        "request_employee_id": 1,
+        "request_notes": null,
+        "request_status": "denied"
+    }
+}
  */
 export const updateRequestedShift = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   

@@ -93,9 +93,9 @@ export const deleteEmployee = async (id: number): Promise<boolean> => {
  * Updates an employee's details by their ID.
  * @param {number} id - Employee ID.
  * @param {UpdateEmployeeDTO} data - Partial employee data to update.
- * @returns {Promise<Employee | null>} The updated employee or null if not found.
+ * @returns {Promise<Omit<Employee, 'employee_password'> | null>} The updated employee or null if not found.
  */
-export const updateEmployee = async (id: number, data: UpdateEmployeeDTO): Promise<Employee | null> => {
+export const updateEmployee = async (id: number, data: UpdateEmployeeDTO): Promise<Omit<Employee, 'employee_password'> | null> => {
   const employee = await Employee.findOne({ where: { employee_id: id } });
   if (!employee) return null;
 
@@ -106,5 +106,12 @@ export const updateEmployee = async (id: number, data: UpdateEmployeeDTO): Promi
 
   // Update the employee with the mapped data
   await employee.update(mappedData);
-  return employee;
+
+  // Exclude the password field from the returned employee object
+  const updatedEmployee = await Employee.findOne({
+    where: { employee_id: id },
+    attributes: { exclude: ['employee_password'] }
+  });
+
+  return updatedEmployee;
 };

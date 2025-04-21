@@ -30,6 +30,32 @@ import { z } from 'zod';
  * @param {Response} res - The response object to send the result.
  * @param {NextFunction} next - The next middleware function.
  * @returns {Promise<void>} A promise that resolves when the operation is complete.
+ * 
+ * @example
+ * PUT /api/employees/1
+ * 
+ * Request body:
+ * {
+  "name": "Alice Johnson",
+  "email": "alice@example.com",
+  "password": "securePassword123",
+  "admin": false,
+  "phone": "+1234567890"
+}
+
+response:
+{
+    "status": "ok",
+    "message": "Employee updated",
+    "data": {
+        "employee_id": 1,
+        "employee_name": "rudiassss",
+        "employee_email": "isssss@example.com",
+        "employee_phone": "123-456-0000",
+        "employee_admin": true
+    }
+}
+ * 
  */
 export const updateEmployee = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -70,6 +96,34 @@ export const updateEmployee = async (req: Request, res: Response, next: NextFunc
  * @param {Response} res - The response object to send the result.
  * @param {NextFunction} next - The next middleware function.
  * @returns {Promise<void>} A promise that resolves when the operation is complete.
+ * 
+ * Available query parameters:
+ * - `employee_admin`: Filter employees by admin status (true/false).
+ * 
+ * @example
+ * GET /api/employees?employee_admin=true
+ * 
+ * Response:
+ * {
+    "status": "ok",
+    "message": "Success",
+    "data": [
+        {
+            "employee_id": 1,
+            "employee_name": "rudiassss",
+            "employee_email": "isssss@example.com",
+            "employee_phone": "123-456-0000",
+            "employee_admin": true
+        },
+        {
+            "employee_id": 2,
+            "employee_name": "David Weiss",
+            "employee_email": "david@gmail.com",
+            "employee_phone": "987654321",
+            "employee_admin": false
+        }
+    ]
+}
  */
 export const getEmployeesByParams = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -98,6 +152,23 @@ export const getEmployeesByParams = async (_req: Request, res: Response, next: N
  * @param {Response} res - The response object to send the result.
  * @param {NextFunction} next - The next middleware function.
  * @returns {Promise<void>} A promise that resolves when the operation is complete.
+ * 
+ * @example
+ * GET /api/employees/1
+ * 
+ * Response:
+ * {
+    "status": "ok",
+    "message": "Success",
+    "data": {
+        "employee_id": 2,
+        "employee_name": "David Weiss",
+        "employee_email": "david@gmail.com",
+        "employee_phone": "987654321",
+        "employee_admin": false
+    }
+}
+ * 
  */
 export const getEmployeeById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -126,6 +197,27 @@ export const getEmployeeById = async (req: Request, res: Response, next: NextFun
  * @param {Response} res - The response object to send the result.
  * @param {NextFunction} next - The next middleware function.
  * @returns {Promise<void>} A promise that resolves when the operation is complete.
+ * 
+ * @example
+ * POST /api/employees
+ * 
+ * Request body:
+ * {
+  "name": "David Weiss",
+  "email": "david@gmail.com",
+  "password": "123456789",
+  "phone": "987654321"
+}
+
+response:
+{
+    "status": "ok",
+    "message": "Employee created",
+    "data": {
+        "employee_id": 2
+    }
+}
+ * 
  */
 export const createEmployee = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -156,6 +248,16 @@ export const createEmployee = async (req: Request, res: Response, next: NextFunc
  * @param {Response} res - The response object to send the result.
  * @param {NextFunction} next - The next middleware function.
  * @returns {Promise<void>} A promise that resolves when the operation is complete.
+ * 
+ * @example
+ * DELETE /api/employees/1
+ * 
+ * Response:
+ * {
+    "status": "ok",
+    "message": "Employee deleted",
+    "data": null
+}
  */
 export const deleteEmployee = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -183,6 +285,21 @@ export const deleteEmployee = async (req: Request, res: Response, next: NextFunc
  * @param {Response} res - The response object to send the result.
  * @param {NextFunction} next - The next middleware function.
  * @returns {Promise<void>} A promise that resolves when the operation is complete.
+ * 
+ * @example
+ * GET /api/employees/verify/davidA@gmail.com
+ * 
+ * Response:
+ * code: 404
+ * {
+    "message": "The employee with this email already exists"
+  } 
+    or:
+    code 200
+    {
+    "message": "False"
+  }
+ * 
  */
 export const isEmployeeExists = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
