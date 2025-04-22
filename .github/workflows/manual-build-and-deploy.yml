@@ -1,0 +1,119 @@
+name: Manual Build and Deploy
+
+# Trigger on pushes to development or manually
+on:
+  # push:
+  #   branches:
+  #     - development
+  workflow_dispatch: {}
+
+env:
+  AWS_DEFAULT_REGION: us-east-1
+  REPOSITORY_URI: ${{ secrets.ECR_REPO_URI }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Checkout Code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Configure AWS Credentials
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token:     ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region:            ${{ env.AWS_DEFAULT_REGION }}
+
+      # 3. Log in to Amazon ECR
+      - name: Log in to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
+
+      # 4. Set Environment Variables for Tagging
+      - name: Set environment variables
+        run: |
+          echo "COMMIT_HASH=${GITHUB_SHA:0:7}" >> $GITHUB_ENV
+          echo "IMAGE_TAG=${GITHUB_SHA:0:7}" >> $GITHUB_ENV
+          echo "REPOSITORY_URI=${{ env.REPOSITORY_URI }}" >> $GITHUB_ENV
+
+      # 5. Install Dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # 6. Build Docker Image
+      - name: Build Docker Image
+        run: |
+          docker build -t $REPOSITORY_URI:latest .
+          docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
+
+      # 7. Push Docker Images to Amazon ECR
+      - name: Push Docker Images
+        run: |
+          docker push $REPOSITORY_URI:latest
+          docker push $REPOSITORY_URI:$IMAGE_TAG
+
+      # 8. Generate imagedefinitions.json Artifact
+      - name: Generate imagedefinitions.json
+        run: |
+          printf '[{"name":"nodejs-container","imageUri":"%s"}]' \
+            $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+
+      # 9. Upload imagedefinitions.json so other jobs can consume it
+      - name: Upload imagedefinitions artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: imagedefinitions
+          path: imagedefinitions.json
+
+      # 10. Prepare Dockerrun.aws.json for Elastic Beanstalk
+      - name: Prepare Dockerrun.aws.json
+        run: |
+          sed "s|<IMAGE_URI>|${REPOSITORY_URI}:${IMAGE_TAG}|g" \
+            Dockerrun.aws.json.template > Dockerrun.aws.json
+
+      # 11. Zip the Dockerrun.aws.json file
+      - name: Create deployment bundle
+        run: zip eb-deploy.zip Dockerrun.aws.json
+
+      # 12. Upload the Deployment Bundle to S3 for EB
+      - name: Upload deployment bundle to S3
+        run: |
+          aws s3 cp eb-deploy.zip s3://${{ secrets.EB_S3_BUCKET }}/eb-deploy.zip
+      
+      # 13. Create a New EB Application Version
+      - name: Create EB application version
+        id: create_version
+        run: |
+          VERSION_LABEL="v-${GITHUB_SHA:0:7}"
+          aws elasticbeanstalk create-application-version \
+            --application-name "${{ secrets.EB_APP_NAME }}" \
+            --version-label "$VERSION_LABEL" \
+            --source-bundle S3Bucket=${{ secrets.EB_S3_BUCKET }},S3Key=eb-deploy.zip
+          echo "version_label=$VERSION_LABEL" >> $GITHUB_OUTPUT
+
+      # 14a. Fetch Amplify default domain
+      - name: Fetch Amplify default domain
+        run: |
+          APP_ID="${{ secrets.AMPLIFY_APP_ID }}"
+          DEFAULT_DOMAIN=$(aws amplify get-app \
+            --app-id "$APP_ID" \
+            --query "app.defaultDomain" \
+            --output text)
+          echo "FRONTEND_URL=$DEFAULT_DOMAIN" >> $GITHUB_ENV
+
+      # 14b. Update EB env variables to include FRONTEND_URL
+      - name: Update EB FRONTEND_URL
+        run: |
+          aws elasticbeanstalk update-environment \
+            --environment-name "${{ secrets.EB_ENV_NAME }}" \
+            --option-settings Namespace=aws:elasticbeanstalk:application:environment,OptionName=FRONTEND_URL,Value=$FRONTEND_URL
+
+      # 14. Update the Elastic Beanstalk Environment
+      - name: Update Elastic Beanstalk environment
+        run: |
+          aws elasticbeanstalk update-environment \
+            --environment-name "${{ secrets.EB_ENV_NAME }}" \
+            --version-label "${{ steps.create_version.outputs.version_label }}"
