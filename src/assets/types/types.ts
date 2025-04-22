@@ -10,6 +10,12 @@ export const AssignedShiftQuerySchema = z.object({
     assigned_employee_id: z.coerce.number().optional()
 }).strict();
 
+export const swapAssignedShiftsSchema = z.object({
+    assignedShiftId1: z.coerce.number(),
+    assignedShiftId2: z.coerce.number()
+}).strict();
+
+export type SwapAssignedShiftsDTO = z.infer<typeof swapAssignedShiftsSchema>;
 export type CreateAssignedShiftDTO = z.infer<typeof CreateAssignedShiftSchema>;
 export type AssignedShiftQueryDTO = z.infer<typeof AssignedShiftQuerySchema>;
 

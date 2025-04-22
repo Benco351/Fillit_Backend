@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { validate, validateQuery} from '../../../middlewares/validateMiddleware';
-import { CreateAssignedShiftSchema, AssignedShiftQuerySchema } from '../../../assets/types/types';
-import { getAssignedShiftsByParams, getAssignedShiftById, createAssignedShift, deleteAssignedShift } from '../controllers/assignedShift.controller';
+import { swapAssignedShiftsSchema ,CreateAssignedShiftSchema, AssignedShiftQuerySchema } from '../../../assets/types/types';
+import { swapAssignedShifts ,getAssignedShiftsByParams, getAssignedShiftById, createAssignedShift, deleteAssignedShift } from '../controllers/assignedShift.controller';
 import { tokenAuthentication } from '../../../middlewares/authMiddleware';
 
 const router = Router();
@@ -10,6 +10,7 @@ router.get('/',validateQuery(AssignedShiftQuerySchema), getAssignedShiftsByParam
 router.get('/:id', getAssignedShiftById);
 router.post('/', validate(CreateAssignedShiftSchema), createAssignedShift);
 router.delete('/:id', deleteAssignedShift); 
+router.put('/swap', validate(swapAssignedShiftsSchema), swapAssignedShifts); // Assuming you have a swap function
 
 
 

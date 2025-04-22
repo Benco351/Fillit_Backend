@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as assignedShiftService from '../../../core/services/assignedShift.service';
-import { CreateAssignedShiftDTO, AssignedShiftQueryDTO} from '../../../assets/types/types';
+import { SwapAssignedShiftsDTO, CreateAssignedShiftDTO, AssignedShiftQueryDTO} from '../../../assets/types/types';
 import { apiResponse } from '../../../utils/apiResponse';
 import { logger } from '../../../config/logger';
 import { AssignedShift, AvailableShift, Employee, RequestedShift } from '../../../config/postgres/models/index';
@@ -36,6 +36,7 @@ import {
  * @returns {Promise<void>} A promise that resolves when the operation is complete.
  *
  * @example
+ * POST /api/assigned-shifts
  * // Request body example:
  * {
  *   "employeeId": 12,
@@ -218,6 +219,64 @@ export const getAssignedShiftsByParams = async (req: Request, res: Response, nex
       return;
     }
     logger.error(GetAssignedShiftsErrorLog(err));
+    next(err);
+  }
+};
+
+/**
+ * Swaps two assigned shifts between employees.
+ *
+ * @param {Request} req - The request object containing the IDs of the two assigned shifts to be swapped.
+ * @param {Response} res - The response object to send the result.
+ * @param {NextFunction} next - The next middleware function.
+ * @returns {Promise<void>} A promise that resolves when the operation is complete.
+ *
+ * @example
+ * POST /api/assigned-shifts/swap
+ * // Request body example:
+ * {
+ *   "assignedShiftId1": 1,
+ *   "assignedShiftId2": 2
+ * }
+ * // Response example:
+ * {
+ *   "status": "ok",
+ *   "message": "Assigned shifts swapped successfully",
+ *   "data": [
+ *     {
+ *       "assigned_id": 1,
+ *       "assigned_shift_id": 2,
+ *       "assigned_employee_id": 3
+ *     },
+ *     {
+ *       "assigned_id": 2,
+ *       "assigned_shift_id": 1,
+ *       "assigned_employee_id": 4
+ *     }
+ *   ]
+ * }
+ */
+export const swapAssignedShifts = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { assignedShiftId1, assignedShiftId2 } = req.body as SwapAssignedShiftsDTO;
+
+    const assignedShift1 = await AssignedShift.findByPk(assignedShiftId1);
+    const assignedShift2 = await AssignedShift.findByPk(assignedShiftId2);
+
+    if (!assignedShift1) {
+      res.status(404).json({ error: AssignedShiftNotFound });
+      return;
+    }
+    if (!assignedShift2) {
+      res.status(404).json({ error: AssignedShiftNotFound });
+      return;
+    }
+
+    const swappedShifts = await assignedShiftService.swapAssignedShifts(assignedShiftId1, assignedShiftId2);
+    logger.info("Swapped assigned shifts", { assignedShift1: swappedShifts[0], assignedShift2: swappedShifts[1] });
+    res.status(200).json(apiResponse(swappedShifts, "Assigned shifts swapped successfully"));
+  } catch (err) {
+    logger.error(CreateAssignedShiftErrorLog(err));
     next(err);
   }
 };
