@@ -105,7 +105,7 @@ jobs:
             --query "app.defaultDomain" \
             --output text)
             
-          echo "FRONTEND_URL="https://$BRANCH_NAME.$DEFAULT_DOMAIN" >> $GITHUB_ENV
+          echo "FRONTEND_URL=https://$BRANCH_NAME.$DEFAULT_DOMAIN" >> $GITHUB_ENV
 
       # 14b. Update EB env variables to include FRONTEND_URL
       - name: Update EB FRONTEND_URL And HealthCheckPath
