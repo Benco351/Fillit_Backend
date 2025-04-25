@@ -96,29 +96,16 @@ jobs:
 
       # 14a. Fetch Amplify default domain
       - name: Fetch Amplify default domain
-        id: amplify_url
-        env:
-          APP_ID: ${{ secrets.AMPLIFY_APP_ID }}
-          BRANCH: ${{ vars.AMPLIFY_BRANCH_NAME }}   # e.g. "main" or "development"
         run: |
-          # 1) try to fetch an AVAILABLE custom domain
-          CUSTOM=$(aws amplify list-domain-associations \
-                    --app-id "$APP_ID" \
-                    --query 'domainAssociations[?status==`AVAILABLE`].[domainName]' \
-                    --output text)
+          APP_ID="${{ secrets.AMPLIFY_APP_ID }}"
+          BRANCH_NAME="${{ vars.AMPLIFY_BRANCH_NAME }}"
 
-          if [ -n "$CUSTOM" ]; then
-            # We have a custom root domain. Use its first entry
-            FRONTEND_URL="https://$CUSTOM"
-          else
-            # Fall back to defaultDomain + branch
-            DEFAULT=$(aws amplify get-app --app-id "$APP_ID" \
-                       --query 'app.defaultDomain' --output text)
-            FRONTEND_URL="https://$BRANCH.$DEFAULT"
-          fi
-
-          echo "FRONTEND_URL=$FRONTEND_URL" >> "$GITHUB_ENV"
-          echo "Frontend URL detected: $FRONTEND_URL"
+          DEFAULT_DOMAIN=$(aws amplify get-app \
+            --app-id "$APP_ID" \
+            --query "app.defaultDomain" \
+            --output text)
+            
+          echo "FRONTEND_URL="https://$BRANCH_NAME.$DEFAULT_DOMAIN" >> $GITHUB_ENV
 
       # 14b. Update EB env variables to include FRONTEND_URL
       - name: Update EB FRONTEND_URL And HealthCheckPath
