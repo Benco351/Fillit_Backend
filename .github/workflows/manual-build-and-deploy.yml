@@ -98,7 +98,7 @@ jobs:
       - name: Fetch Amplify default domain
         run: |
           APP_ID="${{ secrets.AMPLIFY_APP_ID }}"
-          BRANCH_NAME="${{ vars.AMPLIFY_BRANCH_NAME }}"
+          BRANCH_NAME="${{ vars.AMPLIFY_APP_BRANCH }}"
 
           DEFAULT_DOMAIN=$(aws amplify get-app \
             --app-id "$APP_ID" \
