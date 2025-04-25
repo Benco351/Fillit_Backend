@@ -107,13 +107,9 @@ jobs:
       # 14b. Update EB env variables to include FRONTEND_URL
       - name: Update EB FRONTEND_URL And HealthCheckPath
         run: |
-            aws elasticbeanstalk update-environment \
+          aws elasticbeanstalk update-environment \
             --environment-name  "${{ secrets.EB_ENV_NAME }}" \
             --version-label     "${{ steps.create_version.outputs.version_label }}" \
             --option-settings \
-              Namespace=aws:elasticbeanstalk:environment:process:default,\
-              OptionName=HealthCheckPath,\
-              Value=/health \
-              Namespace=aws:elasticbeanstalk:application:environment,\
-              OptionName=FRONTEND_URL,\
-              Value=$FRONTEND_URL
+              Namespace=aws:elasticbeanstalk:environment:process:default,OptionName=HealthCheckPath,Value=/health \
+              Namespace=aws:elasticbeanstalk:application:environment,OptionName=FRONTEND_URL,Value="$FRONTEND_URL"
