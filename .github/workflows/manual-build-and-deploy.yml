@@ -96,20 +96,40 @@ jobs:
 
       # 14a. Fetch Amplify default domain
       - name: Fetch Amplify default domain
+        id: amplify_url
+        env:
+          APP_ID: ${{ secrets.AMPLIFY_APP_ID }}
+          BRANCH: ${{ vars.AMPLIFY_BRANCH_NAME }}   # e.g. "main" or "development"
         run: |
-          APP_ID="${{ secrets.AMPLIFY_APP_ID }}"
-          DEFAULT_DOMAIN=$(aws amplify get-app \
-            --app-id "$APP_ID" \
-            --query "app.defaultDomain" \
-            --output text)
-          echo "FRONTEND_URL=$DEFAULT_DOMAIN" >> $GITHUB_ENV
+          # 1) try to fetch an AVAILABLE custom domain
+          CUSTOM=$(aws amplify list-domain-associations \
+                    --app-id "$APP_ID" \
+                    --query 'domainAssociations[?status==`AVAILABLE`].[domainName]' \
+                    --output text)
 
-      # 14b. Update EB env variables to include FRONTEND_URL
-      - name: Update EB FRONTEND_URL And HealthCheckPath
+          if [ -n "$CUSTOM" ]; then
+            # We have a custom root domain. Use its first entry
+            FRONTEND_URL="https://$CUSTOM"
+          else
+            # Fall back to defaultDomain + branch
+            DEFAULT=$(aws amplify get-app --app-id "$APP_ID" \
+                       --query 'app.defaultDomain' --output text)
+            FRONTEND_URL="https://$BRANCH.$DEFAULT"
+          fi
+
+          echo "FRONTEND_URL=$FRONTEND_URL" >> "$GITHUB_ENV"
+          echo "Frontend URL detected: $FRONTEND_URL"
+
+# use ${FRONTEND_URL} later in the update-environment call
+      - name: Deploy bundle & update EB env (version + FRONTEND_URL + health-check)
         run: |
           aws elasticbeanstalk update-environment \
-            --environment-name  "${{ secrets.EB_ENV_NAME }}" \
-            --version-label     "${{ steps.create_version.outputs.version_label }}" \
+            --environment-name "${{ secrets.EB_ENV_NAME }}" \
+            --version-label    "${{ steps.create_version.outputs.version_label }}" \
             --option-settings \
-              Namespace=aws:elasticbeanstalk:environment:process:default,OptionName=HealthCheckPath,Value=/health \
-              Namespace=aws:elasticbeanstalk:application:environment,OptionName=FRONTEND_URL,Value="$FRONTEND_URL"
+              Namespace=aws:elasticbeanstalk:environment:process:default,\
+              OptionName=HealthCheckPath,\
+              Value=/health \
+              Namespace=aws:elasticbeanstalk:application:environment,\
+              OptionName=FRONTEND_URL,\
+              Value=${FRONTEND_URL}
