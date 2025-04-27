@@ -119,6 +119,8 @@ export const getAvailableShiftById = async (req: Request, res: Response, next: N
  * - `shift_end_before`: End time of the shift (format: HH:mm:ss)
  * - `shift_start_before`: Start time of the shift (format: HH:mm:ss)
  * - `shift_end_after`: End time of the shift (format: HH:mm:ss)
+ * - `shift_start_date`: Start date of the shift (format: YYYY-MM-DD)
+ * - `shift_end_date`: End date of the shift (format: YYYY-MM-DD)
  *
  * @example
  * // Query parameters example:
