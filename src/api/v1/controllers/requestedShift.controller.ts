@@ -149,10 +149,10 @@ export const getRequestedShiftById = async (req: Request, res: Response, next: N
  * 
  * Available query parameters:
  * - `employeeId`: Filter requested shifts by employee ID.
- * - `request_status`: Filter requested shifts by request status (e.g., "pending", "approved", "rejected").
+ * - `request_status`: Filter requested shifts by request status (e.g., "pending", "approved", "denied").
  * 
  * @example
- * GET /api/requested-shifts?employeeId=1&request_status=pending
+ * GET /api/requested-shifts?request_employee_id=1&request_status=pending
  * 
  * Response:
  * {

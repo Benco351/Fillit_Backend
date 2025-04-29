@@ -83,7 +83,7 @@ export const UpdateRequestedShiftSchema = z.object({
 }).strict();
 
 export const RequestedShiftQuerySchema = z.object({
-    request_employee_id: z.number().optional(),
+    request_employee_id: z.coerce.number().optional(),
     request_status: z.enum(['pending', 'approved', 'denied']).optional(),
 }).strict();
 
