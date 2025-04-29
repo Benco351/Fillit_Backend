@@ -1,45 +1,74 @@
 import json
-from config import OPENAI_API_KEY
-from config import MAX_TOKENS  # Import the max tokens variable
+from config import OPENAI_API_KEY, MAX_TOKENS
 from openai import OpenAI
+from funcs import get_available_shifts
+
 
 client = OpenAI(
  api_key=OPENAI_API_KEY)
 conversation_history = []
 
 def call_function(name, args):
-    if name == "test_func":
-        return test_func(args["word"])
+    if name == "get_available_shifts":
+        return get_available_shifts(**args)
     else:
         raise ValueError(f"Function {name} not recognized.")
 
-def test_func(word: str) -> str:
-    """Function to reverse a string."""
-    print(f"Reversing the word: {word}...")
-    return word[::-1]
 
 
 
 tools = [{
-    "type": "function",
-    "name": "test_func",
-    "description": "reverse a string",
-    "parameters": {
-        "type": "object",
-        "properties": {
-            "word": {
-                "type": "string",
-                "description": "word to be reveresed"
-            }
-        },
-        "required": [
-            "word"
-        ],
-        "additionalProperties": False    
+  "type": "function",
+  "name": "get_available_shifts",
+  "description": "Query the database for available shift slots based on optional filtering by date and time ranges.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "shift_date": {
+        "type": "string",
+        "description": "Exact date of the shift to retrieve (format: YYYY-MM-DD), or 'all' to include all shifts."
+      },
+      "shift_start_date": {
+        "type": "string",
+        "description": "Earliest date to consider for the start of a shift (format: YYYY-MM-DD), or 'all' to include all shifts."
+      },
+      "shift_end_date": {
+        "type": "string",
+        "description": "Latest date to consider for the end of a shift (format: YYYY-MM-DD), or 'all' to include all shifts."
+      },
+      "shift_start_before": {
+        "type": "string",
+        "description": "Only include shifts that start before this time (format: HH:mm:ss), or 'all' to include all shifts."
+      },
+      "shift_start_after": {
+        "type": "string",
+        "description": "Only include shifts that start after this time (format: HH:mm:ss), or 'all' to include all shifts."
+      },
+      "shift_end_before": {
+        "type": "string",
+        "description": "Only include shifts that end before this time (format: HH:mm:ss), or 'all' to include all shifts."
+      },
+      "shift_end_after": {
+        "type": "string",
+        "description": "Only include shifts that end after this time (format: HH:mm:ss), or 'all' to include all shifts."
+      }
     },
-    "strict": True,  # Ensure strict validation of parameters
-   
+    "required": [
+        "shift_date",
+        "shift_start_date",
+        "shift_end_date",
+        "shift_start_before",
+        "shift_start_after",
+        "shift_end_before",
+        "shift_end_after"
+    ],
+    "additionalProperties": False
+  },
+  "strict": True
 }]
+
+
+
 
 while True:
     user_prompt = input("Enter your prompt (or 'exit' to quit): ")
@@ -48,16 +77,17 @@ while True:
 
     input_messages = [
         {
-            "role": "system",
-            "content": f"You are an AI assistant. You are limited to {MAX_TOKENS} tokens in your response."
+            "role": "developer",
+            "content": f"You are an AI assistant on a shift management platform. You are limited to {MAX_TOKENS} tokens in your response."
+   
         },
         {"role": "user", "content": user_prompt}
     ]
     
     response = client.responses.create(
         model="gpt-3.5-turbo",
-        instructions=f"You are an AI assistant. You are limited to {MAX_TOKENS} tokens in your response.",
-        input=user_prompt,
+        #instructions=f"You are an AI assistant. You are limited to {MAX_TOKENS} tokens in your response.",
+        input=input_messages,
         tools=tools,
     )
 
