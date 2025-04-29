@@ -49,10 +49,10 @@ import { z } from 'zod';
  *   "message": "Employee updated",
  *   "data": {
  *     "employee_id": 1,
- *     "employee_name": "rudiassss",
- *     "employee_email": "isssss@example.com",
- *     "employee_phone": "123-456-0000",
- *     "employee_admin": true
+ *     "employee_name": "Alice Johnson",
+ *     "employee_email": "alice@example.com",
+ *     "employee_phone": "+1234567890",
+ *     "employee_admin": false
  *   }
  * }
  */
@@ -97,7 +97,7 @@ export const updateEmployee = async (req: Request, res: Response, next: NextFunc
  * @returns {Promise<void>} A promise that resolves when the operation is complete.
  * 
  * Available query parameters:
- * - `employee_admin`: Filter employees by admin status (true/false).
+ * - `employee_admin` (optional): Filter employees by admin status (`true`/`false`).
  * 
  * @example
  * GET /api/employees?employee_admin=true
@@ -109,9 +109,9 @@ export const updateEmployee = async (req: Request, res: Response, next: NextFunc
  *   "data": [
  *     {
  *       "employee_id": 1,
- *       "employee_name": "rudiassss",
- *       "employee_email": "isssss@example.com",
- *       "employee_phone": "123-456-0000",
+ *       "employee_name": "Alice Johnson",
+ *       "employee_email": "alice@example.com",
+ *       "employee_phone": "+1234567890",
  *       "employee_admin": true
  *     },
  *     {
