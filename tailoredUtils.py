@@ -1,4 +1,4 @@
-from funcs import get_available_shifts, get_requested_shifts
+from funcs import get_available_shifts, get_requested_shifts, get_assigned_shifts
 from config import ADMIN_MODE
 
 def call_function(name, args):
@@ -6,6 +6,8 @@ def call_function(name, args):
         return get_available_shifts(**args).get("data", [])
     elif name == "get_requested_shifts":
         return get_requested_shifts(**args).get("data", [])
+    elif name == "get_assigned_shifts":
+        return get_assigned_shifts(**args).get("data", [])
     else:
         raise ValueError(f"Function {name} not recognized.")
 
@@ -86,7 +88,7 @@ requested_tool = {
 requested_tool_admin = {
   "type": "function",
   "name": "get_requested_shifts",
-  "description": "Query the database for requested shift slots based on optional filtering by request status.",
+  "description": "Query the database for requested shift slots based on optional filtering by request status and employee id.",
   "parameters": {
     "type": "object",
     "properties": {
@@ -110,13 +112,38 @@ requested_tool_admin = {
   "strict": True
 }
 
+assigned_tool_admin = {
+  "type": "function",
+  "name": "get_assigned_shifts",
+  "description": "Query the database for assigned shift slots, optionally filtered by employee ID.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "assigned_employee_id": {
+        "type": "integer",
+        "description": "The ID of the employee that his assigned shifts we want to see, pass -1 to include all employees."
+      },
+      },
+    "required": [
+        "assigned_employee_id"
+        
+    ],
+    "additionalProperties": False
+  },
+  "strict": True
+}
 
+assigned_tool = {
+  "type": "function",
+  "name": "get_assigned_shifts",
+  "description": "Query the database for assigned shift slots"
+}
 
 if ADMIN_MODE:
     # If in admin mode, include the requested_tool_admin
-    tools = [available_tool, requested_tool_admin]
+    tools = [available_tool, requested_tool_admin, assigned_tool_admin ]
 else:
-#tools = [available_tool, requested_tool]
-  tools =  [available_tool, requested_tool]
+  #tools = [available_tool, requested_tool]
+    tools =  [available_tool, requested_tool, assigned_tool]
 
 

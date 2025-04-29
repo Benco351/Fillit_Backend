@@ -3,6 +3,21 @@ from config import BASE_URL, EMPLOYEE_ID, ADMIN_MODE
 
 import re
 
+
+def get_assigned_shifts(assigned_employee_id: int = None):
+    filtered_params = {}
+    if not ADMIN_MODE:
+        filtered_params["assigned_employee_id"] = EMPLOYEE_ID 
+    if assigned_employee_id and assigned_employee_id != -1:
+        filtered_params["assigned_employee_id"] = assigned_employee_id
+    try:
+        response = requests.get(f"{BASE_URL}/api/assigned-shifts", params=filtered_params)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as e:
+        return {"status": "error", "message": str(e), "data": []}
+
+
 def get_requested_shifts(request_status: str = None, request_employee_id: int = None):
     filtered_params = {}
     if not ADMIN_MODE:
