@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MTA Chat</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f4f4f4;
+    }
+    .chat-container {
+      width: 50%;
+      max-width: 600px;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .chat-box {
+      height: 300px;
+      overflow-y: auto;
+      border-bottom: 1px solid #ccc;
+      margin-bottom: 10px;
+      padding: 10px;
+    }
+    .input-container {
+      display: flex;
+    }
+    input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-right: 10px;
+    }
+    button {
+      padding: 10px 15px;
+      border: none;
+      background: blue;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <h2>MTA Chat</h2>
+    <div class="chat-box" id="chat-box"></div>
+    <div class="input-container">
+      <input type="text" id="user-input" placeholder="Type your message..." autofocus>
+      <button id="send-btn">Send</button>
+    </div>
+  </div>
+  <script>
+    document.getElementById("user-input").addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        document.getElementById("send-btn").click();
+      }
+    });
+
+    document.getElementById("send-btn").addEventListener("click", async function() {
+      const userInput = document.getElementById("user-input").value.trim();
+      if (!userInput) return;
+      const chatBox = document.getElementById("chat-box");
+      chatBox.innerHTML += `<div><strong>You:</strong> ${userInput}</div>`;
+      document.getElementById("user-input").value = "";
+      try {
+        const response = await fetch("http://localhost:5000/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ user_prompt: userInput })
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        chatBox.innerHTML += `<div><strong>AI:</strong> ${data.ai_reply}</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+      } catch (error) {
+        console.error("Fetch error:", error);
+        chatBox.innerHTML += `<div style="color: red;"><strong>Error:</strong> ${error.message}</div>`;
+      }
+    });
+  </script>
+</body>
+</html>
