@@ -32,6 +32,17 @@ export const getAvailableShiftsByParams = async (params: AvailableShiftQueryDTO)
   if (params.shift_end_before) filters.shift_time_end = { [Op.lt]: params.shift_end_before };
   if (params.shift_end_after) filters.shift_time_end = { [Op.gt]: params.shift_end_after };
 
+  // Handle date range filtering using shift_date
+  if (params.shift_start_date && params.shift_end_date) {
+    filters.shift_date = {
+      [Op.between]: [params.shift_start_date.toString(), params.shift_end_date.toString()],
+    };
+  } else if (params.shift_start_date) {
+    filters.shift_date = { [Op.gte]: params.shift_start_date.toString() };
+  } else if (params.shift_end_date) {
+    filters.shift_date = { [Op.lte]: params.shift_end_date.toString() };
+  }
+
   const availableShifts = await AvailableShift.findAll({ where: filters });
   return availableShifts;
 };

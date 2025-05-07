@@ -34,6 +34,8 @@ export const UpdateAvailableShiftSchema = z.object({
 
 export const AvailableShiftQuerySchema = z.object({
     shift_date: z.coerce.date().optional(), 
+    shift_start_date: z.coerce.date().optional(),
+    shift_end_date: z.coerce.date().optional(),
     shift_start_before: z.string().time().optional(), 
     shift_start_after: z.string().time().optional(), 
     shift_end_before: z.string().time().optional(), 
@@ -81,7 +83,7 @@ export const UpdateRequestedShiftSchema = z.object({
 }).strict();
 
 export const RequestedShiftQuerySchema = z.object({
-    request_employee_id: z.number().optional(),
+    request_employee_id: z.coerce.number().optional(),
     request_status: z.enum(['pending', 'approved', 'denied']).optional(),
 }).strict();
 

@@ -30,7 +30,7 @@ import {
 /**
  * Creates a new shift request.
  * 
- * @param {Request} req - The request object containing employeeId and shiftSlotId.
+ * @param {Request} req - The request object containing employeeId, shiftSlotId, and optional notes.
  * @param {Response} res - The response object.
  * @param {NextFunction} next - The next middleware function.
  * @returns {Promise<void>}
@@ -50,10 +50,10 @@ import {
  *   "status": "ok",
  *   "message": "Shift request created",
  *   "data": {
- *     "request_notes": null,
+ *     "request_notes": "I would like to request this shift.",
  *     "request_status": "pending",
  *     "request_id": 2,
- *     "request_shift_id": 2,
+ *     "request_shift_id": 1,
  *     "request_employee_id": 1
  *   }
  * }
@@ -148,11 +148,11 @@ export const getRequestedShiftById = async (req: Request, res: Response, next: N
  * @returns {Promise<void>}
  * 
  * Available query parameters:
- * - `employeeId`: Filter requested shifts by employee ID.
- * - `request_status`: Filter requested shifts by request status (e.g., "pending", "approved", "rejected").
+ * - `request_employee_id` (optional): Filter requested shifts by employee ID.
+ * - `request_status` (optional): Filter requested shifts by request status (`pending`, `approved`, `denied`).
  * 
  * @example
- * GET /api/requested-shifts?employeeId=1&request_status=pending
+ * GET /api/requested-shifts?request_employee_id=1&request_status=pending
  * 
  * Response:
  * {
@@ -260,6 +260,10 @@ export const deleteRequestedShift = async (req: Request, res: Response, next: Ne
  * @param {NextFunction} next - The next middleware function.
  * @returns {Promise<void>}
  * 
+ * Request body:
+ * - `status` (optional): The new status of the shift (`pending`, `approved`, `denied`).
+ * - `notes` (optional): Additional notes for the shift request.
+ * 
  * @example
  * PUT /api/requested-shifts/123
  * 
@@ -277,7 +281,7 @@ export const deleteRequestedShift = async (req: Request, res: Response, next: Ne
  *     "request_id": 2,
  *     "request_shift_id": 2,
  *     "request_employee_id": 1,
- *     "request_notes": null,
+ *     "request_notes": "I cannot work this shift.",
  *     "request_status": "denied"
  *   }
  * }
