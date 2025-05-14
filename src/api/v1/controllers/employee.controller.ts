@@ -276,26 +276,30 @@ export const deleteEmployee = async (req: Request, res: Response, next: NextFunc
 };
 
 /**
- * Checks if an employee exists by their email.
- * 
- * @param {Request} req - The request object containing the email in the parameters.
+ * Checks if an employee exists by email.
+ *
+ * @param {Request} req - The request object containing the employee email in params.
  * @param {Response} res - The response object to send the result.
  * @param {NextFunction} next - The next middleware function.
  * @returns {Promise<void>} A promise that resolves when the operation is complete.
- * 
+ *
  * @example
- * GET /api/employees/verify/davidA@gmail.com
- * 
- * Response:
- * Code: 404
+ * GET /api/employees/verify/john.doe@example.com
+ *
+ * Response (if exists):
  * {
- *   "message": "The employee with this email already exists"
+ *   "message": "The employee with this email already exists",
+ *   "employee_id": 1
  * }
- * 
- * Or:
- * Code: 200
+ *
+ * Response (if not exists):
  * {
- *   "message": "False"
+ *   "message": "There is no employee with this email"
+ * }
+ *
+ * Response (invalid email):
+ * {
+ *   "error": "Invalid email format"
  * }
  */
 export const isEmployeeExists = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -303,12 +307,12 @@ export const isEmployeeExists = async (req: Request, res: Response, next: NextFu
     const emailSchema = z.string().email();
     const email = emailSchema.parse(req.params.email);
 
-    const exists = await employeeService.isEmployeeExistsByEmail(email);
-    if (exists) {
-      res.status(409).json({ message: "The employee with this email already exists" });
+    const employee = await employeeService.getEmployeeByEmail(email);
+    if (employee) {
+      res.status(200).json({ message: "The employee with this email already exists", employee_id: employee.employee_id });
       return; 
     } else {
-      res.status(200).json({ message: "False" });
+      res.status(404).json({ message: "There is no employee with this email" });
       return; 
     }
   } catch (err) {
