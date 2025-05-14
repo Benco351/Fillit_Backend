@@ -11,6 +11,8 @@ def main(event):
     client = OpenAI(api_key=OPENAI_API_KEY)
     
     print("event = ", event)
+    print("")
+    print("")
     
     user_prompt = event.get('user_prompt')
     if not user_prompt:
@@ -31,14 +33,26 @@ def main(event):
         tools=tools,
     )
 
+    print(f"response 1 = {response}")
+    print("")
+    print("")
+
     for tool_call in response.output:
         if tool_call.type != "function_call":
             continue
 
         name = tool_call.name
         args = json.loads(tool_call.arguments)
+
+        print(f"Tool call: {name} with args: {args}")
+        print("")
+        print("")
         
         result = call_function(name, args)
+
+        print(f"Result: {result}")
+        print("")
+        print("")
         
         # Avoid appending duplicate tool calls
         if tool_call not in input_messages:
@@ -55,11 +69,16 @@ def main(event):
         model="gpt-3.5-turbo",
         input=input_messages,
         previous_response_id=current_response_id,
-        tools=tools,
+        # tools=tools,
     )
 
+    print(f"response 2 = {response}")
+    print("")
+    print("")
     current_response_id = response.id  # Update the current response ID
 
     ai_reply = response.output_text
+
+ 
 
     return json.dumps({"ai_reply": ai_reply})

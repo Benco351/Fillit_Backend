@@ -85,11 +85,11 @@ def get_available_shifts(
         return {"status": "error", "message": str(e), "data": []}
     
 
-# Example usage:
-if __name__ == "__main__":
-    result = get_available_shifts(
-        shift_date="2024-04-29",
-        shift_start_after="09:00:00",
-        shift_end_before="17:00:00"
-    )
-    print(result.get("data", []))  # Print the available shifts or an empty list if none are found
+# # Example usage:
+# if __name__ == "__main__":
+#     result = get_available_shifts(
+#         shift_date="2024-04-29",
+#         shift_start_after="09:00:00",
+#         shift_end_before="17:00:00"
+#     )
+#     print(result.get("data", []))  # Print the available shifts or an empty list if none are found
