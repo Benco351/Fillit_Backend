@@ -2,7 +2,6 @@ import { Router } from 'express';
 import {getRequestedShiftById, getRequestedShiftsByParams, createShiftRequest, deleteRequestedShift, updateRequestedShift} from '../controllers/requestedShift.controller';
 import { validate, validateQuery } from '../../../middlewares/validateMiddleware';
 import { CreateRequestedShiftSchema, UpdateRequestedShiftSchema, RequestedShiftQuerySchema } from '../../../assets/types/types';
-import { tokenAuthentication } from '../../../middlewares/authMiddleware';
 
 const router = Router();
 
