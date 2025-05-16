@@ -5,7 +5,7 @@ FROM node:20 AS builder
 WORKDIR /usr/src/app
 
 # Copy only manifest(s) so we get CI cache on deps install
-COPY package.json package-lock.json tsconfig.json ./
+COPY package.json package-lock.json tsconfig.json eslint.config.cjs Procfile ./
 
 # Install everything (including devDeps)
 RUN npm ci
