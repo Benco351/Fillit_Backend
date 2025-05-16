@@ -1,0 +1,138 @@
+name: Backend - Build & Deploy
+
+on:
+  workflow_dispatch: {}
+  # push:
+  #   paths:
+  #     - 'Backend/**'
+
+env:
+  AWS_REGION: us-east-1          # keep all region references in one place
+
+###############################################################################
+# 0 – Sanity‑check that every secret / var we rely on actually exists
+###############################################################################
+jobs:
+  precheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ensure required secrets / vars exist
+        env:
+          # ↳ one per line – easier to maintain
+          REQ_SECRETS: |
+            AWS_ACCESS_KEY_ID
+            AWS_SECRET_ACCESS_KEY
+            AWS_SESSION_TOKEN
+            ECR_REPO_URI
+            EB_S3_BUCKET
+            DB_PASSWORD
+            EB_APP_NAME
+            EB_ENV_NAME
+            AMPLIFY_APP_ID
+          REQ_VARS: |
+            AMPLIFY_APP_BRANCH
+        shell: bash
+        run: |
+          missing=0
+
+          echo "Checking required *secrets* ..."
+          for v in $SECRET_KEYS; do
+            if [ -z "${!v}" ] || [ "${!v}" = "null" ]; then
+              echo "::error::$v secret is missing"
+              missing=1
+            fi
+          done
+
+          echo "Checking required *variables* ..."
+          for v in $VAR_KEYS; do
+            if [ -z "${!v}" ] || [ "${!v}" = "null" ]; then
+              echo "::error::$v variable is missing"
+              missing=1
+            fi
+          done
+
+          exit $missing        #fail fast if anything is absent
+
+###############################################################################
+# 1 – Build, push Docker image → ECR, create EB application version & deploy
+###############################################################################
+  build-deploy:
+    needs: precheck
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Backend
+    steps:
+      - uses: actions/checkout@v4
+
+      # Node 20 for lint / tsc
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token:     ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region:            ${{ env.AWS_REGION }}
+
+      - uses: aws-actions/amazon-ecr-login@v1
+
+      # Install deps + lint + type-check
+      - name: Backend - npm ci
+        run: npm ci
+
+      - name: Backend - tsc & eslint
+        run: |
+          npm run lint
+
+      # Image build / push
+      - name: Set image tags
+        run: |
+          echo "IMAGE_TAG=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Build & push Docker image
+        run: |
+          docker build -t ${{ secrets.ECR_REPO_URI }}:latest .
+          docker tag ${{ secrets.ECR_REPO_URI }}:latest ${{ secrets.ECR_REPO_URI }}:$IMAGE_TAG
+          docker push ${{ secrets.ECR_REPO_URI }}:latest
+          docker push ${{ secrets.ECR_REPO_URI }}:$IMAGE_TAG
+
+      # EB artefact & version
+      - name: Prepare Dockerrun.aws.json
+        run: |
+          sed "s|<IMAGE_URI>|${{ secrets.ECR_REPO_URI }}:${IMAGE_TAG}|g" \
+            Dockerrun.aws.json.template > Dockerrun.aws.json
+
+      - run: zip -r eb-deploy.zip Dockerrun.aws.json .ebextensions
+
+      - run: aws s3 cp eb-deploy.zip s3://${{ secrets.EB_S3_BUCKET }}/eb-deploy.zip
+
+      - id: create_version
+        run: |
+          VERSION_LABEL="v-${GITHUB_SHA::7}"
+          aws elasticbeanstalk create-application-version \
+            --application-name "${{ secrets.EB_APP_NAME }}" \
+            --version-label "$VERSION_LABEL" \
+            --source-bundle S3Bucket=${{ secrets.EB_S3_BUCKET }},S3Key=eb-deploy.zip
+          echo "version_label=$VERSION_LABEL" >> $GITHUB_OUTPUT
+
+      # Amplify default domain for FRONTEND_URL
+      - id: amplify_domain
+        run: |
+          DOMAIN=$(aws amplify get-app \
+            --app-id "${{ secrets.AMPLIFY_APP_ID }}" \
+            --query "app.defaultDomain" \
+            --output text)
+          echo "default_domain=$DOMAIN" >> $GITHUB_OUTPUT
+
+      - name: Update EB env (FRONTEND_URL + healthcheck)
+        run: |
+          FRONTEND_URL="https://${{ vars.AMPLIFY_APP_BRANCH }}.${{ steps.amplify_domain.outputs.default_domain }}"
+          aws elasticbeanstalk update-environment \
+            --environment-name "${{ secrets.EB_ENV_NAME }}" \
+            --version-label    "${{ steps.create_version.outputs.version_label }}" \
+            --option-settings \
+              Namespace=aws:elasticbeanstalk:application:environment,OptionName=FRONTEND_URL,Value=$FRONTEND_URL \
+              Namespace=aws:elasticbeanstalk:environment:process:default,OptionName=HealthCheckPath,Value=/health
