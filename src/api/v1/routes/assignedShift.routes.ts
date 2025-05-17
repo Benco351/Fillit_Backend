@@ -2,7 +2,6 @@ import { Router } from 'express';
 import { validate, validateQuery} from '../../../middlewares/validateMiddleware';
 import { swapAssignedShiftsSchema ,CreateAssignedShiftSchema, AssignedShiftQuerySchema } from '../../../assets/types/types';
 import { swapAssignedShifts ,getAssignedShiftsByParams, getAssignedShiftById, createAssignedShift, deleteAssignedShift } from '../controllers/assignedShift.controller';
-import { tokenAuthentication } from '../../../middlewares/authMiddleware';
 
 const router = Router();
 

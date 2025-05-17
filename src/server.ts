@@ -13,7 +13,7 @@ const PORT = parseInt(process.env.PORT || '8000', 10);
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   } catch (error) {
     console.error('Error starting server:', error);
-    process.exit(1);
+    throw error; // Rethrow the error to stop the process
   }
 })();
 export default app;

@@ -2,7 +2,6 @@ import { Router } from 'express';
 import { getAvailableShiftById, getAvailableShiftsByParams, createAvailableShift, deleteAvailableShift, updateAvailableShift } from '../controllers/availableShift.controller';
 import { validate, validateQuery } from '../../../middlewares/validateMiddleware';
 import { CreateAvailableShiftSchema, UpdateAvailableShiftSchema , AvailableShiftQuerySchema} from '../../../assets/types/types';
-import { tokenAuthentication } from '../../../middlewares/authMiddleware';
 
 const router = Router();
 router.get('/:id', getAvailableShiftById);

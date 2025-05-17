@@ -2,7 +2,6 @@ import { Router } from 'express';
 import {getEmployeesByParams, getEmployeeById, createEmployee, deleteEmployee, updateEmployee, isEmployeeExists} from '../controllers/employee.controller';
 import { validate, validateQuery} from '../../../middlewares/validateMiddleware';
 import { CreateEmployeeSchema, UpdateEmployeeSchema, EmployeeQuerySchema } from '../../../assets/types/types';
-import { tokenAuthentication } from '../../../middlewares/authMiddleware';
 
 const router = Router();
 
