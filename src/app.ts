@@ -15,7 +15,7 @@ import { errorHandler } from './middlewares/errorMiddleware';
 const app: Application = express();
 
 const FRONTEND_URL = process.env.FRONTEND_URL!;
-const whitelist = [FRONTEND_URL];
+// const whitelist = [FRONTEND_URL];
 
 // const corsOptions: cors.CorsOptions = {
 //   origin: (incomingOrigin, callback) => {
