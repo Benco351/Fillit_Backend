@@ -24,6 +24,7 @@ export const sequelize = new Sequelize({
 });
 
 
+
 export const connectPostgres = async (): Promise<void> => {
     try {
       await sequelize.authenticate();
