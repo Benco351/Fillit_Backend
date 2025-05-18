@@ -15,13 +15,13 @@ import { errorHandler } from './middlewares/errorMiddleware';
 
 const app: Application = express();
 
-const FRONTEND_URL = ["https://fillitshifits.com"];
+const FRONTEND_URL = "https://fillitshifits.com";
 const whitelist = [FRONTEND_URL];
 
 const corsOptions: cors.CorsOptions = {
   // Only allow your SPA origin (and also allow tools like curl with no Origin header)
   origin: (incomingOrigin, callback) => {
-    if (!incomingOrigin || whitelist.includes([incomingOrigin])) {
+    if (!incomingOrigin || whitelist.includes(incomingOrigin)) {
       callback(null, true);
     } else {
       callback(new Error(`CORS violation: ${incomingOrigin} not in whitelist`));
