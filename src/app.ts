@@ -14,27 +14,36 @@ import { errorHandler } from './middlewares/errorMiddleware';
 
 const app: Application = express();
 
-// const FRONTEND_URL = process.env.FRONTEND_URL!;
-// const whitelist = [FRONTEND_URL];
+const FRONTEND_URL = "https://fillitshifits.com";
+const whitelist = [FRONTEND_URL];
 
-// const corsOptions: cors.CorsOptions = {
-//   origin: (incomingOrigin, callback) => {
-//     // allow calls with no origin (e.g. mobile clients, curl)
-//     if (!incomingOrigin || whitelist.includes(incomingOrigin)) {
-//       callback(null, true);
-//     } else {
-//       callback(new Error(`CORS violation: ${incomingOrigin} not in whitelist`));
-//     }
-//   },
-//   credentials: true,
-// };
+const corsOptions: cors.CorsOptions = {
+  // Only allow your SPA origin (and also allow tools like curl with no Origin header)
+  origin: (incomingOrigin, callback) => {
+    if (!incomingOrigin || whitelist.includes(incomingOrigin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS violation: ${incomingOrigin} not in whitelist`));
+    }
+  },
+  methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization','X-Requested-With'],
+  credentials: true,
+  optionsSuccessStatus: 204,      // some legacy browsers choke on 204 for preflight
+  maxAge: 86400,                  // cache preflight for 24h
+};
 
 // ── MIDDLEWARES ──
 app
   .use(express.urlencoded({ extended: true }))
   .use(compression())
-  .use(cors({ origin: "*", credentials: true }))
   .use(express.json());
+
+// IMPORTANT: handle preflight across all routes
+app.options('*', cors(corsOptions));
+
+// Then enable CORS on your real routes
+app.use(cors(corsOptions));
 
 // public heath‑check for AWS load balancer
 app.get('/health', (_req, res) => res.sendStatus(200));
