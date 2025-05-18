@@ -6,6 +6,7 @@ import cors from 'cors';
 
 import { tokenAuthentication } from './middlewares/authMiddleware';
 
+import authRoutes from './api/v1/routes/auth.routes';
 import employeeRoutes from './api/v1/routes/employee.routes';
 import availableShiftRoutes from './api/v1/routes/availableShift.routes';
 import requestedShiftRoutes from './api/v1/routes/requestedShift.routes';
@@ -14,13 +15,13 @@ import { errorHandler } from './middlewares/errorMiddleware';
 
 const app: Application = express();
 
-const FRONTEND_URL = "https://fillitshifits.com";
+const FRONTEND_URL = ["https://fillitshifits.com"];
 const whitelist = [FRONTEND_URL];
 
 const corsOptions: cors.CorsOptions = {
   // Only allow your SPA origin (and also allow tools like curl with no Origin header)
   origin: (incomingOrigin, callback) => {
-    if (!incomingOrigin || whitelist.includes(incomingOrigin)) {
+    if (!incomingOrigin || whitelist.includes([incomingOrigin])) {
       callback(null, true);
     } else {
       callback(new Error(`CORS violation: ${incomingOrigin} not in whitelist`));
@@ -48,10 +49,10 @@ app.use(cors(corsOptions));
 // public heath‑check for AWS load balancer
 app.get('/health', (_req, res) => res.sendStatus(200));
 
+app.use('/auth/sign-up', authRoutes)
 // ── PROTECTED ROUTES ──
 // all /api/* endpoints now require a valid Bearer token
 app.use('/api', tokenAuthentication);
-
 // mount versioned routers under /api
 app.use('/api/employees',        employeeRoutes);
 app.use('/api/available-shifts', availableShiftRoutes);
