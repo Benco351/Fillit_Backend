@@ -20,7 +20,7 @@ const whitelist = [FRONTEND_URL];
 
 const corsOptions: cors.CorsOptions = {
   // Only allow your SPA origin (and also allow tools like curl with no Origin header)
-  origin: (incomingOrigin: string, callback: (arg0: Error | null, arg1: boolean | undefined) => void) => {
+  origin: (incomingOrigin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
     if (!incomingOrigin || whitelist.includes(incomingOrigin)) {
       callback(null, true);
     } else {
