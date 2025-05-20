@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-def main(event):
+def lambda_handler(event, context):
     # Initialize per-invocation response ID
     current_response_id = None
 
