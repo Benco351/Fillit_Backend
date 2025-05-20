@@ -1,113 +1,111 @@
+from __future__ import annotations
 import json
-import os
 import logging
-from openai import OpenAI
-from tailoredUtils import tools, call_function
-import config
+from typing import Dict, Any
 
-logging.basicConfig(level=logging.INFO)
+from openai import OpenAI
+from config import Config
+from tailored_utils import call_function, select_tools
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-def lambda_handler(event, context):
-    # Initialize per-invocation response ID
-    current_response_id = None
 
-    # 1) Parse and validate the JSON body string
-    body_str = event.get("body", "")
-    if not body_str:
-        # If no body, treat event itself as the body
-        body = event
-    else:
-        try:
-            body = json.loads(body_str)
-        except json.JSONDecodeError:
-            return {
-                "statusCode": 400,
-                "body": json.dumps({"error": "Invalid JSON payload"})
-            }
+def _parse_body(event: Dict[str, Any]) -> Dict[str, Any]:
+    """Return body as dict, whether provided raw or already parsed."""
+    body_raw = event.get("body", "")
+    if not body_raw:
+        return event  # direct-invoke path
+    try:
+        return json.loads(body_raw)
+    except json.JSONDecodeError as exc:
+        raise ValueError("Invalid JSON payload") from exc
 
-    # 2) Extract optional configuration overrides
+
+def lambda_handler(event: Dict[str, Any], context):  # noqa: ANN001
+    try:
+        body = _parse_body(event)
+    except ValueError as err:
+        return {"statusCode": 400, "body": json.dumps({"error": str(err)})}
+
+    # -------------------- build runtime Config --------------------
+    base_conf = Config.from_env()
+
+    overrides = {}
     if "employee_id" in body:
-        config.EMPLOYEE_ID = body["employee_id"]
+        overrides["employee_id"] = int(body["employee_id"])
     if "admin_mode" in body:
-        config.ADMIN_MODE = body["admin_mode"]
-    if "jwt_token" in body and body["jwt_token"]:
-        print(f"JWT token from body: {body['jwt_token']}")
-        config.JWT_TOKEN = body["jwt_token"]
-        print(f"JWT token set to: {config.JWT_TOKEN}")
+        overrides["admin_mode"] = str(body["admin_mode"]).lower() == "true"
+    jwt_token = body.get("jwt_token", "")
+    if jwt_token:
+        overrides["jwt_token"] = jwt_token
 
-    # # 3) Optional Referer header check (CORS protection)
-    # referer = event.get("headers", {}).get("referer")
-    # if (referer != f"{config.BASE_URL}/"):
-    #     return {
-    #         "statusCode": 403,
-    #         "body": json.dumps({"error": "Access denied"})
-    #     }
+    config = base_conf.override(**overrides)
 
-    # 4) Extract the user prompt
-    user_prompt = body.get("user_prompt")
+    # -------------------- security: referer check -----------------
+    referer = event.get("headers", {}).get("referer", "")
+    if referer != f"{config.base_url}/":
+        return {"statusCode": 403, "body": json.dumps({"error": "Access denied"})}
+
+    # -------------------- user prompt validation -----------------
+    user_prompt = body.get("user_prompt", "").strip()
     if not user_prompt:
-        return {
-            "statusCode": 400,
-            "body": json.dumps({"error": "user_prompt is required"})
-        }
+        return {"statusCode": 400,
+                "body": json.dumps({"error": "user_prompt is required"})}
 
-    # 5) Build the message array for OpenAI
-    input_messages = [
+    # -------------------- OpenAI conversation messages -----------
+    messages = [
         {
             "role": "developer",
             "content": (
-                f"You are an AI assistant on a shift management platform. "
-                f"You are limited to {config.MAX_TOKENS} tokens in your response."
-            )
+                "You are an AI assistant on a shift-management platform. "
+                f"You are limited to {config.max_tokens} tokens in your response."
+            ),
         },
-        {"role": "user", "content": user_prompt}
+        {"role": "user", "content": user_prompt},
     ]
 
-    # 6) First call to OpenAI for potential function calls
-    client = OpenAI(api_key=config.OPENAI_API_KEY)
-    logger.info(f"Sending messages to OpenAI: {input_messages}")
-    response = client.responses.create(
-        model="gpt-3.5-turbo",
-        input=input_messages,
-        tools=tools
-    )
-    logger.info(f"OpenAI initial response: {response}")
+    client = OpenAI(api_key=config.openai_api_key)
+    tools_schema = select_tools(config)
 
-    # 7) Process any function calls returned
-    for tool_call in response.output:
+    # ----------- 1st pass: allow model to call a function --------
+    logger.info("Sending messages to OpenAI (1st pass)")
+    first = client.responses.create(
+        model="gpt-3.5-turbo",
+        input=messages,
+        tools=tools_schema,
+    )
+    logger.info("OpenAI first response: %s", first)
+
+    # Handle any function tool calls
+    for tool_call in first.output:
         if tool_call.type != "function_call":
             continue
 
-        name = tool_call.name
-        args = json.loads(tool_call.arguments)
-        logger.info(f"Tool call: {name} with args: {args}")
-        result = call_function(name, args)
-        logger.info(f"Function result: {result}")
+        func_name = tool_call.name
+        func_args = json.loads(tool_call.arguments)
+        logger.info("Executing: %s(%s)", func_name, func_args)
 
-        # Append the function call and its output to context
-        input_messages.append(tool_call)
-        input_messages.append({
+        result = call_function(config, func_name, func_args)
+        logger.info("Function result: %s", result)
+
+        messages.append(tool_call)  # the call itself
+        messages.append({
             "type": "function_call_output",
             "call_id": tool_call.call_id,
-            "output": str(result)
+            "output": json.dumps(result),
         })
 
-    # 8) Second call to OpenAI to get the final AI reply
-    response = client.responses.create(
+    # ------------ 2nd pass: get final assistant message ----------
+    logger.info("Sending messages to OpenAI (2nd pass)")
+    final = client.responses.create(
         model="gpt-3.5-turbo",
-        input=input_messages,
-        previous_response_id=current_response_id
+        input=messages,
+        previous_response_id=first.id,
     )
-    current_response_id = response.id
+    logger.info("OpenAI final response: %s", final)
 
-    logger.info(f"OpenAI final response: {response}")
-
-    ai_reply = response.output_text
-
-    # 9) Return the AI reply as JSON
     return {
         "statusCode": 200,
-        "body": json.dumps({"ai_reply": ai_reply})
+        "body": json.dumps({"ai_reply": final.output_text}),
     }

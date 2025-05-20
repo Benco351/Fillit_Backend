@@ -1,17 +1,12 @@
-from funcs import get_available_shifts, get_requested_shifts, get_assigned_shifts
-from config import ADMIN_MODE
+from __future__ import annotations
+from typing import Any, Dict, List, Callable
 
-def call_function(name, args):
-    if name == "get_available_shifts":
-        return get_available_shifts(**args).get("data", [])
-    elif name == "get_requested_shifts":
-        return get_requested_shifts(**args).get("data", [])
-    elif name == "get_assigned_shifts":
-        return get_assigned_shifts(**args).get("data", [])
-    else:
-        raise ValueError(f"Function {name} not recognized.")
+from config import Config
+import funcs  # local module with the three API helpers
 
+ADMIN_MODE = os.getenv("ADMIN_MODE")
 
+# ------------- OpenAI function-tool declarations -------------
 
 available_tool = {
   "type": "function",
@@ -139,11 +134,24 @@ assigned_tool = {
   "description": "Query the database for assigned shift slots"
 }
 
-if ADMIN_MODE:
-    # If in admin mode, include the requested_tool_admin
-    tools = [available_tool, requested_tool_admin, assigned_tool_admin ]
-else:
-  #tools = [available_tool, requested_tool]
-    tools =  [available_tool, requested_tool, assigned_tool]
 
+
+def select_tools(config: Config) -> List[Dict[str, Any]]:
+    """Return the correct tool schema list for the given run."""
+    if config.admin_mode:
+        return [available_tool, requested_tool_admin, assigned_tool_admin]
+    return [available_tool, requested_tool, assigned_tool]
+
+
+# ------------- Dispatcher -------------
+
+def call_function(config: Config, name: str, args: Dict[str, Any]) -> List[Dict[str, Any]]:
+    mapping: Dict[str, Callable[..., List[Dict[str, Any]]]] = {
+        "get_available_shifts": funcs.get_available_shifts,
+        "get_requested_shifts": funcs.get_requested_shifts,
+        "get_assigned_shifts": funcs.get_assigned_shifts,
+    }
+    if name not in mapping:
+        raise ValueError(f"Unknown function {name}")
+    return mapping[name](config=config, **args)
 
