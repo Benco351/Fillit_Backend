@@ -7,6 +7,7 @@ import {
   COGNITO_ISSUER,
   COGNITO_AUDIENCE
 } from '../assets/constants';
+import { logger } from '../config/logger';
 
 const CACHE_DURATION = 60 * 60 * 1000;  // 1h
 let keyCache: Record<string,string> = {};
@@ -50,7 +51,7 @@ export const tokenAuthentication: RequestHandler = async (req, res, next) => {
     return res.status(401).json({ message: 'Missing or malformed Authorization header' });
   }
   const token = header.slice(7);
-
+  
   try {
     const pems = await fetchKeys();
 
@@ -60,24 +61,29 @@ export const tokenAuthentication: RequestHandler = async (req, res, next) => {
       return res.status(401).json({ message: 'Invalid token key ID' });
     }
 
+
     jwt.verify(
       token,
       pems[kid],
       {
         issuer:   COGNITO_ISSUER,
-        audience: COGNITO_AUDIENCE,
+        audience: COGNITO_AUDIENCE,   // ← client-ID
         algorithms: ['RS256'],
       },
-      (err, payload) => {
-        if (err) {
-          return res.status(401).json({ message: err.message });
-        }
+      (err: { message: any; }, payload: any) => {
+        if (err) return res.status(401).json({ message: err.message });
+
+        /* optional: enforce that the token really is an ID token */
+        if (payload.token_use !== 'id')
+          return res.status(401).json({ message: 'Not an ID token' });
+
         (req as any).user = payload as JwtPayload;
         next();
       }
     );
+    
   } catch (error: any) {
-    console.error('Authentication error:', error);
+    logger.error('Authentication error:', error);
     res.status(500).json({ message: 'Internal authentication error' });
   }
 };
