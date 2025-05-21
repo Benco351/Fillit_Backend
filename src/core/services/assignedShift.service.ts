@@ -31,6 +31,12 @@ export const deleteAssignedShift = async (id: number): Promise<boolean> => {
   const assignedShift = await AssignedShift.findOne({ where: { assigned_id: id } });
   if (!assignedShift) return false;
 
+  // Decrement shift_slots_taken for the corresponding available shift
+  const availableShift = await AvailableShift.findByPk(assignedShift.assigned_shift_id);
+  if (availableShift && availableShift.shift_slots_taken > 0) {
+    await availableShift.update({ shift_slots_taken: availableShift.shift_slots_taken - 1 });
+  }
+
   await assignedShift.destroy();
   return true;
 };
