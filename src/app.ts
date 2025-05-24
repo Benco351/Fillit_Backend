@@ -1,5 +1,5 @@
-// src/app.ts
 import 'dotenv/config';
+// src/app.ts
 import express, { Application } from 'express';
 import compression from 'compression';
 import cors from 'cors';
@@ -19,14 +19,7 @@ const FRONTEND_URL = "https://fillitshifits.com";
 const whitelist = [FRONTEND_URL];
 
 const corsOptions: cors.CorsOptions = {
-  // Only allow your SPA origin (and also allow tools like curl with no Origin header)
-  origin: (incomingOrigin, callback) => {
-    if (!incomingOrigin || whitelist.includes(incomingOrigin)) {
-      callback(null, true);
-    } else {
-      callback(new Error(`CORS violation: ${incomingOrigin} not in whitelist`));
-    }
-  },
+  origin: true, // Allow all origins
   methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
   allowedHeaders: ['Content-Type','Authorization','X-Requested-With'],
   credentials: true,
@@ -49,10 +42,12 @@ app.use(cors(corsOptions));
 // public heath‑check for AWS load balancer
 app.get('/health', (_req, res) => res.sendStatus(200));
 
-app.use('/auth/sign-up', authRoutes)
+// Mount all auth routes (including /add-to-group)
+app.use('/auth', authRoutes);
+
 // ── PROTECTED ROUTES ──
 // all /api/* endpoints now require a valid Bearer token
-app.use('/api', tokenAuthentication);
+// app.use('/api', tokenAuthentication);
 // mount versioned routers under /api
 app.use('/api/employees',        employeeRoutes);
 app.use('/api/available-shifts', availableShiftRoutes);

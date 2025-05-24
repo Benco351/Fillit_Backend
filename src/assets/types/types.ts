@@ -90,3 +90,11 @@ export const RequestedShiftQuerySchema = z.object({
 export type CreateRequestedShiftDTO = z.infer<typeof CreateRequestedShiftSchema>;
 export type UpdateRequestedShiftDTO = z.infer<typeof UpdateRequestedShiftSchema>;
 export type RequestedShiftQueryDTO = z.infer<typeof RequestedShiftQuerySchema>;
+
+/* ---------- Add to Group Types ---------- */
+export const AddtoGroupSchema = z.object({
+    email: z.string().email(),
+    group: z.string().nonempty(),
+}).strict();
+
+export type AddtoGroupDTO = z.infer<typeof RequestedShiftQuerySchema>;
