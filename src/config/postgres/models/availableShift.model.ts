@@ -40,6 +40,19 @@ import {
       defaultValue: null,
     })
     shift_time_end!: string | null;
+
+    @Column({
+      type: DataType.INTEGER,
+      allowNull: false,
+    })
+    shift_slots_amount!: number;
+
+    @Column({
+      type: DataType.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    })
+    shift_slots_taken!: number;
   
     @HasMany(() => AssignedShift)
     assignedShifts!: AssignedShift[];
@@ -47,4 +60,3 @@ import {
     @HasMany(() => RequestedShift)
     requestedShifts!: RequestedShift[];
   }
-  

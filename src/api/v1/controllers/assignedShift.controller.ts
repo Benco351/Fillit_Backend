@@ -68,6 +68,10 @@ export const createAssignedShift = async (req: Request, res: Response, next: Nex
       res.status(404).json({ error: AvailableShiftNotFound });
       return;
     }
+    if (availableShift.shift_slots_taken >= availableShift.shift_slots_amount) {
+      res.status(400).json({ error: 'No available slots for this shift' });
+      return;
+    }
 
     const existingAssignedShift = await AssignedShift.findOne({
       where: { assigned_employee_id: employeeId, assigned_shift_id: shiftSlotId },
@@ -82,7 +86,9 @@ export const createAssignedShift = async (req: Request, res: Response, next: Nex
     });
     if (existingRequestedShift) {
       await existingRequestedShift.update({ request_status: RequestStatus.APPROVED as RequestStatus });
+
     }
+
 
     const assignedShift = await assignedShiftService.createAssignedShift(req.body as CreateAssignedShiftDTO);
     logger.info(CreatedAssignedShiftLog(assignedShift.assigned_id));

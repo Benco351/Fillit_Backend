@@ -7,6 +7,8 @@ export const createAvailableShift = async (data: CreateAvailableShiftDTO): Promi
     shift_date: data.date,
     shift_time_start: data.start,
     shift_time_end: data.end,
+    shift_slots_amount: data.shift_slots_amount,
+    shift_slots_taken: 0
   }; // TODO: Create strict type for shiftData
 
   const newAvailableShift = await AvailableShift.create(shiftData);
@@ -31,6 +33,8 @@ export const getAvailableShiftsByParams = async (params: AvailableShiftQueryDTO)
   if (params.shift_start_after) filters.shift_time_start = { [Op.gt]: params.shift_start_after };
   if (params.shift_end_before) filters.shift_time_end = { [Op.lt]: params.shift_end_before };
   if (params.shift_end_after) filters.shift_time_end = { [Op.gt]: params.shift_end_after };
+  if (params.shift_slots_amount) filters.shift_slots_amount = params.shift_slots_amount;
+  if (params.shift_slots_taken) filters.shift_slots_taken = params.shift_slots_taken;
 
   // Handle date range filtering using shift_date
   if (params.shift_start_date && params.shift_end_date) {
@@ -42,6 +46,12 @@ export const getAvailableShiftsByParams = async (params: AvailableShiftQueryDTO)
   } else if (params.shift_end_date) {
     filters.shift_date = { [Op.lte]: params.shift_end_date.toString() };
   }
+
+  // Add filter: do not return shifts where shift_slots_taken == shift_slots_amount
+  filters.shift_slots_taken = { 
+    ...(filters.shift_slots_taken || {}),
+    [Op.lt]: filters.shift_slots_amount ?? { [Op.col]: 'shift_slots_amount' }
+  };
 
   const availableShifts = await AvailableShift.findAll({ where: filters });
   return availableShifts;
@@ -63,6 +73,7 @@ export const updateAvailableShift = async (id: number, data: Partial<CreateAvail
     ...(data.date && { shift_date: data.date }),
     ...(data.start && { shift_time_start: data.start }),
     ...(data.end && { shift_time_end: data.end }),
+    ...(data.shift_slots_amount && { shift_slots_amount: data.shift_slots_amount }),
   };
 
   await availableShift.update(mappedData);
