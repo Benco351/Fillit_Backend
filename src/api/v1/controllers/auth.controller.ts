@@ -9,6 +9,14 @@ import {
   EmailExists,
   CreateEmployeeErrorLog,
 } from '../../../assets/messages/employeeMessages';
+import {
+  COGNITO_USER_POOL_ID,
+  COGNITO_REGION,
+  AWS_ACCESS_KEY_ID,
+  AWS_SECRET_ACCESS_KEY
+
+} from '../../../assets/constants';
+import AWS from 'aws-sdk';
 
 /**
  * Creates a new employee.
@@ -55,5 +63,53 @@ export const createEmployee = async (req: Request, res: Response, next: NextFunc
   } catch (err) {
     logger.error(CreateEmployeeErrorLog(err));
     next(err);
+  }
+};
+
+export const addToGroup = async (req: Request, res: Response) => {
+  const { email, group } = req.body;
+  if (!email || !group) {
+    return res.status(400).json({ message: 'Missing email or group' });
+  }
+
+  // Debug: log COGNITO_USER_POOL_ID
+  if (!COGNITO_USER_POOL_ID) {
+    console.error('COGNITO_USER_POOL_ID is not set');
+    return res.status(500).json({ message: 'COGNITO_USER_POOL_ID is not set in environment/config' });
+  }
+  console.log('Using COGNITO_USER_POOL_ID:', COGNITO_USER_POOL_ID);
+
+  try {
+    const cognito = new AWS.CognitoIdentityServiceProvider({
+      region: COGNITO_REGION,
+      accessKeyId: AWS_ACCESS_KEY_ID,
+      secretAccessKey: AWS_SECRET_ACCESS_KEY
+    });
+
+    // Find the user by email (username in Cognito is usually the email)
+    const listUsersResp = await cognito
+      .listUsers({
+        UserPoolId: COGNITO_USER_POOL_ID,
+        Filter: `email = "${email}"`
+      })
+      .promise();
+
+    const user = listUsersResp.Users && listUsersResp.Users[0];
+    if (!user) {
+      return res.status(404).json({ message: 'User not found in Cognito' });
+    }
+
+    await cognito
+      .adminAddUserToGroup({
+        UserPoolId: COGNITO_USER_POOL_ID,
+        Username: user.Username!,
+        GroupName: group
+      })
+      .promise();
+
+    res.status(200).json({ message: `User ${email} added to group ${group}` });
+  } catch (error: any) {
+    console.error('Error adding user to group:', error);
+    res.status(500).json({ message: 'Failed to add user to group', error: error.message });
   }
 };

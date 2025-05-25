@@ -8,12 +8,21 @@ import { AvailableShift, Employee } from '../../config/postgres/models';
  * @returns {Promise<AssignedShift>} The created assigned shift.
  */
 export const createAssignedShift = async (data: CreateAssignedShiftDTO): Promise<AssignedShift> => {
+  // Find the available shift and increment shift_slots_taken
+  const availableShift = await AvailableShift.findByPk(data.shiftSlotId);
+  if (!availableShift) {
+    throw new Error('Available shift not found');
+  }
+  if (availableShift.shift_slots_taken >= availableShift.shift_slots_amount) {
+    throw new Error('No available slots for this shift');
+  }
+  await availableShift.update({ shift_slots_taken: availableShift.shift_slots_taken + 1 });
+
   const shiftData: any = {
     assigned_shift_id: data.shiftSlotId,
     assigned_employee_id: data.employeeId,
-  } ; // TODO: Create strict type for shiftData
- 
-  
+  }; // TODO: Create strict type for shiftData
+
   const newAssignedShift = await AssignedShift.create(shiftData);
   return newAssignedShift;
 };
@@ -21,6 +30,12 @@ export const createAssignedShift = async (data: CreateAssignedShiftDTO): Promise
 export const deleteAssignedShift = async (id: number): Promise<boolean> => {
   const assignedShift = await AssignedShift.findOne({ where: { assigned_id: id } });
   if (!assignedShift) return false;
+
+  // Decrement shift_slots_taken for the corresponding available shift
+  const availableShift = await AvailableShift.findByPk(assignedShift.assigned_shift_id);
+  if (availableShift && availableShift.shift_slots_taken > 0) {
+    await availableShift.update({ shift_slots_taken: availableShift.shift_slots_taken - 1 });
+  }
 
   await assignedShift.destroy();
   return true;
@@ -77,6 +92,4 @@ export const swapAssignedShifts = async (assignedShift1: number, assignedShift2:
     console.error('Error swapping assigned shifts:', error);
     throw new Error('Failed to swap assigned shifts');
   }
-
-  
 };

@@ -24,12 +24,14 @@ export const CreateAvailableShiftSchema = z.object({
     date: z.coerce.date(),
     start: z.string().time(), 
     end: z.string().time(),
+    shift_slots_amount: z.coerce.number().int().min(1).optional(), // Added field
 }).strict();
 
 export const UpdateAvailableShiftSchema = z.object({
     date: z.coerce.date().optional(), 
     start: z.string().time().optional(), 
-    end: z.string().time().optional()
+    end: z.string().time().optional(),
+    shift_slots_amount: z.coerce.number().int().min(1).optional(), // Added field
 }).strict();
 
 export const AvailableShiftQuerySchema = z.object({
@@ -39,7 +41,9 @@ export const AvailableShiftQuerySchema = z.object({
     shift_start_before: z.string().time().optional(), 
     shift_start_after: z.string().time().optional(), 
     shift_end_before: z.string().time().optional(), 
-    shift_end_after: z.string().time().optional()
+    shift_end_after: z.string().time().optional(),
+    shift_slots_amount: z.coerce.number().int().optional(), // Added field
+    shift_slots_taken: z.coerce.number().int().optional() // Added field
 }).strict();
 
 export type CreateAvailableShiftDTO = z.infer<typeof CreateAvailableShiftSchema>;
@@ -90,3 +94,11 @@ export const RequestedShiftQuerySchema = z.object({
 export type CreateRequestedShiftDTO = z.infer<typeof CreateRequestedShiftSchema>;
 export type UpdateRequestedShiftDTO = z.infer<typeof UpdateRequestedShiftSchema>;
 export type RequestedShiftQueryDTO = z.infer<typeof RequestedShiftQuerySchema>;
+
+/* ---------- Add to Group Types ---------- */
+export const AddtoGroupSchema = z.object({
+    email: z.string().email(),
+    group: z.string().nonempty(),
+}).strict();
+
+export type AddtoGroupDTO = z.infer<typeof RequestedShiftQuerySchema>;

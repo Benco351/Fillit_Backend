@@ -35,6 +35,7 @@ import {
  *   "date": "2024-04-19",
  *   "start": "09:00:00",
  *   "end": "17:00:00"
+ *   "shift_slots_amount": 5
  * }
  * // Response example:
  * {
@@ -45,6 +46,8 @@ import {
  *       "shift_date": "2024-04-19",
  *       "shift_time_start": "09:00:00",
  *       "shift_time_end": "17:00:00"
+ *       "shift_slots_amount": 5,  
+ *       "shift_slots_taken": 0
  *   }
  * }
  */
@@ -119,6 +122,8 @@ export const getAvailableShiftById = async (req: Request, res: Response, next: N
  * - `shift_end_after` (optional): End time of the shift (format: HH:mm:ss).
  * - `shift_start_date` (optional): Start date of the shift (format: YYYY-MM-DD).
  * - `shift_end_date` (optional): End date of the shift (format: YYYY-MM-DD).
+ * - `shift_slots_amount` (optional): Number of slots available for the shift.
+ * - `shift_slots_taken` (optional): Number of slots already taken for the shift.
  *
  * @example
  * // Query parameters example:
@@ -134,12 +139,17 @@ export const getAvailableShiftById = async (req: Request, res: Response, next: N
  *             "shift_date": "2024-04-19",
  *             "shift_time_start": "09:00:00",
  *             "shift_time_end": "13:00:00"
+ *             "shift_slots_amount": 5,
+ *             "shift_slots_taken": 0
+ * 
  *         },
  *         {
  *             "shift_id": 2,
  *             "shift_date": "2024-04-20",
  *             "shift_time_start": "10:00:00",
  *             "shift_time_end": "14:00:00"
+ *             "shift_slots_amount": 3,
+ *             "shift_slots_taken": 1
  *         }
  *     ]
  * }

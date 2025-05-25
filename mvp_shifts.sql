@@ -9,6 +9,8 @@ DROP TYPE  IF EXISTS enum_requested_shifts_request_status;
 CREATE TABLE available_shifts (
   shift_id          SERIAL PRIMARY KEY,
   shift_date        DATE,
+  shift_slots_amount INTEGER NOT NULL,
+  shift_slots_taken  INTEGER DEFAULT 0,
   shift_time_start  TIME(6),
   shift_time_end    TIME(6)
 );
