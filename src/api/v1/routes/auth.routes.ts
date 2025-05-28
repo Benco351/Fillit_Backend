@@ -8,5 +8,4 @@ const router = Router();
 router.post('/sign-up', validate(CreateEmployeeSchema), createEmployee);
 router.post('/add-to-group', validate(AddtoGroupSchema), addToGroup);
 
-
 export default router;
