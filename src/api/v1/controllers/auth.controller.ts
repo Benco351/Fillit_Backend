@@ -66,17 +66,13 @@ export const addToGroup = async (req: Request, res: Response) => {
   }
 
   try {
-    const cognito = new AWS.CognitoIdentityServiceProvider({
-      region: process.env.COGNITO_REGION,
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-    });
+    const cognito = await createCognitoClient();
 
     // Find the user by email (username in Cognito is usually the email)
     const listUsersResp = await cognito
       .listUsers({
         UserPoolId: `${process.env.COGNITO_USER_POOL_ID}`,
-        Filter: `email = "${email}"`
+        Filter: `email = "${email}"`,
       })
       .promise();
 
@@ -89,7 +85,7 @@ export const addToGroup = async (req: Request, res: Response) => {
       .adminAddUserToGroup({
         UserPoolId: `${process.env.COGNITO_USER_POOL_ID}`,
         Username: user.Username!,
-        GroupName: group
+        GroupName: group,
       })
       .promise();
 
@@ -97,5 +93,33 @@ export const addToGroup = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error('Error adding user to group:', error);
     res.status(500).json({ message: 'Failed to add user to group', error: error.message });
+  }
+};
+
+export const createCognitoClient = async (): Promise<AWS.CognitoIdentityServiceProvider> => {
+  try {
+    // Initialize STS client
+    const sts = new AWS.STS();
+
+    // Assume a role with permissions to access Cognito
+    const assumedRole = await sts
+      .assumeRole({
+        RoleArn: `${process.env.AWS_ASSUME_ROLE_ARN}`, // ARN of the role to assume
+        RoleSessionName: 'CognitoSession', // A unique session name
+      })
+      .promise();
+
+    // Use temporary credentials from the assumed role
+    const cognito = new AWS.CognitoIdentityServiceProvider({
+      region: `${process.env.COGNITO_REGION}`,
+      accessKeyId: assumedRole.Credentials?.AccessKeyId,
+      secretAccessKey: assumedRole.Credentials?.SecretAccessKey,
+      sessionToken: assumedRole.Credentials?.SessionToken,
+    });
+
+    return cognito;
+  } catch (error) {
+    console.error('Error assuming role:', error);
+    throw new Error('Failed to create Cognito client using assumed role');
   }
 };

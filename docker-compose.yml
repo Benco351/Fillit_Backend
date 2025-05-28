@@ -15,6 +15,12 @@ services:
       - PG_USER=postgres
       - PG_PASSWORD=rootroot
       - PG_SSL=false
+      - COGNITO_REGION=us-east-1
+      - COGNITO_USER_POOL_ID=us-east-1_2b12jp6CP
+      - AWS_ASSUME_ROLE_ARN=arn:aws:iam::873912191671:role/Cognito-Backend-Access
+      - AWS_ACCESS_KEY_ID=AKIA4W6JZZK33VW62EOE
+      - AWS_SECRET_ACCESS_KEY=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
+      - COGNITO_APP_CLIENT_ID=220t468rol0v98gjq2hker81l4
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./src/db/init:/docker-entrypoint-initdb.d   # ← auto-run on first init
