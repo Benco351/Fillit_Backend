@@ -20,7 +20,10 @@ import {
 import { z } from 'zod';
 import AWS from 'aws-sdk';
 
-
+//body:
+//{ 
+// "admin": true 
+//}
 export const assignAdmin = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const empId = validateId(req.params.id);
@@ -76,7 +79,7 @@ export const assignAdmin = async (req: Request, res: Response, next: NextFunctio
           .adminAddUserToGroup({
             UserPoolId: `${process.env.COGNITO_USER_POOL_ID}`,
             Username: user.Username!,
-            GroupName: 'admin'
+            GroupName: 'Admins'
           })
           .promise();
       } else {
@@ -85,7 +88,7 @@ export const assignAdmin = async (req: Request, res: Response, next: NextFunctio
           .adminRemoveUserFromGroup({
             UserPoolId: `${process.env.COGNITO_USER_POOL_ID}`,
             Username: user.Username!,
-            GroupName: 'admin'
+            GroupName: 'Admins'
           })
           .promise();
       }

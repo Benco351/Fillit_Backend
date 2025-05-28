@@ -11,7 +11,7 @@ import {
   import { RequestedShift } from './requestedShift.model';
   
   @Table({
-    tableName: 'avaliable_shifts',
+    tableName: 'available_shifts',
     timestamps: false,
   })
   export class AvailableShift extends Model<AvailableShift> {
