@@ -9,13 +9,6 @@ import {
   EmailExists,
   CreateEmployeeErrorLog,
 } from '../../../assets/messages/employeeMessages';
-import {
-  COGNITO_USER_POOL_ID,
-  COGNITO_REGION,
-  AWS_ACCESS_KEY_ID,
-  AWS_SECRET_ACCESS_KEY
-
-} from '../../../assets/constants';
 import AWS from 'aws-sdk';
 
 /**
@@ -72,24 +65,17 @@ export const addToGroup = async (req: Request, res: Response) => {
     return res.status(400).json({ message: 'Missing email or group' });
   }
 
-  // Debug: log COGNITO_USER_POOL_ID
-  if (!COGNITO_USER_POOL_ID) {
-    console.error('COGNITO_USER_POOL_ID is not set');
-    return res.status(500).json({ message: 'COGNITO_USER_POOL_ID is not set in environment/config' });
-  }
-  console.log('Using COGNITO_USER_POOL_ID:', COGNITO_USER_POOL_ID);
-
   try {
     const cognito = new AWS.CognitoIdentityServiceProvider({
-      region: COGNITO_REGION,
-      accessKeyId: AWS_ACCESS_KEY_ID,
-      secretAccessKey: AWS_SECRET_ACCESS_KEY
+      region: process.env.COGNITO_REGION,
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
     });
 
     // Find the user by email (username in Cognito is usually the email)
     const listUsersResp = await cognito
       .listUsers({
-        UserPoolId: COGNITO_USER_POOL_ID,
+        UserPoolId: `${process.env.COGNITO_USER_POOL_ID}`,
         Filter: `email = "${email}"`
       })
       .promise();
@@ -101,7 +87,7 @@ export const addToGroup = async (req: Request, res: Response) => {
 
     await cognito
       .adminAddUserToGroup({
-        UserPoolId: COGNITO_USER_POOL_ID,
+        UserPoolId: `${process.env.COGNITO_USER_POOL_ID}`,
         Username: user.Username!,
         GroupName: group
       })

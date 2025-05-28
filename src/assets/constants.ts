@@ -5,7 +5,6 @@ export const COGNITO_ISSUER =
   `${process.env.COGNITO_USER_POOL_ID}`;
 
 export const JWKS_URL = `${COGNITO_ISSUER}/.well-known/jwks.json`;
-
 /* ID-tokens carry aud = client-ID */
 export const COGNITO_AUDIENCE = process.env.COGNITO_APP_CLIENT_ID;
 export const CACHE_DURATION = 60 * 60 * 1000 * 5; // 5 hour

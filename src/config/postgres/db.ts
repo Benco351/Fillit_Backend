@@ -10,6 +10,9 @@ export const sequelize = new Sequelize({
   password: process.env.PG_PASSWORD,
   host: process.env.PG_HOST,
   port: Number(process.env.PG_PORT),
+  define: {
+    schema: 'public',          // ← ensures all models sync into “public”
+  },
   dialect: 'postgres',
   models: [Employee, AvailableShift, AssignedShift, RequestedShift],
   dialectOptions: process.env.PG_SSL === 'true'

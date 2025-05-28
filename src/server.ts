@@ -9,7 +9,7 @@ const PORT = parseInt(process.env.PORT || '8000', 10);
   try {
     await connectPostgres();
     initModels(sequelize);
-    await sequelize.sync({ alter: true });
+    await sequelize.sync({ alter: true, searchPath: 'public'});
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   } catch (error) {
     console.error('Error starting server:', error);

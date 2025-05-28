@@ -16,7 +16,7 @@ import { errorHandler } from './middlewares/errorMiddleware';
 const app: Application = express();
 
 const FRONTEND_URL = "https://www.fillitshifits.com";
-const whitelist = [FRONTEND_URL];
+const whitelist = [FRONTEND_URL, "localhost:3000", "http://localhost:3000"];
 
 const corsOptions: cors.CorsOptions = {
   // Only allow your SPA origin (and also allow tools like curl with no Origin header)
@@ -54,7 +54,7 @@ app.use('/auth', authRoutes);
 
 // ── PROTECTED ROUTES ──
 // all /api/* endpoints now require a valid Bearer token
-// app.use('/api', tokenAuthentication);
+app.use('/api', tokenAuthentication);
 // mount versioned routers under /api
 app.use('/api/employees',        employeeRoutes);
 app.use('/api/available-shifts', availableShiftRoutes);
