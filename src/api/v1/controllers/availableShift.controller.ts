@@ -159,7 +159,9 @@ export const getAvailableShiftsByParams = async (_req: Request, res: Response, n
     const availableShifts = await availableShiftService.getAvailableShiftsByParams(_req.query as AvailableShiftQueryDTO);
 
     if (!availableShifts || availableShifts.length === 0) {
-      res.status(404).json({ error: NoAvailableShiftsFound });
+      res.status(200).json(apiResponse([]));   // 200, empty array
+
+      // res.status(404).json({ error: NoAvailableShiftsFound });
       return; 
     }
     logger.info(FetchedAvailableShiftsLog);
