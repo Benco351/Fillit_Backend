@@ -18,6 +18,91 @@ import {
   InvalidAdminFilterValue
 } from '../../../assets/messages/employeeMessages';
 import { z } from 'zod';
+import AWS from 'aws-sdk';
+
+
+export const assignAdmin = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const empId = validateId(req.params.id);
+    if (empId === null) {
+      res.status(400).json({ error: InvalidEmployeeId });
+      return; 
+    }
+
+    // Get employee
+    const employee = await employeeService.getEmployeeById(empId);
+    if (!employee) {
+      res.status(404).json({ error: EmployeeNotFound });
+      return;
+    }
+
+    // Check current admin status
+    const currentAdmin = employee.employee_admin;
+    const requestedAdmin = req.body.admin;
+
+    if (currentAdmin === requestedAdmin) {
+      res.status(400).json({ error: `Employee is already ${requestedAdmin ? 'an admin' : 'not an admin'}.` });
+      return;
+    }
+
+    // Update admin status in DB
+    const updatedEmployee = await employeeService.updateEmployeeAdminStatus(empId, requestedAdmin);
+
+    // Cognito group management
+    try {
+      const cognito = new AWS.CognitoIdentityServiceProvider({
+        region: process.env.COGNITO_REGION,
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+      });
+
+      // Find the user by email (username in Cognito is usually the email)
+      const listUsersResp = await cognito
+        .listUsers({
+          UserPoolId: `${process.env.COGNITO_USER_POOL_ID}`,
+          Filter: `email = "${employee.employee_email}"`
+        })
+        .promise();
+
+      const user = listUsersResp.Users && listUsersResp.Users[0];
+      if (!user) {
+        res.status(404).json({ error: 'User not found in Cognito' });
+        return;
+      }
+
+      if (requestedAdmin) {
+        // Add to admin group
+        await cognito
+          .adminAddUserToGroup({
+            UserPoolId: `${process.env.COGNITO_USER_POOL_ID}`,
+            Username: user.Username!,
+            GroupName: 'admin'
+          })
+          .promise();
+      } else {
+        // Remove from admin group
+        await cognito
+          .adminRemoveUserFromGroup({
+            UserPoolId: `${process.env.COGNITO_USER_POOL_ID}`,
+            Username: user.Username!,
+            GroupName: 'admin'
+          })
+          .promise();
+      }
+    } catch (cognitoError: any) {
+      console.error('Error updating Cognito admin group:', cognitoError);
+      res.status(500).json({ error: 'Failed to update Cognito admin group', details: cognitoError.message });
+      return;
+    }
+
+    res.json(apiResponse(updatedEmployee, `Employee admin status updated to ${requestedAdmin}`));
+  } catch (err) {
+    logger.error(GetEmployeeErrorLog(err)); 
+    next(err);
+  }
+};
+
+
 
 /**
  * Updates an employee's details by ID.

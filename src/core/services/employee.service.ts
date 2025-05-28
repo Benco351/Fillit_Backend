@@ -115,3 +115,29 @@ export const updateEmployee = async (id: number, data: UpdateEmployeeDTO): Promi
 
   return updatedEmployee;
 };
+
+/**
+ * Updates only the admin status of an employee by their ID.
+ * @param {number} id - Employee ID.
+ * @param {boolean} admin - The new admin status.
+ * @returns {Promise<Omit<Employee, 'employee_password'> | null>} The updated employee or null if not found.
+ */
+export const updateEmployeeAdminStatus = async (id: number, admin: boolean): Promise<Omit<Employee, 'employee_password'> | null> => {
+  const employee = await Employee.findOne({ where: { employee_id: id } });
+  if (!employee) return null;
+
+  // Print the employee email for debugging
+  console.log('Employee email:', employee.employee_email);
+
+  // Only update the admin status
+  await employee.update({ employee_admin: admin });
+
+  // Fetch the updated employee, excluding the password
+  const updatedEmployee = await Employee.findOne({
+    where: { employee_id: id },
+    attributes: { exclude: ['employee_password'] }
+  });
+
+  // Type assertion to Omit<Employee, 'employee_password'> for correct return type
+  return updatedEmployee as Omit<Employee, 'employee_password'> | null;
+};
