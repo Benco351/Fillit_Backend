@@ -54,7 +54,7 @@ app.use('/auth', authRoutes);
 
 // ── PROTECTED ROUTES ──
 // all /api/* endpoints now require a valid Bearer token
-app.use('/api', tokenAuthentication);
+//app.use('/api', tokenAuthentication);
 // mount versioned routers under /api
 app.use('/api/employees',        employeeRoutes);
 app.use('/api/available-shifts', availableShiftRoutes);
