@@ -62,7 +62,7 @@ export const UpdateEmployeeSchema = z.object({
     name: z.string().nonempty().optional(),
     email: z.string().email().optional(),
     password: z.string().optional(),
-    admin: z.boolean().optional(),
+    // admin: z.boolean().optional(),
     phone: z.string().optional(),
 }).strict();
 
@@ -102,3 +102,10 @@ export const AddtoGroupSchema = z.object({
 }).strict();
 
 export type AddtoGroupDTO = z.infer<typeof RequestedShiftQuerySchema>;
+
+/* ---------- Admin Assignment Types ---------- */
+export const AssignAdminSchema = z.object({
+    admin: z.boolean()
+}).strict();
+
+export type AssignAdminDTO = z.infer<typeof AssignAdminSchema>;
