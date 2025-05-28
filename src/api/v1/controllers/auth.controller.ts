@@ -66,13 +66,17 @@ export const addToGroup = async (req: Request, res: Response) => {
   }
 
   try {
-    const cognito = await createCognitoClient();
+    const cognito = new AWS.CognitoIdentityServiceProvider({
+      region: process.env.COGNITO_REGION,
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    });
 
     // Find the user by email (username in Cognito is usually the email)
     const listUsersResp = await cognito
       .listUsers({
         UserPoolId: `${process.env.COGNITO_USER_POOL_ID}`,
-        Filter: `email = "${email}"`,
+        Filter: `email = "${email}"`
       })
       .promise();
 
