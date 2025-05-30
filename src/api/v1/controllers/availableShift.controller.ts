@@ -89,7 +89,7 @@ export const getAvailableShiftById = async (req: Request, res: Response, next: N
   try {
     const shiftId = validateId(req.params.id);
     if (shiftId === null) {
-      res.status(400).json({ error: InvalidAvailableShiftId });
+      res.status(200).json(apiResponse([]));   // 200, empty array
       return; 
     }
 

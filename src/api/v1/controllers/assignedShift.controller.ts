@@ -158,7 +158,7 @@ export const getAssignedShiftById = async (req: Request, res: Response, next: Ne
   try {
     const shiftId = validateId(req.params.id);
     if (shiftId === null) {
-      res.status(400).json({ error: InvalidShiftAssignId });
+      res.status(200).json(apiResponse([]));   // 200, empty array
       return; 
     }
 
@@ -210,15 +210,11 @@ export const getAssignedShiftById = async (req: Request, res: Response, next: Ne
  */
 export const getAssignedShiftsByParams = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
+    // If admin, req.query will be empty (fetch all). If not, filter by params.
+    const assignedShifts = await assignedShiftService.getAssignedShiftsByParams(req.query as AssignedShiftQueryDTO);
 
-    const requestedShifts = await assignedShiftService.getAssignedShiftsByParams(req.query as AssignedShiftQueryDTO);
-
-    if (!requestedShifts || requestedShifts.length === 0) {
-      res.status(404).json({ error: NoAssignedShiftsFound });
-      return;
-    }
+    res.status(200).json(apiResponse(assignedShifts, AssignedShiftsRetrieved));
     logger.info(FetchedAssignedShiftsLog);
-    res.json(apiResponse(requestedShifts, AssignedShiftsRetrieved));
   } catch (err) {
     if (err instanceof Error && err.message.startsWith(InvalidEmployeeIdStart)) {
       res.status(400).json({ error: err.message });
@@ -228,7 +224,6 @@ export const getAssignedShiftsByParams = async (req: Request, res: Response, nex
     next(err);
   }
 };
-
 /**
  * Swaps two assigned shifts between employees.
  *

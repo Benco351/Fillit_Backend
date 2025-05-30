@@ -123,7 +123,7 @@ export const getRequestedShiftById = async (req: Request, res: Response, next: N
   try {
     const shiftId = validateId(req.params.id);
     if (shiftId === null) {
-      res.status(400).json({ error: InvalidShiftRequestId });
+      res.status(200).json(apiResponse([]));   // 200, empty array
       return; 
     }
 
@@ -199,7 +199,7 @@ export const getRequestedShiftsByParams = async (req: Request, res: Response, ne
     const requestedShifts = await requestedShiftService.getRequestedShiftsByParams(req.query as RequestedShiftQueryDTO);
 
     if (!requestedShifts || requestedShifts.length === 0) {
-      res.status(404).json({ error: NoRequestedShiftsFound });
+      res.status(200).json(apiResponse([]));   // 200, empty array
       return;
     }
     logger.info(FetchedRequestedShiftsLog);

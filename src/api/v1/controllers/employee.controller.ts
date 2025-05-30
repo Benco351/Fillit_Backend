@@ -54,7 +54,7 @@ export const assignAdmin = async (req: Request, res: Response, next: NextFunctio
 
     // Cognito group management
     try {
-      const cognito = await createCognitoClient(); // Use the helper
+      const cognito = await createCognitoClient();
 
       // Find the user by email (username in Cognito is usually the email)
       const listUsersResp = await cognito

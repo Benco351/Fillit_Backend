@@ -66,11 +66,7 @@ export const addToGroup = async (req: Request, res: Response) => {
   }
 
   try {
-    const cognito = new AWS.CognitoIdentityServiceProvider({
-      region: process.env.COGNITO_REGION,
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-    });
+    const cognito = await createCognitoClient();
 
     // Find the user by email (username in Cognito is usually the email)
     const listUsersResp = await cognito
@@ -102,28 +98,42 @@ export const addToGroup = async (req: Request, res: Response) => {
 
 export const createCognitoClient = async (): Promise<AWS.CognitoIdentityServiceProvider> => {
   try {
-    // Initialize STS client
-    const sts = new AWS.STS();
+    // Fetch credentials from SSM Parameter Store
+    const ssm = new AWS.SSM({ region: process.env.COGNITO_REGION });
 
-    // Assume a role with permissions to access Cognito
-    const assumedRole = await sts
-      .assumeRole({
-        RoleArn: `${process.env.AWS_ASSUME_ROLE_ARN}`, // ARN of the role to assume
-        RoleSessionName: 'CognitoSession', // A unique session name
+    // Get access key ID
+    const accessKeyIdParam = await ssm
+      .getParameter({
+        Name: process.env.AWS_ACCESS_KEY_ID_SSM!,
+        WithDecryption: true,
       })
       .promise();
 
-    // Use temporary credentials from the assumed role
+    // Get secret access key
+    const secretAccessKeyParam = await ssm
+      .getParameter({
+        Name: process.env.AWS_SECRET_ACCESS_KEY_SSM!,
+        WithDecryption: true,
+      })
+      .promise();
+
+    const accessKeyId = accessKeyIdParam.Parameter?.Value;
+    const secretAccessKey = secretAccessKeyParam.Parameter?.Value;
+
+    if (!accessKeyId || !secretAccessKey) {
+      throw new Error('Failed to retrieve AWS credentials from SSM');
+    }
+
+    // Create Cognito client with credentials from SSM
     const cognito = new AWS.CognitoIdentityServiceProvider({
-      region: `${process.env.COGNITO_REGION}`,
-      accessKeyId: assumedRole.Credentials?.AccessKeyId,
-      secretAccessKey: assumedRole.Credentials?.SecretAccessKey,
-      sessionToken: assumedRole.Credentials?.SessionToken,
+      region: process.env.COGNITO_REGION,
+      accessKeyId,
+      secretAccessKey,
     });
 
     return cognito;
   } catch (error) {
-    console.error('Error assuming role:', error);
-    throw new Error('Failed to create Cognito client using assumed role');
+    console.error('Error creating Cognito client with SSM credentials:', error);
+    throw new Error('Failed to create Cognito client using SSM credentials');
   }
 };
