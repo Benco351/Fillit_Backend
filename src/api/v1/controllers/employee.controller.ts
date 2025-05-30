@@ -19,6 +19,7 @@ import {
 } from '../../../assets/messages/employeeMessages';
 import { z } from 'zod';
 import AWS from 'aws-sdk';
+import { createCognitoClient } from './auth.controller'; // Add this import
 
 //body:
 //{ 
@@ -53,11 +54,7 @@ export const assignAdmin = async (req: Request, res: Response, next: NextFunctio
 
     // Cognito group management
     try {
-      const cognito = new AWS.CognitoIdentityServiceProvider({
-        region: process.env.COGNITO_REGION,
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-      });
+      const cognito = await createCognitoClient(); // Use the helper
 
       // Find the user by email (username in Cognito is usually the email)
       const listUsersResp = await cognito
