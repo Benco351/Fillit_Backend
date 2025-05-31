@@ -11,6 +11,7 @@ import requestedShiftRoutes from './api/v1/routes/requestedShift.routes';
 import assignedShiftRoutes from './api/v1/routes/assignedShift.routes';
 import { errorHandler } from './middlewares/errorMiddleware';
 import adminRoutes from './api/v1/routes/admin.routes';
+import { tokenAuthentication } from './middlewares/authMiddleware';
 
 const app: Application = express();
 
@@ -51,11 +52,11 @@ app.get('/health', (_req, res) => res.sendStatus(200));
 // Mount all auth routes (including /add-to-group)
 app.use('/auth', authRoutes);
 
+app.use('/admin', adminRoutes);
 
 // ── PROTECTED ROUTES ──
 // all /api/* endpoints now require a valid Bearer token
-//app.use('/api', tokenAuthentication);
-app.use('/admin', adminRoutes);
+app.use('/api', tokenAuthentication);
 // mount versioned routers under /api
 
 app.use('/api/employees',        employeeRoutes);
