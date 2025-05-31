@@ -7,7 +7,6 @@ import { validateId } from '../../../middlewares/validateMiddleware';
 import {
   InvalidAvailableShiftId,
   AvailableShiftNotFound,
-  NoAvailableShiftsFound,
   UnsupportedParamPrefix,
   CreatedAvailableShiftLog,
   FetchedAvailableShiftsLog,

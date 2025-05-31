@@ -4,8 +4,6 @@ import express, { Application } from 'express';
 import compression from 'compression';
 import cors from 'cors';
 
-import { tokenAuthentication } from './middlewares/authMiddleware';
-
 import authRoutes from './api/v1/routes/auth.routes';
 import employeeRoutes from './api/v1/routes/employee.routes';
 import availableShiftRoutes from './api/v1/routes/availableShift.routes';

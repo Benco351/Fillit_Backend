@@ -13,8 +13,6 @@ import {
   RequestedShiftExists,
   ShiftRequestCreated,
   ShiftRequestNotFound,
-  InvalidShiftRequestId,
-  NoRequestedShiftsFound,
   RequestedShiftsRetrieved,
   InvalidRequestedShiftId,
   RequestedShiftDeleted,

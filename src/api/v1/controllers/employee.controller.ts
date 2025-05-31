@@ -18,7 +18,6 @@ import {
   InvalidAdminFilterValue
 } from '../../../assets/messages/employeeMessages';
 import { z } from 'zod';
-import AWS from 'aws-sdk';
 import { createCognitoClient } from './auth.controller'; // Add this import
 
 //body:
