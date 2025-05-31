@@ -115,18 +115,19 @@ jobs:
             --source-bundle S3Bucket=${{ secrets.EB_S3_BUCKET }},S3Key=eb-deploy.zip
           echo "version_label=$VERSION_LABEL" >> $GITHUB_OUTPUT
 
-      # Amplify default domain for FRONTEND_URL
+      # ── 1.  Fetch the custom Amplify domain ──────────────────────────────
       - id: amplify_domain
         run: |
-          DOMAIN=$(aws amplify get-app \
+          CUSTOM_DOMAIN=$(aws amplify list-domain-associations \
             --app-id "${{ secrets.AMPLIFY_APP_ID }}" \
-            --query "app.defaultDomain" \
+            --query 'domainAssociations[0].domainName' \
             --output text)
-          echo "default_domain=$DOMAIN" >> $GITHUB_OUTPUT
+          echo "custom_domain=$CUSTOM_DOMAIN" >> "$GITHUB_OUTPUT"
 
-      - name: Update EB env (FRONTEND_URL + healthcheck)
+      # ── 2.  Use that domain when updating Elastic Beanstalk ─────────────
+      - name: Update EB env (CUSTOM_DOMAIN + health-check)
         run: |
-          FRONTEND_URL="https://${{ vars.AMPLIFY_APP_BRANCH }}.${{ steps.amplify_domain.outputs.default_domain }}"
+          FRONTEND_URL="https://${{ steps.amplify_domain.outputs.custom_domain }}"
           aws elasticbeanstalk update-environment \
             --environment-name "${{ secrets.EB_ENV_NAME }}" \
             --version-label    "${{ steps.create_version.outputs.version_label }}" \
