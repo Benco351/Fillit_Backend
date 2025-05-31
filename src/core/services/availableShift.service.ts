@@ -47,16 +47,15 @@ export const getAvailableShiftsByParams = async (params: AvailableShiftQueryDTO)
     filters.shift_date = { [Op.lte]: params.shift_end_date.toString() };
   }
 
-  // Add filter: do not return shifts where shift_slots_taken == shift_slots_amount
-  filters.shift_slots_taken = { 
-    ...(filters.shift_slots_taken || {}),
-    [Op.lt]: filters.shift_slots_amount ?? { [Op.col]: 'shift_slots_amount' }
-  };
+  // // Add filter: do not return shifts where shift_slots_taken == shift_slots_amount
+  // filters.shift_slots_taken = { 
+  //   ...(filters.shift_slots_taken || {}),
+  //   [Op.lt]: filters.shift_slots_amount ?? { [Op.col]: 'shift_slots_amount' }
+  // };
 
   const availableShifts = await AvailableShift.findAll({ where: filters });
   return availableShifts;
 };
-
 export const deleteAvailableShift = async (id: number): Promise<boolean> => {
   const availableShift = await AvailableShift.findOne({ where: { shift_id: id } });
   if (!availableShift) return false;

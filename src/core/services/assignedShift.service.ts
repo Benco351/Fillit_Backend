@@ -1,5 +1,6 @@
 import { CreateAssignedShiftDTO, AssignedShiftQueryDTO } from '../../assets/types/types';
 import { AssignedShift } from '../../config/postgres/models/assignedShift.model';
+import {RequestedShift} from '../../config/postgres/models/requestedShift.model';
 import { AvailableShift, Employee } from '../../config/postgres/models';
 
 /**
@@ -36,6 +37,14 @@ export const deleteAssignedShift = async (id: number): Promise<boolean> => {
   if (availableShift && availableShift.shift_slots_taken > 0) {
     await availableShift.update({ shift_slots_taken: availableShift.shift_slots_taken - 1 });
   }
+
+  // Delete the requested shift for the same employee and available shift, if exists
+  await RequestedShift.destroy({
+    where: {
+      request_employee_id: assignedShift.assigned_employee_id,
+      request_shift_id: assignedShift.assigned_shift_id,
+    },
+  });
 
   await assignedShift.destroy();
   return true;

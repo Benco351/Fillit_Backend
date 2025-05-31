@@ -124,6 +124,7 @@ export const deleteAssignedShift = async (req: Request, res: Response, next: Nex
       return; 
     }
     const success = await assignedShiftService.deleteAssignedShift(Number(req.params.id));
+    
     if (!success) {
       res.status(404).json({ error: AssignedShiftNotFound });
       return; 
