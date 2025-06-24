@@ -33,6 +33,7 @@ const fetchKeys = async (): Promise<Record<string, string>> => {
 };
 
 /* ── Express middleware ─────────────────────────────────────────────── */
+/*
 export const tokenAuthentication: RequestHandler = async (req, res, next) => {
   const header = req.headers.authorization;
   if (!header?.startsWith('Bearer ')) {
@@ -43,21 +44,21 @@ export const tokenAuthentication: RequestHandler = async (req, res, next) => {
   try {
     const pems = await fetchKeys();
 
-    /* decode header → pick correct PEM */
+    // decode header → pick correct PEM
     const decodedHeader = jwt.decode(token, { complete: true }) as { header?: JwtHeader } | null;
     const kid = decodedHeader?.header?.kid;
     if (!kid || !pems[kid]) {
       return res.status(401).json({ message: 'Invalid token key ID' });
     }
 
-    /* synchronous verify; throws if invalid */
+    // synchronous verify; throws if invalid
     const payload = jwt.verify(token, pems[kid], {
       issuer:   COGNITO_ISSUER,
       audience: COGNITO_AUDIENCE,        // App-client ID for ID-tokens
       algorithms: ['RS256'],
     }) as JwtPayload;
 
-    /* optional: ensure it is an ID token */
+    // optional: ensure it is an ID token
     if (payload.token_use !== 'id') {
       return res.status(401).json({ message: 'Not an ID token' });
     }
@@ -71,3 +72,4 @@ export const tokenAuthentication: RequestHandler = async (req, res, next) => {
     res.status(401).json({ message: msg });
   }
 };
+*/
