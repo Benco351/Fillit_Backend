@@ -79,24 +79,21 @@ export const getAssignedShiftsByParams = async (params: AssignedShiftQueryDTO): 
 
 export const swapAssignedShifts = async (assignedShift1: number, assignedShift2: number): Promise<AssignedShift[]> => {
   try {
-  const shift1 = await AssignedShift.findOne({ where: { assigned_id: assignedShift1 } });
-  const shift2 = await AssignedShift.findOne({ where: { assigned_id: assignedShift2 } });
-  const employee1Id = shift1?.assigned_employee_id;
-  const employee2Id = shift2?.assigned_employee_id;
-  const slot1Id = shift1?.assigned_shift_id;
-  const slot2Id = shift2?.assigned_shift_id;
+    const shift1 = await AssignedShift.findOne({ where: { assigned_id: assignedShift1 } });
+    const shift2 = await AssignedShift.findOne({ where: { assigned_id: assignedShift2 } });
+    if (!shift1 || !shift2) {
+      throw new Error('One or both assigned shifts not found');
+    }
 
-  deleteAssignedShift(assignedShift1);
-  deleteAssignedShift(assignedShift2);
+    // Swap the assigned_employee_id fields
+    const tempEmployeeId = shift1.assigned_employee_id;
+    shift1.assigned_employee_id = shift2.assigned_employee_id;
+    shift2.assigned_employee_id = tempEmployeeId;
 
-  const newshift1 = await createAssignedShift({
-    employeeId: employee1Id,
-    shiftSlotId: slot2Id,} as CreateAssignedShiftDTO);
-  const newshift2 = await createAssignedShift({
-    employeeId: employee2Id,
-    shiftSlotId: slot1Id,} as CreateAssignedShiftDTO);
+    await shift1.save();
+    await shift2.save();
 
-    return [newshift1, newshift2];
+    return [shift1, shift2];
   } catch (error) {
     console.error('Error swapping assigned shifts:', error);
     throw new Error('Failed to swap assigned shifts');
