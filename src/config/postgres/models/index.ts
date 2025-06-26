@@ -4,9 +4,10 @@ import { Employee } from './employee.model';
 import { AvailableShift } from './availableShift.model';
 import { AssignedShift } from './assignedShift.model';
 import { RequestedShift } from './requestedShift.model';
+import { ShiftSwapRequest } from './shiftSwapRequest.model';
 
 export function initModels(sequelize: Sequelize): void {
-  sequelize.addModels([Employee, AvailableShift, AssignedShift, RequestedShift]);
+  sequelize.addModels([Employee, AvailableShift, AssignedShift, RequestedShift, ShiftSwapRequest]);
 }
 
-export { Employee, AvailableShift, AssignedShift, RequestedShift };
+export { Employee, AvailableShift, AssignedShift, RequestedShift, ShiftSwapRequest };

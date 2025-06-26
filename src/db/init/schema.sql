@@ -8,6 +8,7 @@ DROP TABLE IF EXISTS assigned_shifts CASCADE;
 DROP TABLE IF EXISTS employees CASCADE;
 DROP TABLE IF EXISTS available_shifts CASCADE;
 DROP TYPE  IF EXISTS enum_requested_shifts_request_status;
+DROP TYPE  IF EXISTS enum_shift_swap_status;
 
 /* Available shifts */
 CREATE TABLE available_shifts (
@@ -75,5 +76,41 @@ CREATE TABLE requested_shifts (
       FOREIGN KEY (request_employee_id)
       REFERENCES employees (employee_id)
       ON DELETE CASCADE
+);
+
+/* Enum for shift swap status */
+CREATE TYPE enum_shift_swap_status AS ENUM ('pending', 'accepted', 'rejected', 'cancelled');
+
+/* Shift swap requests */
+CREATE TABLE shift_swap_requests (
+  id SERIAL PRIMARY KEY,
+  requester_employee_id INTEGER NOT NULL,
+  target_employee_id INTEGER NOT NULL,
+  requester_shift_id INTEGER NOT NULL,
+  target_shift_id INTEGER NOT NULL,
+  status enum_shift_swap_status DEFAULT 'pending',
+  message TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT fk_swap_requester_employee
+    FOREIGN KEY (requester_employee_id)
+    REFERENCES employees (employee_id)
+    ON DELETE CASCADE,
+
+  CONSTRAINT fk_swap_target_employee
+    FOREIGN KEY (target_employee_id)
+    REFERENCES employees (employee_id)
+    ON DELETE CASCADE,
+
+  CONSTRAINT fk_swap_requester_shift
+    FOREIGN KEY (requester_shift_id)
+    REFERENCES assigned_shifts (assigned_id)
+    ON DELETE CASCADE,
+
+  CONSTRAINT fk_swap_target_shift
+    FOREIGN KEY (target_shift_id)
+    REFERENCES assigned_shifts (assigned_id)
+    ON DELETE CASCADE
 );
 COMMIT;

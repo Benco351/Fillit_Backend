@@ -109,3 +109,25 @@ export const AssignAdminSchema = z.object({
 }).strict();
 
 export type AssignAdminDTO = z.infer<typeof AssignAdminSchema>;
+
+/* ---------- Shift Swap Request Types ---------- */
+export const CreateShiftSwapRequestSchema = z.object({
+    requester_employee_id: z.number(),
+    target_employee_id: z.number(),
+    requester_shift_id: z.number(),
+    target_shift_id: z.number(),
+    message: z.string().optional(),
+}).strict();
+
+export const RespondShiftSwapRequestSchema = z.object({
+    status: z.enum(['accepted', 'rejected', 'cancelled']),
+    message: z.string().optional(),
+}).strict();
+
+export const ShiftSwapRequestQuerySchema = z.object({
+    employee_id: z.coerce.number().optional(),
+}).strict();
+
+export type CreateShiftSwapRequestDTO = z.infer<typeof CreateShiftSwapRequestSchema>;
+export type RespondShiftSwapRequestDTO = z.infer<typeof RespondShiftSwapRequestSchema>;
+export type ShiftSwapRequestQueryDTO = z.infer<typeof ShiftSwapRequestQuerySchema>;
