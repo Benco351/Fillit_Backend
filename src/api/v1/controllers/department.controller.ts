@@ -21,10 +21,10 @@ import { validateId } from '../../../middlewares/validateMiddleware';
 
 export const createDepartment = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    if (!(req as any).user?.employee_admin) {
-      res.status(403).json({ error: 'Only admins can create departments' });
-      return;
-    }
+    // if (!(req as any).user?.employee_admin) {
+    //   res.status(403).json({ error: 'Only admins can create departments' });
+    //   return;
+    // }
     const department = await departmentService.createDepartment(req.body as CreateDepartmentDTO);
     logger.info(CreatedDepartmentLog(department.department_id));
     res.status(201).json(apiResponse(department, DepartmentCreated));
@@ -70,10 +70,10 @@ export const getDepartmentsByParams = async (req: Request, res: Response, next: 
 
 export const deleteDepartment = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    if (!(req as any).user?.employee_admin) {
-      res.status(403).json({ error: 'Only admins can delete departments' });
-      return;
-    }
+    // if (!(req as any).user?.employee_admin) {
+    //   res.status(403).json({ error: 'Only admins can delete departments' });
+    //   return;
+    // }
     const id = validateId(req.params.id);
     if (id === null) {
       res.status(400).json({ error: InvalidDepartmentId });
@@ -92,10 +92,10 @@ export const deleteDepartment = async (req: Request, res: Response, next: NextFu
 
 export const updateDepartment = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    if (!(req as any).user?.employee_admin) {
-      res.status(403).json({ error: 'Only admins can update departments' });
-      return;
-    }
+    // if (!(req as any).user?.employee_admin) {
+    //   res.status(403).json({ error: 'Only admins can update departments' });
+    //   return;
+    // }
     const id = validateId(req.params.id);
     if (id === null) {
       res.status(400).json({ error: InvalidDepartmentId });
