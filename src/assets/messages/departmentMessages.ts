@@ -1,0 +1,12 @@
+export const InvalidDepartmentId = "Invalid department ID. Must be a number.";
+export const DepartmentNotFound = "Department not found";
+export const NoDepartmentsFound = "No departments found";
+export const CreatedDepartmentLog = (id: number) => `Created department ${id}`;
+export const FetchedDepartmentsLog = "Fetched departments";
+export const GetDepartmentErrorLog = (err: unknown) => `getDepartment error: ${err}`;
+export const GetDepartmentsErrorLog = (err: unknown) => `getDepartments: ${err}`;
+export const UpdateDepartmentErrorLog = (err: unknown) => `updateDepartment error: ${err}`;
+export const CreateDepartmentErrorLog = (err: unknown) => `createDepartment error: ${err}`;
+export const DepartmentCreated = "Department created";
+export const DepartmentDeleted = "Department deleted";
+export const DepartmentUpdated = "Department updated"; 
