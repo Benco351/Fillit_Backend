@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS requested_shifts CASCADE;
 DROP TABLE IF EXISTS assigned_shifts CASCADE;
 DROP TABLE IF EXISTS employees CASCADE;
 DROP TABLE IF EXISTS available_shifts CASCADE;
+DROP TABLE IF EXISTS departments CASCADE;
 DROP TYPE  IF EXISTS enum_requested_shifts_request_status;
 DROP TYPE  IF EXISTS enum_shift_swap_status;
 
@@ -18,6 +19,13 @@ CREATE TABLE available_shifts (
   shift_slots_taken  INTEGER  DEFAULT 0,
   shift_time_start   TIME(6),
   shift_time_end     TIME(6)
+);
+
+/* Departments */
+CREATE TABLE departments (
+  department_id      SERIAL PRIMARY KEY,
+  department_name    VARCHAR(255) NOT NULL,
+  department_address VARCHAR(255)
 );
 
 /* Employees */

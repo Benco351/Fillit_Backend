@@ -131,3 +131,23 @@ export const ShiftSwapRequestQuerySchema = z.object({
 export type CreateShiftSwapRequestDTO = z.infer<typeof CreateShiftSwapRequestSchema>;
 export type RespondShiftSwapRequestDTO = z.infer<typeof RespondShiftSwapRequestSchema>;
 export type ShiftSwapRequestQueryDTO = z.infer<typeof ShiftSwapRequestQuerySchema>;
+
+/* ---------- Department Types ---------- */
+export const CreateDepartmentSchema = z.object({
+    name: z.string().nonempty(),
+    address: z.string().optional(),
+}).strict();
+
+export const UpdateDepartmentSchema = z.object({
+    name: z.string().nonempty().optional(),
+    address: z.string().optional(),
+}).strict();
+
+export const DepartmentQuerySchema = z.object({
+    department_id: z.coerce.number().optional(),
+    name: z.string().optional(),
+}).strict();
+
+export type CreateDepartmentDTO = z.infer<typeof CreateDepartmentSchema>;
+export type UpdateDepartmentDTO = z.infer<typeof UpdateDepartmentSchema>;
+export type DepartmentQueryDTO = z.infer<typeof DepartmentQuerySchema>;
