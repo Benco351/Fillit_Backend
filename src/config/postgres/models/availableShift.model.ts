@@ -6,9 +6,11 @@ import {
     AutoIncrement,
     DataType,
     HasMany,
+    BelongsTo,
   } from 'sequelize-typescript';
   import { AssignedShift } from './assignedShift.model';
   import { RequestedShift } from './requestedShift.model';
+  import { Department } from './department.model';
   
   @Table({
     tableName: 'available_shifts',
@@ -53,10 +55,24 @@ import {
       defaultValue: 0,
     })
     shift_slots_taken!: number;
+
+    @Column({
+      type: DataType.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'departments',
+        key: 'department_id',
+      },
+      onDelete: 'CASCADE',
+    })
+    department_id!: number | null;
   
     @HasMany(() => AssignedShift)
     assignedShifts!: AssignedShift[];
   
     @HasMany(() => RequestedShift)
     requestedShifts!: RequestedShift[];
+
+    @BelongsTo(() => Department, { foreignKey: 'department_id' })
+    department?: Department;
   }

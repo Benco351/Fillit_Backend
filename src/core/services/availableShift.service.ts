@@ -1,14 +1,22 @@
 import { CreateAvailableShiftDTO, AvailableShiftQueryDTO } from '../../assets/types/types';
 import { AvailableShift } from '../../config/postgres/models/availableShift.model';
 import { Op } from 'sequelize';
+import { Department } from '../../config/postgres/models/department.model';
 
 export const createAvailableShift = async (data: CreateAvailableShiftDTO): Promise<AvailableShift> => {
+  if (data.department_id !== undefined && data.department_id !== null) {
+    const department = await Department.findByPk(data.department_id);
+    if (!department) {
+      throw new Error(`Department with id ${data.department_id} does not exist`);
+    }
+  }
   const shiftData: any = {
     shift_date: data.date,
     shift_time_start: data.start,
     shift_time_end: data.end,
     shift_slots_amount: data.shift_slots_amount,
-    shift_slots_taken: 0
+    shift_slots_taken: 0,
+    department_id: data.department_id ?? null,
   }; // TODO: Create strict type for shiftData
 
   const newAvailableShift = await AvailableShift.create(shiftData);
@@ -21,6 +29,7 @@ export const getAvailableShiftById = async (id: number): Promise<AvailableShift 
   }
   const availableShift = await AvailableShift.findOne({
     where: { shift_id: id },
+    include: [{ model: Department, attributes: ['department_id', 'department_name', 'department_address'] }],
   });
   return availableShift;
 };
@@ -47,13 +56,21 @@ export const getAvailableShiftsByParams = async (params: AvailableShiftQueryDTO)
     filters.shift_date = { [Op.lte]: params.shift_end_date.toString() };
   }
 
+  if (params.department !== undefined) {
+    const department = await Department.findByPk(params.department);
+    if (!department) {
+      throw new Error(`Department with id ${params.department} does not exist`);
+    }
+    filters.department_id = params.department;
+  }
+
   // // Add filter: do not return shifts where shift_slots_taken == shift_slots_amount
   // filters.shift_slots_taken = { 
   //   ...(filters.shift_slots_taken || {}),
   //   [Op.lt]: filters.shift_slots_amount ?? { [Op.col]: 'shift_slots_amount' }
   // };
 
-  const availableShifts = await AvailableShift.findAll({ where: filters });
+  const availableShifts = await AvailableShift.findAll({ where: filters, include: [{ model: Department, attributes: ['department_id', 'department_name', 'department_address'] }] });
   return availableShifts;
 };
 export const deleteAvailableShift = async (id: number): Promise<boolean> => {
@@ -68,13 +85,28 @@ export const updateAvailableShift = async (id: number, data: Partial<CreateAvail
   const availableShift = await AvailableShift.findOne({ where: { shift_id: id } });
   if (!availableShift) return null;
 
+  if (data.department_id !== undefined) {
+    if (data.department_id === null) {
+      // Allow unassigning department
+      availableShift.department_id = null;
+    } else {
+      const department = await Department.findByPk(data.department_id);
+      if (!department) {
+        throw new Error(`Department with id ${data.department_id} does not exist`);
+      }
+      availableShift.department_id = data.department_id;
+    }
+  }
+
   const mappedData: Partial<AvailableShift> = {
     ...(data.date && { shift_date: data.date }),
     ...(data.start && { shift_time_start: data.start }),
     ...(data.end && { shift_time_end: data.end }),
     ...(data.shift_slots_amount && { shift_slots_amount: data.shift_slots_amount }),
+    // department_id is handled above
   };
 
   await availableShift.update(mappedData);
+  await availableShift.save();
   return availableShift;
 };

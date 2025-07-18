@@ -18,7 +18,12 @@ CREATE TABLE available_shifts (
   shift_slots_amount INTEGER  NOT NULL,
   shift_slots_taken  INTEGER  DEFAULT 0,
   shift_time_start   TIME(6),
-  shift_time_end     TIME(6)
+  shift_time_end     TIME(6),
+  department_id      INTEGER,
+  CONSTRAINT fk_available_shift_department
+      FOREIGN KEY (department_id)
+      REFERENCES departments (department_id)
+      ON DELETE CASCADE
 );
 
 /* Departments */

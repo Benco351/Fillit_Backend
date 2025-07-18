@@ -56,6 +56,22 @@ export const getAssignedShiftById = async (id: number): Promise<AssignedShift | 
   }
   const assignedShift = await AssignedShift.findOne({
     where: { assigned_id: id },
+    include: [
+      {
+        model: AvailableShift,
+        attributes: ['shift_date', 'shift_time_start', 'shift_time_end'],
+        include: [
+          {
+            model: require('../../config/postgres/models/department.model').Department,
+            attributes: ['department_id', 'department_name', 'department_address'],
+          },
+        ],
+      },
+      {
+        model: Employee,
+        attributes: ['employee_name', 'employee_email'],
+      },
+    ],
   });
   return assignedShift;
 };
@@ -67,6 +83,12 @@ export const getAssignedShiftsByParams = async (params: AssignedShiftQueryDTO): 
       {
         model: AvailableShift,
         attributes: ['shift_date', 'shift_time_start', 'shift_time_end'],
+        include: [
+          {
+            model: require('../../config/postgres/models/department.model').Department,
+            attributes: ['department_id', 'department_name', 'department_address'],
+          },
+        ],
       },
       {
         model: Employee,

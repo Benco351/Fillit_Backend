@@ -33,8 +33,9 @@ import {
  * {
  *   "date": "2024-04-19",
  *   "start": "09:00:00",
- *   "end": "17:00:00"
- *   "shift_slots_amount": 5
+ *   "end": "17:00:00",
+ *   "shift_slots_amount": 5,
+ *   "department_id": 2 // (optional) Department to which this shift belongs
  * }
  * // Response example:
  * {
@@ -44,11 +45,16 @@ import {
  *       "shift_id": 4,
  *       "shift_date": "2024-04-19",
  *       "shift_time_start": "09:00:00",
- *       "shift_time_end": "17:00:00"
+ *       "shift_time_end": "17:00:00",
  *       "shift_slots_amount": 5,  
- *       "shift_slots_taken": 0
+ *       "shift_slots_taken": 0,
+ *       "department_id": 2
  *   }
  * }
+ *
+ * // Error example if department does not exist:
+ * // Status: 400
+ * // Body: { "error": "Department with id 999 does not exist" }
  */
 export const createAvailableShift = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -56,6 +62,10 @@ export const createAvailableShift = async (req: Request, res: Response, next: Ne
     logger.info(CreatedAvailableShiftLog(availableShift.shift_id));
     res.status(201).json(apiResponse(availableShift, AvailableShiftCreated));
   } catch (err) {
+    if (err instanceof Error && err.message.startsWith('Department with id')) {
+      res.status(400).json({ error: err.message });
+      return;
+    }
     logger.error(CreateAvailableShiftErrorLog(err));
     next(err);
   }
@@ -97,7 +107,27 @@ export const getAvailableShiftById = async (req: Request, res: Response, next: N
       res.status(404).json({ error: AvailableShiftNotFound });
       return; 
     }
-    res.json(apiResponse(availableShift));
+    // Only include the nested department object (with id, name, address), remove department_name
+    const shiftWithDept = (() => {
+      const shift = availableShift.toJSON();
+      if (shift.department) {
+        return {
+          ...shift,
+          department: {
+            department_id: shift.department.department_id,
+            department_name: shift.department.department_name,
+            department_address: shift.department.department_address,
+          },
+        };
+      } else {
+        return {
+          ...shift,
+          department: null,
+        };
+      }
+    })();
+    if ('department_name' in shiftWithDept) delete shiftWithDept.department_name;
+    res.json(apiResponse(shiftWithDept));
   } catch (err) {
     logger.error(GetAvailableShiftErrorLog(err)); 
     next(err);
@@ -123,35 +153,15 @@ export const getAvailableShiftById = async (req: Request, res: Response, next: N
  * - `shift_end_date` (optional): End date of the shift (format: YYYY-MM-DD).
  * - `shift_slots_amount` (optional): Number of slots available for the shift.
  * - `shift_slots_taken` (optional): Number of slots already taken for the shift.
+ * - `department` (optional): Department id to filter shifts by department.
  *
  * @example
  * // Query parameters example:
- * GET /api/available-shifts?shift_date=2024-04-19&shift_start_after=09:00:00
+ * GET /api/available-shifts?shift_date=2024-04-19&department=2
  *
- * // Response example:
- * {
- *     "status": "ok",
- *     "message": "Success",
- *     "data": [
- *         {
- *             "shift_id": 1,
- *             "shift_date": "2024-04-19",
- *             "shift_time_start": "09:00:00",
- *             "shift_time_end": "13:00:00"
- *             "shift_slots_amount": 5,
- *             "shift_slots_taken": 0
- * 
- *         },
- *         {
- *             "shift_id": 2,
- *             "shift_date": "2024-04-20",
- *             "shift_time_start": "10:00:00",
- *             "shift_time_end": "14:00:00"
- *             "shift_slots_amount": 3,
- *             "shift_slots_taken": 1
- *         }
- *     ]
- * }
+ * // Error example if department does not exist:
+ * // Status: 400
+ * // Body: { "error": "Department with id 999 does not exist" }
  */
 export const getAvailableShiftsByParams = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -159,17 +169,39 @@ export const getAvailableShiftsByParams = async (_req: Request, res: Response, n
 
     if (!availableShifts || availableShifts.length === 0) {
       res.status(200).json(apiResponse([]));   // 200, empty array
-
-      // res.status(404).json({ error: NoAvailableShiftsFound });
       return; 
     }
     logger.info(FetchedAvailableShiftsLog);
-    res.json(apiResponse(availableShifts));
+    // Only include the nested department object (with id, name, address), remove department_name
+    const shiftsWithDept = availableShifts.map(shift => {
+      const s = shift.toJSON();
+      if (s.department) {
+        return {
+          ...s,
+          department: {
+            department_id: s.department.department_id,
+            department_name: s.department.department_name,
+            department_address: s.department.department_address,
+          },
+        };
+      } else {
+        return {
+          ...s,
+          department: null,
+        };
+      }
+    });
+    shiftsWithDept.forEach(s => { if ('department_name' in s) delete s.department_name; });
+    res.json(apiResponse(shiftsWithDept));
   } catch (err) {
     if (err instanceof Error && err.message.startsWith(UnsupportedParamPrefix)) {
         res.status(400).json({ error: err.message });
         return;
       }
+    if (err instanceof Error && err.message.startsWith('Department with id')) {
+      res.status(400).json({ error: err.message });
+      return;
+    }
     logger.error(GetAvailableShiftsErrorLog(err));
     next(err);
   }
@@ -230,7 +262,8 @@ export const deleteAvailableShift = async (req: Request, res: Response, next: Ne
  * {
  *   "date": "2023-10-01",
  *   "start": "10:00:00",
- *   "end": "18:00:00"
+ *   "end": "18:00:00",
+ *   "department_id": 3 // (optional) Department to which this shift belongs
  * }
  *
  * // Response example:
@@ -241,9 +274,14 @@ export const deleteAvailableShift = async (req: Request, res: Response, next: Ne
  *       "shift_id": 2,
  *       "shift_date": "2023-10-01",
  *       "shift_time_start": "10:00:00",
- *       "shift_time_end": "15:00:00"
+ *       "shift_time_end": "15:00:00",
+ *       "department_id": 3
  *   }
  * }
+ *
+ * // Error example if department does not exist:
+ * // Status: 400
+ * // Body: { "error": "Department with id 999 does not exist" }
  */
 export const updateAvailableShift = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -260,6 +298,10 @@ export const updateAvailableShift = async (req: Request, res: Response, next: Ne
     }
     res.json(apiResponse(availableShifts, AvailableShiftUpdated));
   } catch (err) {
+    if (err instanceof Error && err.message.startsWith('Department with id')) {
+      res.status(400).json({ error: err.message });
+      return;
+    }
     logger.error(UpdateAvailableShiftErrorLog(err));
     next(err);
   }
