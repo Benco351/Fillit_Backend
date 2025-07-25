@@ -134,13 +134,25 @@ assigned_tool = {
   "description": "Query the database for assigned shift slots"
 }
 
+departments_tool = {
+  "type": "function",
+  "name": "get_departments",
+  "description": "Fetch all departments in the organization. Returns department names and addresses (if available).",
+  "parameters": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": False
+  },
+  "strict": True
+}
 
 
 def select_tools(config: Config) -> List[Dict[str, Any]]:
     """Return the correct tool schema list for the given run."""
     if config.admin_mode:
-        return [available_tool, requested_tool_admin, assigned_tool_admin]
-    return [available_tool, requested_tool, assigned_tool]
+        return [available_tool, requested_tool_admin, assigned_tool_admin, departments_tool]
+    return [available_tool, requested_tool, assigned_tool, departments_tool]
 
 
 # ------------- Dispatcher -------------
@@ -150,8 +162,8 @@ def call_function(config: Config, name: str, args: Dict[str, Any]) -> List[Dict[
         "get_available_shifts": funcs.get_available_shifts,
         "get_requested_shifts": funcs.get_requested_shifts,
         "get_assigned_shifts": funcs.get_assigned_shifts,
+        "get_departments": funcs.get_departments,
     }
     if name not in mapping:
         raise ValueError(f"Unknown function {name}")
     return mapping[name](config=config, **args)
-
