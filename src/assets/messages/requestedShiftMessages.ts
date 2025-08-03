@@ -8,6 +8,7 @@ export const InvalidRequestedShiftId = 'Invalid requested shift ID. Must be a nu
 export const RequestedShiftDeleted = 'Requested shift deleted';
 export const RequestedShiftNotFound = 'Requested shift not found';
 export const RequestedShiftUpdated = 'Requested shift updated';
+export const RequestedShiftSwapped = 'Shift request has been swapped with another user';
 export const FetchedRequestedShiftsLog = "Fetched requested shifts";
 export const CreateRequestedShiftErrorLog = (err: unknown) => `createRequestedShift error: ${err}`;
 export const GetRequestedShiftErrorLog = (err: unknown) => `getRequestedShift error: ${err}`;

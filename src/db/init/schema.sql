@@ -68,7 +68,7 @@ CREATE TABLE assigned_shifts (
 
 /* Enum for requested-shifts status */
 CREATE TYPE enum_requested_shifts_request_status
-  AS ENUM ('pending', 'approved', 'denied');
+  AS ENUM ('pending', 'approved', 'denied', 'swapped');
 
 /* Requested shifts */
 CREATE TABLE requested_shifts (

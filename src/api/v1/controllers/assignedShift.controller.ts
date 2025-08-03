@@ -82,9 +82,8 @@ export const createAssignedShift = async (req: Request, res: Response, next: Nex
     const existingRequestedShift = await RequestedShift.findOne({
       where: { request_employee_id: employeeId, request_shift_id: shiftSlotId },
     });
-    if (existingRequestedShift) {
+    if (existingRequestedShift && existingRequestedShift.request_status !== RequestStatus.SWAPPED) {
       await existingRequestedShift.update({ request_status: RequestStatus.APPROVED as RequestStatus });
-
     }
 
 

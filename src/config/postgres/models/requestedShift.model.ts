@@ -15,6 +15,7 @@ import {
     PENDING = 'pending',
     APPROVED = 'approved',
     DENIED = 'denied',
+    SWAPPED = 'swapped',
   }
   
   @Table({

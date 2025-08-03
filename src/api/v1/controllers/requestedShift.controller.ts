@@ -7,6 +7,7 @@ import { validateId } from '../../../middlewares/validateMiddleware';
 import { Employee } from '../../../config/postgres/models/employee.model';
 import { AvailableShift } from '../../../config/postgres/models/availableShift.model';
 import { RequestedShift } from '../../../config/postgres/models/requestedShift.model';
+import { RequestStatus } from '../../../config/postgres/models/requestedShift.model';
 import { EmployeeNotFound, InvalidEmployeeIdStart } from '../../../assets/messages/employeeMessages';
 import { AvailableShiftNotFound } from '../../../assets/messages/availableShiftMessages';
 import {
@@ -32,6 +33,9 @@ import {
  * @param {Response} res - The response object.
  * @param {NextFunction} next - The next middleware function.
  * @returns {Promise<void>}
+ * 
+ * Note: Users can create new requests for shifts that were previously swapped with other users.
+ * This allows users to request the original shift again if there are available slots.
  * 
  * @example
  * POST /api/requested-shifts
@@ -78,7 +82,7 @@ export const createShiftRequest = async (req: Request, res: Response, next: Next
     const existingRequestedShift = await RequestedShift.findOne({
       where: { request_employee_id: employeeId, request_shift_id: shiftSlotId },
     });
-    if (existingRequestedShift) {
+    if (existingRequestedShift && existingRequestedShift.request_status !== RequestStatus.SWAPPED) {
       res.status(400).json({ error: RequestedShiftExists });
       return;
     }
@@ -147,7 +151,7 @@ export const getRequestedShiftById = async (req: Request, res: Response, next: N
  * 
  * Available query parameters:
  * - `request_employee_id` (optional): Filter requested shifts by employee ID.
- * - `request_status` (optional): Filter requested shifts by request status (`pending`, `approved`, `denied`).
+ * - `request_status` (optional): Filter requested shifts by request status (`pending`, `approved`, `denied`, `swapped`).
  * 
  * @example
  * GET /api/requested-shifts?request_employee_id=1&request_status=pending
@@ -259,7 +263,7 @@ export const deleteRequestedShift = async (req: Request, res: Response, next: Ne
  * @returns {Promise<void>}
  * 
  * Request body:
- * - `status` (optional): The new status of the shift (`pending`, `approved`, `denied`).
+ * - `status` (optional): The new status of the shift (`pending`, `approved`, `denied`, `swapped`).
  * - `notes` (optional): Additional notes for the shift request.
  * 
  * @example

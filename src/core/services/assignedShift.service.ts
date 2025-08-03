@@ -1,7 +1,10 @@
 import { CreateAssignedShiftDTO, AssignedShiftQueryDTO } from '../../assets/types/types';
 import { AssignedShift } from '../../config/postgres/models/assignedShift.model';
 import {RequestedShift} from '../../config/postgres/models/requestedShift.model';
+import { ShiftSwapRequest } from '../../config/postgres/models/shiftSwapRequest.model';
 import { AvailableShift, Employee } from '../../config/postgres/models';
+import { Op } from 'sequelize';
+import { RequestStatus } from '../../config/postgres/models/requestedShift.model';
 
 /**
  * Creates a new assigned shift in the database.
@@ -44,6 +47,16 @@ export const deleteAssignedShift = async (id: number): Promise<boolean> => {
       request_employee_id: assignedShift.assigned_employee_id,
       request_shift_id: assignedShift.assigned_shift_id,
     },
+  });
+
+  // Delete any shift swap requests that reference this assigned shift
+  await ShiftSwapRequest.destroy({
+    where: {
+      [Op.or]: [
+        { requester_shift_id: id },
+        { target_shift_id: id }
+      ]
+    }
   });
 
   await assignedShift.destroy();
@@ -107,6 +120,10 @@ export const swapAssignedShifts = async (assignedShift1: number, assignedShift2:
       throw new Error('One or both assigned shifts not found');
     }
 
+    // Store original employee IDs before swap
+    const originalEmployee1 = shift1.assigned_employee_id;
+    const originalEmployee2 = shift2.assigned_employee_id;
+
     // Swap the assigned_employee_id fields
     const tempEmployeeId = shift1.assigned_employee_id;
     shift1.assigned_employee_id = shift2.assigned_employee_id;
@@ -114,6 +131,28 @@ export const swapAssignedShifts = async (assignedShift1: number, assignedShift2:
 
     await shift1.save();
     await shift2.save();
+
+    // Update corresponding requested shifts to reflect the swap
+    // Find and update requested shifts for the original employees and their new shifts
+    await RequestedShift.update(
+      { request_status: RequestStatus.SWAPPED },
+      {
+        where: {
+          [Op.or]: [
+            // Employee 1's original request for shift 1 (now swapped)
+            {
+              request_employee_id: originalEmployee1,
+              request_shift_id: shift1.assigned_shift_id
+            },
+            // Employee 2's original request for shift 2 (now swapped)
+            {
+              request_employee_id: originalEmployee2,
+              request_shift_id: shift2.assigned_shift_id
+            }
+          ]
+        }
+      }
+    );
 
     return [shift1, shift2];
   } catch (error) {
