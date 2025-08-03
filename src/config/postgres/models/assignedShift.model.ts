@@ -21,17 +21,27 @@ import {
     @Column(DataType.INTEGER)
     assigned_id!: number;
   
-    @ForeignKey(() => AvailableShift)
+        @ForeignKey(() => AvailableShift)
     @Column({
       type: DataType.INTEGER,
       allowNull: false,
+      references: {
+        model: 'available_shifts',
+        key: 'shift_id'
+      },
+      onDelete: 'CASCADE'
     })
     assigned_shift_id!: number;
-  
+
     @ForeignKey(() => Employee)
     @Column({
       type: DataType.INTEGER,
       allowNull: false,
+      references: {
+        model: 'employees',
+        key: 'employee_id'
+      },
+      onDelete: 'CASCADE'
     })
     assigned_employee_id!: number;
   

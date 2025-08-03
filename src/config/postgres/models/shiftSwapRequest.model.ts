@@ -28,6 +28,11 @@ export class ShiftSwapRequest extends Model<ShiftSwapRequest> {
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
+    references: {
+      model: 'employees',
+      key: 'employee_id'
+    },
+    onDelete: 'CASCADE'
   })
   requester_employee_id!: number;
 
@@ -35,6 +40,11 @@ export class ShiftSwapRequest extends Model<ShiftSwapRequest> {
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
+    references: {
+      model: 'employees',
+      key: 'employee_id'
+    },
+    onDelete: 'CASCADE'
   })
   target_employee_id!: number;
 
@@ -42,6 +52,11 @@ export class ShiftSwapRequest extends Model<ShiftSwapRequest> {
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
+    references: {
+      model: 'assigned_shifts',
+      key: 'assigned_id'
+    },
+    onDelete: 'CASCADE'
   })
   requester_shift_id!: number;
 
@@ -49,6 +64,11 @@ export class ShiftSwapRequest extends Model<ShiftSwapRequest> {
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
+    references: {
+      model: 'assigned_shifts',
+      key: 'assigned_id'
+    },
+    onDelete: 'CASCADE'
   })
   target_shift_id!: number;
 

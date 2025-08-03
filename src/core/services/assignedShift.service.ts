@@ -3,8 +3,9 @@ import { AssignedShift } from '../../config/postgres/models/assignedShift.model'
 import {RequestedShift} from '../../config/postgres/models/requestedShift.model';
 import { ShiftSwapRequest } from '../../config/postgres/models/shiftSwapRequest.model';
 import { AvailableShift, Employee } from '../../config/postgres/models';
-import { Op } from 'sequelize';
+import { Op, Transaction } from 'sequelize';
 import { RequestStatus } from '../../config/postgres/models/requestedShift.model';
+import { sequelize } from '../../config/postgres/db';
 
 /**
  * Creates a new assigned shift in the database.
@@ -12,55 +13,89 @@ import { RequestStatus } from '../../config/postgres/models/requestedShift.model
  * @returns {Promise<AssignedShift>} The created assigned shift.
  */
 export const createAssignedShift = async (data: CreateAssignedShiftDTO): Promise<AssignedShift> => {
-  // Find the available shift and increment shift_slots_taken
-  const availableShift = await AvailableShift.findByPk(data.shiftSlotId);
-  if (!availableShift) {
-    throw new Error('Available shift not found');
-  }
-  if (availableShift.shift_slots_taken >= availableShift.shift_slots_amount) {
-    throw new Error('No available slots for this shift');
-  }
-  await availableShift.update({ shift_slots_taken: availableShift.shift_slots_taken + 1 });
+  const transaction = await sequelize.transaction();
+  
+  try {
+    // Find the available shift and increment shift_slots_taken
+    const availableShift = await AvailableShift.findByPk(data.shiftSlotId, { transaction });
+    if (!availableShift) {
+      await transaction.rollback();
+      throw new Error('Available shift not found');
+    }
+    if (availableShift.shift_slots_taken >= availableShift.shift_slots_amount) {
+      await transaction.rollback();
+      throw new Error('No available slots for this shift');
+    }
+    await availableShift.update({ 
+      shift_slots_taken: availableShift.shift_slots_taken + 1 
+    }, { transaction });
 
-  const shiftData: any = {
-    assigned_shift_id: data.shiftSlotId,
-    assigned_employee_id: data.employeeId,
-  }; // TODO: Create strict type for shiftData
+    const shiftData: any = {
+      assigned_shift_id: data.shiftSlotId,
+      assigned_employee_id: data.employeeId,
+    }; // TODO: Create strict type for shiftData
 
-  const newAssignedShift = await AssignedShift.create(shiftData);
-  return newAssignedShift;
+    const newAssignedShift = await AssignedShift.create(shiftData, { transaction });
+    
+    await transaction.commit();
+    return newAssignedShift;
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
 };
 
 export const deleteAssignedShift = async (id: number): Promise<boolean> => {
-  const assignedShift = await AssignedShift.findOne({ where: { assigned_id: id } });
-  if (!assignedShift) return false;
-
-  // Decrement shift_slots_taken for the corresponding available shift
-  const availableShift = await AvailableShift.findByPk(assignedShift.assigned_shift_id);
-  if (availableShift && availableShift.shift_slots_taken > 0) {
-    await availableShift.update({ shift_slots_taken: availableShift.shift_slots_taken - 1 });
-  }
-
-  // Delete the requested shift for the same employee and available shift, if exists
-  await RequestedShift.destroy({
-    where: {
-      request_employee_id: assignedShift.assigned_employee_id,
-      request_shift_id: assignedShift.assigned_shift_id,
-    },
-  });
-
-  // Delete any shift swap requests that reference this assigned shift
-  await ShiftSwapRequest.destroy({
-    where: {
-      [Op.or]: [
-        { requester_shift_id: id },
-        { target_shift_id: id }
-      ]
+  const transaction = await sequelize.transaction();
+  
+  try {
+    const assignedShift = await AssignedShift.findOne({ 
+      where: { assigned_id: id },
+      transaction 
+    });
+    
+    if (!assignedShift) {
+      await transaction.rollback();
+      return false;
     }
-  });
 
-  await assignedShift.destroy();
-  return true;
+    // Delete any shift swap requests that reference this assigned shift FIRST
+    await ShiftSwapRequest.destroy({
+      where: {
+        [Op.or]: [
+          { requester_shift_id: id },
+          { target_shift_id: id }
+        ]
+      },
+      transaction
+    });
+
+    // Delete the requested shift for the same employee and available shift, if exists
+    await RequestedShift.destroy({
+      where: {
+        request_employee_id: assignedShift.assigned_employee_id,
+        request_shift_id: assignedShift.assigned_shift_id,
+      },
+      transaction
+    });
+
+    // Decrement shift_slots_taken for the corresponding available shift
+    const availableShift = await AvailableShift.findByPk(assignedShift.assigned_shift_id, { transaction });
+    if (availableShift && availableShift.shift_slots_taken > 0) {
+      await availableShift.update({ 
+        shift_slots_taken: availableShift.shift_slots_taken - 1 
+      }, { transaction });
+    }
+
+    // Finally delete the assigned shift
+    await assignedShift.destroy({ transaction });
+    
+    await transaction.commit();
+    return true;
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
 };
 
 export const getAssignedShiftById = async (id: number): Promise<AssignedShift | null> => {
@@ -113,10 +148,13 @@ export const getAssignedShiftsByParams = async (params: AssignedShiftQueryDTO): 
 };
 
 export const swapAssignedShifts = async (assignedShift1: number, assignedShift2: number): Promise<AssignedShift[]> => {
+  const transaction = await sequelize.transaction();
+  
   try {
-    const shift1 = await AssignedShift.findOne({ where: { assigned_id: assignedShift1 } });
-    const shift2 = await AssignedShift.findOne({ where: { assigned_id: assignedShift2 } });
+    const shift1 = await AssignedShift.findOne({ where: { assigned_id: assignedShift1 }, transaction });
+    const shift2 = await AssignedShift.findOne({ where: { assigned_id: assignedShift2 }, transaction });
     if (!shift1 || !shift2) {
+      await transaction.rollback();
       throw new Error('One or both assigned shifts not found');
     }
 
@@ -129,8 +167,8 @@ export const swapAssignedShifts = async (assignedShift1: number, assignedShift2:
     shift1.assigned_employee_id = shift2.assigned_employee_id;
     shift2.assigned_employee_id = tempEmployeeId;
 
-    await shift1.save();
-    await shift2.save();
+    await shift1.save({ transaction });
+    await shift2.save({ transaction });
 
     // Update corresponding requested shifts to reflect the swap
     // Find and update requested shifts for the original employees and their new shifts
@@ -150,12 +188,15 @@ export const swapAssignedShifts = async (assignedShift1: number, assignedShift2:
               request_shift_id: shift2.assigned_shift_id
             }
           ]
-        }
+        },
+        transaction
       }
     );
 
+    await transaction.commit();
     return [shift1, shift2];
   } catch (error) {
+    await transaction.rollback();
     console.error('Error swapping assigned shifts:', error);
     throw new Error('Failed to swap assigned shifts');
   }
