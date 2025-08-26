@@ -59,6 +59,7 @@ export const CreateEmployeeSchema = z.object({
     email: z.string().email(),
     password: z.string().min(1),
     phone: z.string().optional(),
+    organization_id: z.coerce.number().optional(),
 }).strict();
 
 export const UpdateEmployeeSchema = z.object({
@@ -154,3 +155,16 @@ export const DepartmentQuerySchema = z.object({
 export type CreateDepartmentDTO = z.infer<typeof CreateDepartmentSchema>;
 export type UpdateDepartmentDTO = z.infer<typeof UpdateDepartmentSchema>;
 export type DepartmentQueryDTO = z.infer<typeof DepartmentQuerySchema>;
+
+/* ---------- Organization Types ---------- */
+export const CreateOrganizationSchema = z.object({
+    name: z.string().nonempty(),
+}).strict();
+
+export const OrganizationQuerySchema = z.object({
+    organization_id: z.coerce.number().optional(),
+    name: z.string().optional(),
+}).strict();
+
+export type CreateOrganizationDTO = z.infer<typeof CreateOrganizationSchema>;
+export type OrganizationQueryDTO = z.infer<typeof OrganizationQuerySchema>;

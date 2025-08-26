@@ -5,6 +5,7 @@ import { AssignedShift } from './models/assignedShift.model';
 import { RequestedShift } from './models/requestedShift.model';
 import { ShiftSwapRequest } from './models/shiftSwapRequest.model';
 import { Department } from './models/department.model';
+import { Organization } from './models/organization.model';
 
 export const sequelize = new Sequelize({
   database: process.env.PG_DATABASE,
@@ -16,7 +17,7 @@ export const sequelize = new Sequelize({
     schema: 'public',          // ← ensures all models sync into “public”
   },
   dialect: 'postgres',
-  models: [Employee, Department, AvailableShift, AssignedShift, RequestedShift, ShiftSwapRequest],
+  models: [Employee, Department, AvailableShift, AssignedShift, RequestedShift, ShiftSwapRequest, Organization],
   dialectOptions: process.env.PG_SSL === 'true'
     ? {
         ssl: {

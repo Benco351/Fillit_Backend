@@ -33,6 +33,13 @@ CREATE TABLE departments (
   department_address VARCHAR(255)
 );
 
+/* Organizations */
+CREATE TABLE organizations (
+  organization_id       SERIAL PRIMARY KEY,
+  organization_name     VARCHAR(255) NOT NULL
+);
+
+
 /* Employees */
 CREATE TABLE employees (
   employee_id       SERIAL PRIMARY KEY,
