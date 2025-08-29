@@ -3,6 +3,7 @@ import * as employeeService from '../../../core/services/employee.service';
 import { CreateEmployeeDTO } from '../../../assets/types/types';
 import { apiResponse } from '../../../utils/apiResponse';
 import { logger } from '../../../config/logger';
+import { Organization } from '../../../config/postgres/models/organization.model';
 import {
   CreatedEmployeeLog,
   EmployeeCreated,
@@ -40,6 +41,25 @@ import {
  * }
  */
 export const createEmployee = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const body = req.body as CreateEmployeeDTO; 
+  // Validate organization_id exists
+    const organization_id = body.organization_id;
+    if (!organization_id) {
+      res.status(400).json({ error: 'organization_id is required' });
+      return;
+    }
+    const orgExists = await Organization.findOne({ where: { organization_id } });
+    if (!orgExists) {
+      res.status(400).json({ error: 'Invalid organization ID' });
+      return;
+    }
+
+    // Check if employee already exists in this organization
+    const existingEmployee = await employeeService.getEmployeeByEmail(body.email, organization_id);
+    if (existingEmployee) {
+      res.status(400).json({ error: EmailExists });
+      return;
+    }
   try {
     const body = req.body as CreateEmployeeDTO;
     // Always parse organization_id as a number if present
@@ -49,15 +69,9 @@ export const createEmployee = async (req: Request, res: Response, next: NextFunc
       body.organization_id = undefined;
     }
 
-    const existingEmployee = await employeeService.getEmployeeByEmail(body.email, body.organization_id ?? 0);
-    if (existingEmployee) {
-      res.status(400).json({ error: EmailExists });
-      return;
-    }
-
-    const employee = await employeeService.createEmployee(body);
-    logger.info(CreatedEmployeeLog(employee.employee_id));
-    res.status(201).json(apiResponse({ employee_id: employee.employee_id }, EmployeeCreated));
+  const employee = await employeeService.createEmployee(body);
+  logger.info(CreatedEmployeeLog(employee.employee_id));
+  res.status(201).json(apiResponse({ employee_id: employee.employee_id }, EmployeeCreated));
   } catch (err) {
     logger.error(CreateEmployeeErrorLog(err));
     next(err);
