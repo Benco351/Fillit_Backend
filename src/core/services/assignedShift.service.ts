@@ -3,7 +3,8 @@ import { AssignedShift } from '../../config/postgres/models/assignedShift.model'
 import {RequestedShift} from '../../config/postgres/models/requestedShift.model';
 import { ShiftSwapRequest } from '../../config/postgres/models/shiftSwapRequest.model';
 import { AvailableShift, Employee } from '../../config/postgres/models';
-import { Op, Transaction } from 'sequelize';
+import { Department } from '../../config/postgres/models/department.model';
+import { Op } from 'sequelize';
 import { RequestStatus } from '../../config/postgres/models/requestedShift.model';
 import { sequelize } from '../../config/postgres/db';
 
@@ -111,7 +112,7 @@ export const getAssignedShiftById = async (id: number): Promise<AssignedShift | 
         attributes: ['shift_date', 'shift_time_start', 'shift_time_end'],
         include: [
           {
-            model: require('../../config/postgres/models/department.model').Department,
+            model: Department,
             attributes: ['department_id', 'department_name', 'department_address'],
           },
         ],
@@ -134,7 +135,7 @@ export const getAssignedShiftsByParams = async (params: AssignedShiftQueryDTO): 
         attributes: ['shift_date', 'shift_time_start', 'shift_time_end'],
         include: [
           {
-            model: require('../../config/postgres/models/department.model').Department,
+            model: Department,
             attributes: ['department_id', 'department_name', 'department_address'],
           },
         ],

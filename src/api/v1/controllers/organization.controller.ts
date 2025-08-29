@@ -6,9 +6,9 @@ import { CreateOrganizationDTO } from '../../../assets/types/types';
 
 export const createOrganization = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const orgData: CreateOrganizationDTO = req.body;
-    const organization = await organizationService.createOrganization(orgData);
-    res.status(201).json(apiResponse(organization, 'Organization created'));
+    const { organization, admin }: CreateOrganizationDTO = req.body;
+    const result = await organizationService.createOrganizationWithAdmin(organization, admin);
+    res.status(201).json(apiResponse(result, 'Organization and admin created'));
   } catch (err) {
     logger.error('Error creating organization:', err);
     next(err);

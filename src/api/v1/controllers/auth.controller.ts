@@ -9,7 +9,7 @@ import {
   EmailExists,
   CreateEmployeeErrorLog,
 } from '../../../assets/messages/employeeMessages';
-import AWS from 'aws-sdk';
+// import AWS from 'aws-sdk';
 
 /**
  * Creates a new employee.

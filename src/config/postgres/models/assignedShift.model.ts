@@ -22,7 +22,7 @@ import {
     @Column(DataType.INTEGER)
     assigned_id!: number;
   
-        @ForeignKey(() => AvailableShift)
+    @ForeignKey(() => AvailableShift)
     @Column({
       type: DataType.INTEGER,
       allowNull: false,
