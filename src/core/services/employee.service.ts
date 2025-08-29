@@ -13,6 +13,7 @@ export const createEmployee = async (data: CreateEmployeeDTO): Promise<Employee>
     employee_email: data.email,
     employee_phone: data.phone, 
     employee_password: data.password,
+    employee_admin: data.admin || false,
   } as any); 
 
   return newEmployee;

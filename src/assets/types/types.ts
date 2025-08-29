@@ -60,6 +60,7 @@ export const CreateEmployeeSchema = z.object({
     password: z.string().min(1),
     phone: z.string().optional(),
     organization_id: z.coerce.number().optional(),
+    admin: z.boolean().optional(),
 }).strict();
 
 export const UpdateEmployeeSchema = z.object({
@@ -75,6 +76,7 @@ export const EmployeeQuerySchema = z.object({
 }).strict();
 
 export type CreateEmployeeDTO = z.infer<typeof CreateEmployeeSchema>;
+// Now CreateEmployeeDTO includes optional admin property
 export type UpdateEmployeeDTO = z.infer<typeof UpdateEmployeeSchema>;
 export type EmployeeQueryDTO = z.infer<typeof EmployeeQuerySchema>;
 
@@ -158,7 +160,15 @@ export type DepartmentQueryDTO = z.infer<typeof DepartmentQuerySchema>;
 
 /* ---------- Organization Types ---------- */
 export const CreateOrganizationSchema = z.object({
-    name: z.string().nonempty(),
+    organization: z.object({
+        name: z.string().nonempty(),
+    }),
+    admin: z.object({
+        name: z.string().nonempty(),
+        email: z.string().email(),
+        phone: z.string().optional(),
+        password: z.string().min(1),
+    })
 }).strict();
 
 export const OrganizationQuerySchema = z.object({

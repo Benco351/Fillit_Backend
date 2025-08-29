@@ -7,7 +7,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=test
       - PORT=8000
       - PG_HOST=db
       - PG_PORT=5432
