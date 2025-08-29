@@ -1,7 +1,8 @@
 import { Employee } from '../../config/postgres/models/employee.model';
 
-export const loginEmployeeService = async (email: string, password: string) => {
-  const employee = await Employee.findOne({ where: { employee_email: email } });
+export const loginEmployeeService = async (email: string, password: string, organization_id: number) => {
+  // Ensure the employee lookup is scoped to the provided organization
+  const employee = await Employee.findOne({ where: { employee_email: email, organization_id } });
   if (!employee) return null;
   const isValid = await employee.validatePassword(password);
   if (!isValid) return null;

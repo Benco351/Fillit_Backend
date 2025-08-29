@@ -41,33 +41,34 @@ import {
  * }
  */
 export const createEmployee = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const body = req.body as CreateEmployeeDTO; 
-  // Validate organization_id exists
-    const organization_id = body.organization_id;
-    if (!organization_id) {
-      res.status(400).json({ error: 'organization_id is required' });
-      return;
-    }
-    const orgExists = await Organization.findOne({ where: { organization_id } });
-    if (!orgExists) {
-      res.status(400).json({ error: 'Invalid organization ID' });
-      return;
-    }
+  // Normalize and validate organization_id before proceeding
+  const orgIdRaw = (req.body as any).organization_id;
+  const parsedOrganizationId =
+    orgIdRaw !== undefined && orgIdRaw !== null && String(orgIdRaw).trim() !== ''
+      ? Number(orgIdRaw)
+      : undefined;
 
-    // Check if employee already exists in this organization
-    const existingEmployee = await employeeService.getEmployeeByEmail(body.email, organization_id);
-    if (existingEmployee) {
-      res.status(400).json({ error: EmailExists });
-      return;
-    }
+  if (!parsedOrganizationId || Number.isNaN(parsedOrganizationId)) {
+    res.status(400).json({ error: 'organization_id is required' });
+    return;
+  }
+
+  const orgExists = await Organization.findOne({ where: { organization_id: parsedOrganizationId } });
+  if (!orgExists) {
+    res.status(400).json({ error: 'Invalid organization ID' });
+    return;
+  }
+
+  // Check if employee already exists in this organization
+  const existingEmployee = await employeeService.getEmployeeByEmail((req.body as any).email, parsedOrganizationId);
+  if (existingEmployee) {
+    res.status(400).json({ error: EmailExists });
+    return;
+  }
   try {
     const body = req.body as CreateEmployeeDTO;
-    // Always parse organization_id as a number if present
-    if (body.organization_id !== undefined && body.organization_id !== null && String(body.organization_id).trim() !== '') {
-      body.organization_id = Number(body.organization_id);
-    } else {
-      body.organization_id = undefined;
-    }
+    // Ensure organization_id is set to the validated numeric value
+    body.organization_id = parsedOrganizationId;
 
   const employee = await employeeService.createEmployee(body);
   logger.info(CreatedEmployeeLog(employee.employee_id));

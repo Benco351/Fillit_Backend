@@ -20,7 +20,7 @@ export const loginEmployee = async (req: Request, res: Response, next: NextFunct
       return;
     }
 
-    const employee = await loginEmployeeService(email, password);
+    const employee = await loginEmployeeService(email, password, parsedOrganizationId as number);
     if (!employee) {
       res.status(401).json({ error: 'Invalid email or password' });
       return;
