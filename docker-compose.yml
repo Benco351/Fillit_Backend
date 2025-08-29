@@ -16,7 +16,7 @@ services:
       - PG_PASSWORD=rootroot
       - PG_SSL=false
       - COGNITO_REGION=us-east-1
-
+      - SES_SENDER_EMAIL=noreply@fillitshifits.com
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./src/db/init:/docker-entrypoint-initdb.d   # ← auto-run on first init

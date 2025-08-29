@@ -41,24 +41,23 @@ import {
  */
 export const createEmployee = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { email, organization_id } = req.body as CreateEmployeeDTO;
-    const rawOrganizationId = (req.body as any).organization_id;
-    const parsedOrganizationId =
-      rawOrganizationId !== undefined && rawOrganizationId !== null && String(rawOrganizationId).trim() !== ''
-        ? Number(rawOrganizationId)
-        : undefined;
-    (req.body as any).organization_id = parsedOrganizationId;
-
-    const existingEmployee = await employeeService.getEmployeeByEmail(email, (req.body as any).organization_id);
-    if (existingEmployee) {
-      res.status(400).json({ error: EmailExists });
-      return; 
+    const body = req.body as CreateEmployeeDTO;
+    // Always parse organization_id as a number if present
+    if (body.organization_id !== undefined && body.organization_id !== null && String(body.organization_id).trim() !== '') {
+      body.organization_id = Number(body.organization_id);
+    } else {
+      body.organization_id = undefined;
     }
 
-    const employee = await employeeService.createEmployee(req.body as CreateEmployeeDTO);
+    const existingEmployee = await employeeService.getEmployeeByEmail(body.email, body.organization_id ?? 0);
+    if (existingEmployee) {
+      res.status(400).json({ error: EmailExists });
+      return;
+    }
+
+    const employee = await employeeService.createEmployee(body);
     logger.info(CreatedEmployeeLog(employee.employee_id));
-    res.status(201).json(apiResponse({"employee_id":employee.employee_id }, EmployeeCreated));    
-    
+    res.status(201).json(apiResponse({ employee_id: employee.employee_id }, EmployeeCreated));
   } catch (err) {
     logger.error(CreateEmployeeErrorLog(err));
     next(err);

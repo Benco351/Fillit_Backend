@@ -8,15 +8,15 @@ import { sendEmail } from '../../utils/email';
 
 export const createShiftSwapRequest = async (data: CreateShiftSwapRequestDTO) => {
   // Fetch shift info for the requester shift
-  const shiftInfo = await getAvailableShiftById(data.requester_shift_id);
+  const shiftInfo = await getAvailableShiftById(data.requester_shift_id, data.organization_id);
   const result = await ShiftSwapRequest.create({
     ...data,
     status: 'pending',
   } as any);
 
   // Fetch source and destination employee emails
-  const sourceEmployee = await getEmployeeById(data.requester_employee_id);
-  const destEmployee = await getEmployeeById(data.target_employee_id);
+  const sourceEmployee = await getEmployeeById(data.requester_employee_id, data.organization_id);
+  const destEmployee = await getEmployeeById(data.target_employee_id, data.organization_id);
 
   if (destEmployee && destEmployee.employee_email && sourceEmployee && sourceEmployee.employee_name && shiftInfo) {
     const htmlBody = `
@@ -67,7 +67,7 @@ export const listShiftSwapRequests = async (query: ShiftSwapRequestQueryDTO) => 
 };
 
 export const respondToShiftSwapRequest = async (id: number, data: RespondShiftSwapRequestDTO) => {
-  const req = await ShiftSwapRequest.findOne({ where: { id, organization_id: (data as any).organization_id } });
+  const req = await ShiftSwapRequest.findOne({ where: { id, organization_id: data.organization_id } });
   if (!req) throw new Error('Shift swap request not found');
   req.status = data.status;
   if (data.message !== undefined) req.message = data.message;
@@ -78,11 +78,11 @@ export const respondToShiftSwapRequest = async (id: number, data: RespondShiftSw
     await swapAssignedShifts(req.requester_shift_id, req.target_shift_id);
 
     // Fetch both employees
-    const sourceEmployee = await getEmployeeById(req.requester_employee_id);
-    const destEmployee = await getEmployeeById(req.target_employee_id);
-    // Fetch shift info for both shifts
-    const sourceShift = await getAvailableShiftById(req.requester_shift_id);
-    const destShift = await getAvailableShiftById(req.target_shift_id);
+  const sourceEmployee = await getEmployeeById(req.requester_employee_id, req.organization_id);
+  const destEmployee = await getEmployeeById(req.target_employee_id, req.organization_id);
+  // Fetch shift info for both shifts
+  const sourceShift = await getAvailableShiftById(req.requester_shift_id, req.organization_id);
+  const destShift = await getAvailableShiftById(req.target_shift_id, req.organization_id);
 
     // Notify both employees
     if (sourceEmployee && sourceEmployee.employee_email && destEmployee && destEmployee.employee_email) {
