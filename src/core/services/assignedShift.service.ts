@@ -33,6 +33,7 @@ export const createAssignedShift = async (data: CreateAssignedShiftDTO): Promise
     const shiftData: any = {
       assigned_shift_id: data.shiftSlotId,
       assigned_employee_id: data.employeeId,
+      organization_id: data.organization_id,
     }; // TODO: Create strict type for shiftData
 
     const newAssignedShift = await AssignedShift.create(shiftData, { transaction });
@@ -45,12 +46,12 @@ export const createAssignedShift = async (data: CreateAssignedShiftDTO): Promise
   }
 };
 
-export const deleteAssignedShift = async (id: number): Promise<boolean> => {
+export const deleteAssignedShift = async (id: number, organization_id: number): Promise<boolean> => {
   const transaction = await sequelize.transaction();
   
   try {
     const assignedShift = await AssignedShift.findOne({ 
-      where: { assigned_id: id },
+      where: { assigned_id: id, organization_id },
       transaction 
     });
     

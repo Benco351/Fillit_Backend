@@ -41,7 +41,7 @@ import AWS from 'aws-sdk';
  */
 export const createEmployee = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { email } = req.body as CreateEmployeeDTO;
+    const { email, organization_id } = req.body as CreateEmployeeDTO;
     const rawOrganizationId = (req.body as any).organization_id;
     const parsedOrganizationId =
       rawOrganizationId !== undefined && rawOrganizationId !== null && String(rawOrganizationId).trim() !== ''
@@ -49,7 +49,7 @@ export const createEmployee = async (req: Request, res: Response, next: NextFunc
         : undefined;
     (req.body as any).organization_id = parsedOrganizationId;
 
-    const existingEmployee = await employeeService.getEmployeeByEmail(email);
+    const existingEmployee = await employeeService.getEmployeeByEmail(email, (req.body as any).organization_id);
     if (existingEmployee) {
       res.status(400).json({ error: EmailExists });
       return; 

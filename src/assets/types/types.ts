@@ -4,15 +4,18 @@ import { z } from 'zod';
 export const CreateAssignedShiftSchema = z.object({
     employeeId: z.number(),
     shiftSlotId: z.number(),
+    organization_id: z.coerce.number(),
 }).strict();
 
 export const AssignedShiftQuerySchema = z.object({
-    assigned_employee_id: z.coerce.number().optional()
+    assigned_employee_id: z.coerce.number().optional(),
+    organization_id: z.coerce.number(),
 }).strict();
 
 export const swapAssignedShiftsSchema = z.object({
     assignedShiftId1: z.coerce.number(),
-    assignedShiftId2: z.coerce.number()
+    assignedShiftId2: z.coerce.number(),
+    organization_id: z.coerce.number(),
 }).strict();
 
 export type SwapAssignedShiftsDTO = z.infer<typeof swapAssignedShiftsSchema>;
@@ -26,6 +29,7 @@ export const CreateAvailableShiftSchema = z.object({
     end: z.string().time(),
     shift_slots_amount: z.coerce.number().int().min(1).optional(), // Added field
     department_id: z.coerce.number().optional(),
+    organization_id: z.coerce.number(),
 }).strict();
 
 export const UpdateAvailableShiftSchema = z.object({
@@ -34,6 +38,8 @@ export const UpdateAvailableShiftSchema = z.object({
     end: z.string().time().optional(),
     shift_slots_amount: z.coerce.number().int().min(1).optional(), // Added field
     department_id: z.coerce.number().optional(),
+    // organization_id accepted for scoping but ignored for update
+    organization_id: z.coerce.number().optional(),
 }).strict();
 
 export const AvailableShiftQuerySchema = z.object({
@@ -47,6 +53,7 @@ export const AvailableShiftQuerySchema = z.object({
     shift_slots_amount: z.coerce.number().int().optional(), // Added field
     shift_slots_taken: z.coerce.number().int().optional(), // Added field
     department: z.coerce.number().optional(), // New: filter by department id
+    organization_id: z.coerce.number(),
 }).strict();
 
 export type CreateAvailableShiftDTO = z.infer<typeof CreateAvailableShiftSchema>;
@@ -59,7 +66,8 @@ export const CreateEmployeeSchema = z.object({
     email: z.string().email(),
     password: z.string().min(1),
     phone: z.string().optional(),
-    organization_id: z.coerce.number().optional(),
+    organization_id: z.coerce.number(),
+    initial: z.boolean().optional(),
 }).strict();
 
 export const UpdateEmployeeSchema = z.object({
@@ -68,10 +76,12 @@ export const UpdateEmployeeSchema = z.object({
     password: z.string().optional(),
     admin: z.boolean().optional(),
     phone: z.string().optional(),
+    organization_id: z.coerce.number().optional(),
 }).strict();
 
 export const EmployeeQuerySchema = z.object({
-    employee_admin: z.enum(['true', 'false']).optional()
+    employee_admin: z.enum(['true', 'false']).optional(),
+    organization_id: z.coerce.number(),
 }).strict();
 
 export type CreateEmployeeDTO = z.infer<typeof CreateEmployeeSchema>;
@@ -83,16 +93,19 @@ export const CreateRequestedShiftSchema = z.object({
     employeeId: z.number(),
     shiftSlotId: z.number(),
     notes: z.string().optional(),
+    organization_id: z.coerce.number(),
 }).strict();
 
 export const UpdateRequestedShiftSchema = z.object({
     status: z.enum(['pending', 'approved', 'denied', 'swapped']).optional(),
-    notes: z.string().optional()
+    notes: z.string().optional(),
+    organization_id: z.coerce.number().optional(),
 }).strict();
 
 export const RequestedShiftQuerySchema = z.object({
     request_employee_id: z.coerce.number().optional(),
     request_status: z.enum(['pending', 'approved', 'denied', 'swapped']).optional(),
+    organization_id: z.coerce.number(),
 }).strict();
 
 export type CreateRequestedShiftDTO = z.infer<typeof CreateRequestedShiftSchema>;
@@ -109,7 +122,8 @@ export type AddtoGroupDTO = z.infer<typeof RequestedShiftQuerySchema>;
 
 /* ---------- Admin Assignment Types ---------- */
 export const AssignAdminSchema = z.object({
-    admin: z.boolean()
+    admin: z.boolean(),
+    organization_id: z.coerce.number(),
 }).strict();
 
 export type AssignAdminDTO = z.infer<typeof AssignAdminSchema>;
@@ -121,15 +135,18 @@ export const CreateShiftSwapRequestSchema = z.object({
     requester_shift_id: z.number(),
     target_shift_id: z.number(),
     message: z.string().optional(),
+    organization_id: z.coerce.number(),
 }).strict();
 
 export const RespondShiftSwapRequestSchema = z.object({
     status: z.enum(['accepted', 'rejected', 'cancelled']),
     message: z.string().optional(),
+    organization_id: z.coerce.number(),
 }).strict();
 
 export const ShiftSwapRequestQuerySchema = z.object({
     employee_id: z.coerce.number().optional(),
+    organization_id: z.coerce.number(),
 }).strict();
 
 export type CreateShiftSwapRequestDTO = z.infer<typeof CreateShiftSwapRequestSchema>;
@@ -140,16 +157,19 @@ export type ShiftSwapRequestQueryDTO = z.infer<typeof ShiftSwapRequestQuerySchem
 export const CreateDepartmentSchema = z.object({
     name: z.string().nonempty(),
     address: z.string().optional(),
+    organization_id: z.coerce.number(),
 }).strict();
 
 export const UpdateDepartmentSchema = z.object({
     name: z.string().nonempty().optional(),
     address: z.string().optional(),
+    organization_id: z.coerce.number().optional(),
 }).strict();
 
 export const DepartmentQuerySchema = z.object({
     department_id: z.coerce.number().optional(),
     name: z.string().optional(),
+    organization_id: z.coerce.number(),
 }).strict();
 
 export type CreateDepartmentDTO = z.infer<typeof CreateDepartmentSchema>;

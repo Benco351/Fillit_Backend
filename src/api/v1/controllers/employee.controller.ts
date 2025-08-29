@@ -31,9 +31,10 @@ export const assignAdmin = async (req: Request, res: Response, next: NextFunctio
       res.status(400).json({ error: InvalidEmployeeId });
       return; 
     }
+    const organization_id = Number((req.body as any).organization_id ?? (req.query as any).organization_id);
 
     // Get employee
-    const employee = await employeeService.getEmployeeById(empId);
+    const employee = await employeeService.getEmployeeById(empId, organization_id);
     if (!employee) {
       res.status(404).json({ error: EmployeeNotFound });
       return;
@@ -49,7 +50,7 @@ export const assignAdmin = async (req: Request, res: Response, next: NextFunctio
     }
 
     // Update admin status in DB
-    const updatedEmployee = await employeeService.updateEmployeeAdminStatus(empId, requestedAdmin);
+    const updatedEmployee = await employeeService.updateEmployeeAdminStatus(empId, requestedAdmin, organization_id);
 
     // Cognito group management
     /*
@@ -145,20 +146,21 @@ export const updateEmployee = async (req: Request, res: Response, next: NextFunc
       res.status(400).json({ error: InvalidEmployeeId });
       return; 
     }
+    const organization_id = Number((req.body as any).organization_id ?? (req.query as any).organization_id);
 
     const { email, ...updateData } = req.body as UpdateEmployeeDTO;
 
     
     if (email) {
       console.log(email);
-      const existingEmployee = await employeeService.getEmployeeByEmail(email.trim()); 
+      const existingEmployee = await employeeService.getEmployeeByEmail(email.trim(), organization_id); 
       if (existingEmployee && existingEmployee.employee_id !== empId) {
         res.status(400).json({ error: EmailAlreadyTaken });
         return; 
       }
     }
 
-    const employee = await employeeService.updateEmployee(empId, { email, ...updateData });
+    const employee = await employeeService.updateEmployee(empId, { email, ...updateData }, organization_id);
     if (!employee) {
       res.status(404).json({ error: EmployeeNotFound });
       return; 
@@ -208,7 +210,7 @@ export const updateEmployee = async (req: Request, res: Response, next: NextFunc
  */
 export const getEmployeesByParams = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const employees = await employeeService.getEmployeesByParams(_req.query as EmployeeQueryDTO);
+    const employees = await employeeService.getEmployeesByParams(_req.query as unknown as EmployeeQueryDTO);
 
     if (!employees || employees.length === 0) {
       res.status(404).json({ error: NoEmployeesFound });
@@ -258,7 +260,8 @@ export const getEmployeeById = async (req: Request, res: Response, next: NextFun
       return; 
     }
 
-    const employee = await employeeService.getEmployeeById(empId);
+    const organization_id = Number((req.query as any).organization_id ?? (req.body as any).organization_id);
+    const employee = await employeeService.getEmployeeById(empId, organization_id);
     if (!employee) {
       res.status(404).json({ error: EmployeeNotFound });
       return; 
@@ -296,7 +299,8 @@ export const deleteEmployee = async (req: Request, res: Response, next: NextFunc
       res.status(400).json({ error: InvalidEmployeeId });
       return; 
     }
-    const success = await employeeService.deleteEmployee(Number(req.params.id));
+    const organization_id = Number((req.query as any).organization_id ?? (req.body as any).organization_id);
+    const success = await employeeService.deleteEmployee(Number(req.params.id), organization_id);
     if (!success) {
       res.status(404).json({ error: EmployeeNotFound });
       return; 
@@ -338,8 +342,9 @@ export const isEmployeeExists = async (req: Request, res: Response, next: NextFu
   try {
     const emailSchema = z.string().email();
     const email = emailSchema.parse(req.params.email);
+    const organization_id = Number((req.query as any).organization_id ?? (req.body as any).organization_id);
 
-    const employee = await employeeService.getEmployeeByEmail(email);
+    const employee = await employeeService.getEmployeeByEmail(email, organization_id);
     if (employee) {
       res.status(200).json({ message: "The employee with this email already exists", employee_id: employee.employee_id });
       return; 

@@ -1,11 +1,11 @@
 import { Sequelize } from 'sequelize-typescript';
+import { Organization } from './models/organization.model';
+import { Department } from './models/department.model';
 import { Employee } from './models/employee.model';
 import { AvailableShift } from './models/availableShift.model';
 import { AssignedShift } from './models/assignedShift.model';
 import { RequestedShift } from './models/requestedShift.model';
 import { ShiftSwapRequest } from './models/shiftSwapRequest.model';
-import { Department } from './models/department.model';
-import { Organization } from './models/organization.model';
 
 export const sequelize = new Sequelize({
   database: process.env.PG_DATABASE,
@@ -17,7 +17,8 @@ export const sequelize = new Sequelize({
     schema: 'public',          // ← ensures all models sync into “public”
   },
   dialect: 'postgres',
-  models: [Employee, Department, AvailableShift, AssignedShift, RequestedShift, ShiftSwapRequest, Organization],
+  // Ensure base tables are registered before dependents so Sequelize syncs in order
+  models: [Organization, Department, Employee, AvailableShift, AssignedShift, RequestedShift, ShiftSwapRequest],
   dialectOptions: process.env.PG_SSL === 'true'
     ? {
         ssl: {

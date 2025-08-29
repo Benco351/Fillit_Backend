@@ -102,7 +102,8 @@ export const getAvailableShiftById = async (req: Request, res: Response, next: N
       return; 
     }
 
-    const availableShift = await availableShiftService.getAvailableShiftById(shiftId);
+    const organization_id = Number((req.query as any).organization_id ?? (req.body as any).organization_id);
+    const availableShift = await availableShiftService.getAvailableShiftById(shiftId, organization_id);
     if (!availableShift) {
       res.status(404).json({ error: AvailableShiftNotFound });
       return; 
@@ -165,7 +166,7 @@ export const getAvailableShiftById = async (req: Request, res: Response, next: N
  */
 export const getAvailableShiftsByParams = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const availableShifts = await availableShiftService.getAvailableShiftsByParams(_req.query as AvailableShiftQueryDTO);
+    const availableShifts = await availableShiftService.getAvailableShiftsByParams(_req.query as unknown as AvailableShiftQueryDTO);
 
     if (!availableShifts || availableShifts.length === 0) {
       res.status(200).json(apiResponse([]));   // 200, empty array
@@ -235,7 +236,8 @@ export const deleteAvailableShift = async (req: Request, res: Response, next: Ne
       res.status(400).json({ error: InvalidAvailableShiftId });
       return; 
     }
-    const success = await availableShiftService.deleteAvailableShift(Number(req.params.id));
+    const organization_id = Number((req.query as any).organization_id ?? (req.body as any).organization_id);
+    const success = await availableShiftService.deleteAvailableShift(Number(req.params.id), organization_id);
     if (!success) {
       res.status(404).json({ error: AvailableShiftNotFound });
       return; 
@@ -291,7 +293,8 @@ export const updateAvailableShift = async (req: Request, res: Response, next: Ne
       return; 
     }
 
-    const availableShifts = await availableShiftService.updateAvailableShift(shiftId, req.body as UpdateAvailableShiftDTO);
+    const organization_id = Number((req.query as any).organization_id ?? (req.body as any).organization_id);
+    const availableShifts = await availableShiftService.updateAvailableShift(shiftId, req.body as UpdateAvailableShiftDTO, organization_id);
     if (!availableShifts) {
       res.status(404).json({ error: AvailableShiftNotFound });
       return; 

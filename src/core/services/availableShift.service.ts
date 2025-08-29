@@ -17,18 +17,19 @@ export const createAvailableShift = async (data: CreateAvailableShiftDTO): Promi
     shift_slots_amount: data.shift_slots_amount,
     shift_slots_taken: 0,
     department_id: data.department_id ?? null,
+    organization_id: data.organization_id,
   }; // TODO: Create strict type for shiftData
 
   const newAvailableShift = await AvailableShift.create(shiftData);
   return newAvailableShift;
 };
 
-export const getAvailableShiftById = async (id: number): Promise<AvailableShift | null> => {
+export const getAvailableShiftById = async (id: number, organization_id: number): Promise<AvailableShift | null> => {
   if (!Number.isInteger(id)) {
     throw new Error(`Invalid available shift ID: ${id}`);
   }
   const availableShift = await AvailableShift.findOne({
-    where: { shift_id: id },
+    where: { shift_id: id, organization_id },
     include: [{ model: Department, attributes: ['department_id', 'department_name', 'department_address'] }],
   });
   return availableShift;
@@ -64,6 +65,9 @@ export const getAvailableShiftsByParams = async (params: AvailableShiftQueryDTO)
     filters.department_id = params.department;
   }
 
+  // Required organization scope
+  filters.organization_id = params.organization_id;
+
   // // Add filter: do not return shifts where shift_slots_taken == shift_slots_amount
   // filters.shift_slots_taken = { 
   //   ...(filters.shift_slots_taken || {}),
@@ -73,16 +77,16 @@ export const getAvailableShiftsByParams = async (params: AvailableShiftQueryDTO)
   const availableShifts = await AvailableShift.findAll({ where: filters, include: [{ model: Department, attributes: ['department_id', 'department_name', 'department_address'] }] });
   return availableShifts;
 };
-export const deleteAvailableShift = async (id: number): Promise<boolean> => {
-  const availableShift = await AvailableShift.findOne({ where: { shift_id: id } });
+export const deleteAvailableShift = async (id: number, organization_id: number): Promise<boolean> => {
+  const availableShift = await AvailableShift.findOne({ where: { shift_id: id, organization_id } });
   if (!availableShift) return false;
 
   await availableShift.destroy();
   return true;
 };
 
-export const updateAvailableShift = async (id: number, data: Partial<CreateAvailableShiftDTO>): Promise<AvailableShift | null> => {
-  const availableShift = await AvailableShift.findOne({ where: { shift_id: id } });
+export const updateAvailableShift = async (id: number, data: Partial<CreateAvailableShiftDTO>, organization_id: number): Promise<AvailableShift | null> => {
+  const availableShift = await AvailableShift.findOne({ where: { shift_id: id, organization_id } });
   if (!availableShift) return null;
 
   if (data.department_id !== undefined) {

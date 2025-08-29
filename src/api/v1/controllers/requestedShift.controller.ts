@@ -129,7 +129,8 @@ export const getRequestedShiftById = async (req: Request, res: Response, next: N
       return; 
     }
 
-    const requestedShift = await requestedShiftService.getRequestedShiftById(shiftId);
+    const organization_id = Number((req.query as any).organization_id ?? (req.body as any).organization_id);
+    const requestedShift = await requestedShiftService.getRequestedShiftById(shiftId, organization_id);
     if (!requestedShift) {
       res.status(404).json({ error: ShiftRequestNotFound });
       return; 
@@ -198,7 +199,7 @@ export const getRequestedShiftById = async (req: Request, res: Response, next: N
  */
 export const getRequestedShiftsByParams = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const requestedShifts = await requestedShiftService.getRequestedShiftsByParams(req.query as RequestedShiftQueryDTO);
+    const requestedShifts = await requestedShiftService.getRequestedShiftsByParams(req.query as unknown as RequestedShiftQueryDTO);
 
     if (!requestedShifts || requestedShifts.length === 0) {
       res.status(200).json(apiResponse([]));   // 200, empty array
@@ -242,7 +243,8 @@ export const deleteRequestedShift = async (req: Request, res: Response, next: Ne
       return;
     }
 
-    const success = await requestedShiftService.deleteRequestedShift(shiftId);
+    const organization_id = Number((req.query as any).organization_id ?? (req.body as any).organization_id);
+    const success = await requestedShiftService.deleteRequestedShift(shiftId, organization_id);
     if (!success) {
       res.status(404).json({ error: ShiftRequestNotFound});
       return;
@@ -297,7 +299,8 @@ export const updateRequestedShift = async (req: Request, res: Response, next: Ne
       return; 
     }
      
-   const requestedShifts = await requestedShiftService.updateRequestedShift(shiftId, req.body as UpdateRequestedShiftDTO);
+   const organization_id = Number((req.query as any).organization_id ?? (req.body as any).organization_id);
+   const requestedShifts = await requestedShiftService.updateRequestedShift(shiftId, req.body as UpdateRequestedShiftDTO, organization_id);
     if (!requestedShifts) {
       res.status(404).json({ error: ShiftRequestNotFound });
       return; 

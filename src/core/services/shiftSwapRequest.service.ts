@@ -13,12 +13,13 @@ export const createShiftSwapRequest = async (data: CreateShiftSwapRequestDTO) =>
 export const listShiftSwapRequests = async (query: ShiftSwapRequestQueryDTO) => {
   const { employee_id } = query;
   if (!employee_id) {
-    return ShiftSwapRequest.findAll();
+    return ShiftSwapRequest.findAll({ where: { organization_id: (query as any).organization_id } });
   }
   // Inbox: requests where target_employee_id = employee_id
   // Outbox: requests where requester_employee_id = employee_id
   return ShiftSwapRequest.findAll({
     where: {
+      organization_id: (query as any).organization_id,
       [Op.or]: [
         { requester_employee_id: employee_id },
         { target_employee_id: employee_id },
@@ -29,7 +30,7 @@ export const listShiftSwapRequests = async (query: ShiftSwapRequestQueryDTO) => 
 };
 
 export const respondToShiftSwapRequest = async (id: number, data: RespondShiftSwapRequestDTO) => {
-  const req = await ShiftSwapRequest.findByPk(id);
+  const req = await ShiftSwapRequest.findOne({ where: { id, organization_id: (data as any).organization_id } });
   if (!req) throw new Error('Shift swap request not found');
   req.status = data.status;
   if (data.message !== undefined) req.message = data.message;

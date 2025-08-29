@@ -41,7 +41,8 @@ export const getDepartmentById = async (req: Request, res: Response, next: NextF
       res.status(400).json({ error: InvalidDepartmentId });
       return;
     }
-    const department = await departmentService.getDepartmentById(id);
+    const organization_id = Number((req.query as any).organization_id ?? (req.body as any).organization_id);
+    const department = await departmentService.getDepartmentById(id, organization_id);
     if (!department) {
       res.status(404).json({ error: DepartmentNotFound });
       return;
@@ -55,7 +56,7 @@ export const getDepartmentById = async (req: Request, res: Response, next: NextF
 
 export const getDepartmentsByParams = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const departments = await departmentService.getDepartmentsByParams(req.query as DepartmentQueryDTO);
+    const departments = await departmentService.getDepartmentsByParams(req.query as unknown as DepartmentQueryDTO);
     if (!departments || departments.length === 0) {
       res.status(200).json(apiResponse([]));
       return;
@@ -79,7 +80,8 @@ export const deleteDepartment = async (req: Request, res: Response, next: NextFu
       res.status(400).json({ error: InvalidDepartmentId });
       return;
     }
-    const success = await departmentService.deleteDepartment(id);
+    const organization_id = Number((req.query as any).organization_id ?? (req.body as any).organization_id);
+    const success = await departmentService.deleteDepartment(id, organization_id);
     if (!success) {
       res.status(404).json({ error: DepartmentNotFound });
       return;
@@ -101,7 +103,8 @@ export const updateDepartment = async (req: Request, res: Response, next: NextFu
       res.status(400).json({ error: InvalidDepartmentId });
       return;
     }
-    const department = await departmentService.updateDepartment(id, req.body as UpdateDepartmentDTO);
+    const organization_id = Number((req.query as any).organization_id ?? (req.body as any).organization_id);
+    const department = await departmentService.updateDepartment(id, req.body as UpdateDepartmentDTO, organization_id);
     if (!department) {
       res.status(404).json({ error: DepartmentNotFound });
       return;

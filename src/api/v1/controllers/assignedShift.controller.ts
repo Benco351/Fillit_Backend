@@ -120,7 +120,8 @@ export const deleteAssignedShift = async (req: Request, res: Response, next: Nex
       res.status(400).json({ error: InvalidAssignedShiftId });
       return; 
     }
-    const success = await assignedShiftService.deleteAssignedShift(Number(req.params.id));
+    const organization_id = Number((req.query as any).organization_id ?? (req.body as any).organization_id);
+    const success = await assignedShiftService.deleteAssignedShift(Number(req.params.id), organization_id);
     
     if (!success) {
       res.status(404).json({ error: AssignedShiftNotFound });
@@ -209,7 +210,7 @@ export const getAssignedShiftById = async (req: Request, res: Response, next: Ne
 export const getAssignedShiftsByParams = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     // If admin, req.query will be empty (fetch all). If not, filter by params.
-    const assignedShifts = await assignedShiftService.getAssignedShiftsByParams(req.query as AssignedShiftQueryDTO);
+    const assignedShifts = await assignedShiftService.getAssignedShiftsByParams(req.query as unknown as AssignedShiftQueryDTO);
 
     res.status(200).json(apiResponse(assignedShifts, AssignedShiftsRetrieved));
     logger.info(FetchedAssignedShiftsLog);

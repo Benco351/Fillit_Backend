@@ -2,12 +2,14 @@ BEGIN;
 
 -- export DATABASE_URL="postgresql://fillituser:6PaW5jPGF7G2wCM23goS@fillitdbinstance.c6vwei6wo4pe.us-east-1.rds.amazonaws.com:5432/fillitdb?sslmode=require"
 
--- Drop old objects (so you can re‑run cleanly)
+-- Drop old objects (so you can re-run cleanly)
 DROP TABLE IF EXISTS requested_shifts CASCADE;
 DROP TABLE IF EXISTS assigned_shifts CASCADE;
 DROP TABLE IF EXISTS employees CASCADE;
 DROP TABLE IF EXISTS available_shifts CASCADE;
 DROP TABLE IF EXISTS departments CASCADE;
+DROP TABLE IF EXISTS announcements CASCADE;
+DROP TABLE IF EXISTS shift_swap_requests CASCADE;
 DROP TYPE  IF EXISTS enum_requested_shifts_request_status;
 DROP TYPE  IF EXISTS enum_shift_swap_status;
 
@@ -20,9 +22,14 @@ CREATE TABLE available_shifts (
   shift_time_start   TIME(6),
   shift_time_end     TIME(6),
   department_id      INTEGER,
+  organization_id    INTEGER NOT NULL,
   CONSTRAINT fk_available_shift_department
       FOREIGN KEY (department_id)
       REFERENCES departments (department_id)
+      ON DELETE CASCADE,
+  CONSTRAINT fk_available_shift_organization
+      FOREIGN KEY (organization_id)
+      REFERENCES organizations (organization_id)
       ON DELETE CASCADE
 );
 
@@ -30,7 +37,12 @@ CREATE TABLE available_shifts (
 CREATE TABLE departments (
   department_id      SERIAL PRIMARY KEY,
   department_name    VARCHAR(255) NOT NULL,
-  department_address VARCHAR(255)
+  department_address VARCHAR(255),
+  organization_id    INTEGER NOT NULL,
+  CONSTRAINT fk_department_organization
+      FOREIGN KEY (organization_id)
+      REFERENCES organizations (organization_id)
+      ON DELETE CASCADE
 );
 
 /* Organizations */
@@ -39,7 +51,6 @@ CREATE TABLE organizations (
   organization_name     VARCHAR(255) NOT NULL
 );
 
-
 /* Employees */
 CREATE TABLE employees (
   employee_id       SERIAL PRIMARY KEY,
@@ -47,7 +58,12 @@ CREATE TABLE employees (
   employee_email    VARCHAR(255) NOT NULL,
   employee_phone    VARCHAR(20),
   employee_password VARCHAR(255) NOT NULL,
-  employee_admin    BOOLEAN      DEFAULT FALSE
+  employee_admin    BOOLEAN      DEFAULT FALSE,
+  organization_id   INTEGER NOT NULL,
+  CONSTRAINT fk_employee_organization
+      FOREIGN KEY (organization_id)
+      REFERENCES organizations (organization_id)
+      ON DELETE CASCADE
 );
 
 /* ──────────────────────────────────────────
@@ -58,9 +74,9 @@ CREATE TABLE employees (
 /* Assigned shifts */
 CREATE TABLE assigned_shifts (
   assigned_id           SERIAL PRIMARY KEY,
-
   assigned_shift_id     INTEGER NOT NULL,
   assigned_employee_id  INTEGER NOT NULL,
+  organization_id       INTEGER NOT NULL,
 
   CONSTRAINT fk_assigned_shift
       FOREIGN KEY (assigned_shift_id)
@@ -70,6 +86,11 @@ CREATE TABLE assigned_shifts (
   CONSTRAINT fk_assigned_employee
       FOREIGN KEY (assigned_employee_id)
       REFERENCES employees (employee_id)
+      ON DELETE CASCADE,
+
+  CONSTRAINT fk_assigned_organization
+      FOREIGN KEY (organization_id)
+      REFERENCES organizations (organization_id)
       ON DELETE CASCADE
 );
 
@@ -80,12 +101,11 @@ CREATE TYPE enum_requested_shifts_request_status
 /* Requested shifts */
 CREATE TABLE requested_shifts (
   request_id          SERIAL PRIMARY KEY,
-
   request_shift_id    INTEGER NOT NULL,
   request_employee_id INTEGER NOT NULL,
   request_notes       TEXT,
-  request_status      enum_requested_shifts_request_status
-                      DEFAULT 'pending',
+  request_status      enum_requested_shifts_request_status DEFAULT 'pending',
+  organization_id     INTEGER NOT NULL,
 
   CONSTRAINT fk_requested_shift
       FOREIGN KEY (request_shift_id)
@@ -95,6 +115,11 @@ CREATE TABLE requested_shifts (
   CONSTRAINT fk_requested_employee
       FOREIGN KEY (request_employee_id)
       REFERENCES employees (employee_id)
+      ON DELETE CASCADE,
+
+  CONSTRAINT fk_requested_organization
+      FOREIGN KEY (organization_id)
+      REFERENCES organizations (organization_id)
       ON DELETE CASCADE
 );
 
@@ -112,6 +137,7 @@ CREATE TABLE shift_swap_requests (
   message TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  organization_id INTEGER NOT NULL,
 
   CONSTRAINT fk_swap_requester_employee
     FOREIGN KEY (requester_employee_id)
@@ -131,6 +157,25 @@ CREATE TABLE shift_swap_requests (
   CONSTRAINT fk_swap_target_shift
     FOREIGN KEY (target_shift_id)
     REFERENCES assigned_shifts (assigned_id)
+    ON DELETE CASCADE,
+
+  CONSTRAINT fk_swap_organization
+    FOREIGN KEY (organization_id)
+    REFERENCES organizations (organization_id)
     ON DELETE CASCADE
 );
+
+CREATE TABLE announcements (
+    announcement_id SERIAL PRIMARY KEY,
+    author_id INT NOT NULL REFERENCES employees(employee_id),
+    title VARCHAR(255) NOT NULL,
+    body TEXT NOT NULL,
+    start_date TIMESTAMP NULL DEFAULT NULL,
+    organization_id INTEGER NOT NULL,
+    CONSTRAINT fk_announcement_organization
+        FOREIGN KEY (organization_id)
+        REFERENCES organizations (organization_id)
+        ON DELETE CASCADE
+);
+
 COMMIT;

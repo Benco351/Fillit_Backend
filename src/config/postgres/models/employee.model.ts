@@ -9,9 +9,11 @@ import {
     HasMany,
     BeforeCreate,
     BeforeUpdate,
+    BelongsTo,
   } from 'sequelize-typescript';
   import { AssignedShift } from './assignedShift.model';
   import { RequestedShift } from './requestedShift.model';
+  import { Organization } from './organization.model';
 
 
   @Table({
@@ -75,6 +77,20 @@ import {
     async validatePassword(password: string): Promise<boolean> {
       return bcrypt.compare(password, this.employee_password);
     }
+
+    @Column({
+      type: DataType.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'organizations',
+        key: 'organization_id',
+      },
+      onDelete: 'CASCADE',
+    })
+    organization_id!: number;
+
+    @BelongsTo(() => Organization, { foreignKey: 'organization_id' })
+    organization!: Organization;
   }
 
   

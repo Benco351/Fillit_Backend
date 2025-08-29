@@ -13,6 +13,7 @@ import {
 } from 'sequelize-typescript';
 import { Employee } from './employee.model';
 import { AssignedShift } from './assignedShift.model';
+import { Organization } from './organization.model';
 
 @Table({
   tableName: 'shift_swap_requests',
@@ -102,4 +103,18 @@ export class ShiftSwapRequest extends Model<ShiftSwapRequest> {
 
   @BelongsTo(() => AssignedShift, 'target_shift_id')
   targetShift!: AssignedShift;
+
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'organizations',
+      key: 'organization_id'
+    },
+    onDelete: 'CASCADE'
+  })
+  organization_id!: number;
+
+  @BelongsTo(() => Organization, { foreignKey: 'organization_id' })
+  organization!: Organization;
 } 

@@ -12,7 +12,8 @@ export const createRequestedShift = async (data: CreateRequestedShiftDTO): Promi
   const newRequestedShift = await RequestedShift.create({
     request_shift_id: data.shiftSlotId,
     request_employee_id: data.employeeId,
-    ...(data.notes && { request_notes: data.notes })
+    ...(data.notes && { request_notes: data.notes }),
+    organization_id: data.organization_id,
   } as any); 
 
   return newRequestedShift;
@@ -23,12 +24,12 @@ export const createRequestedShift = async (data: CreateRequestedShiftDTO): Promi
  * @param {number} id - The ID of the requested shift.
  * @returns {Promise<RequestedShift | null>} The requested shift or null if not found.
  */
-export const getRequestedShiftById = async (id: number): Promise<RequestedShift| null> => {
+export const getRequestedShiftById = async (id: number, organization_id: number): Promise<RequestedShift| null> => {
   if (!Number.isInteger(id)) {
     throw new Error(`Invalid available shift ID: ${id}`);
   }
   const requestedShift = await RequestedShift.findOne({
-    where: { request_id: id },
+    where: { request_id: id, organization_id },
     include: [
       {
         model: AvailableShift,
@@ -84,9 +85,9 @@ export const getRequestedShiftsByParams = async (params: RequestedShiftQueryDTO)
  * @param {number} id - The ID of the requested shift to delete.
  * @returns {Promise<boolean>} True if the shift was deleted, false otherwise.
  */
-export const deleteRequestedShift = async (id: number): Promise<boolean> => {
+export const deleteRequestedShift = async (id: number, organization_id: number): Promise<boolean> => {
   const deletedCount = await RequestedShift.destroy({
-    where: { request_id: id },
+    where: { request_id: id, organization_id },
   });
 
   return deletedCount > 0;
@@ -98,8 +99,8 @@ export const deleteRequestedShift = async (id: number): Promise<boolean> => {
  * @param {UpdateRequestedShiftDTO} data - Data to update the requested shift.
  * @returns {Promise<RequestedShift | null>} The updated requested shift or null if not found.
  */
-export const updateRequestedShift = async (id: number, data: UpdateRequestedShiftDTO): Promise<RequestedShift | null> => {
-  const requestedShift = await RequestedShift.findOne({ where: { request_id: id } });
+export const updateRequestedShift = async (id: number, data: UpdateRequestedShiftDTO, organization_id: number): Promise<RequestedShift | null> => {
+  const requestedShift = await RequestedShift.findOne({ where: { request_id: id, organization_id } });
   if (!requestedShift) return null;
 
   if (data.status) {

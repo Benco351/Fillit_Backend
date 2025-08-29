@@ -10,6 +10,7 @@ import {
   } from 'sequelize-typescript';
   import { AvailableShift } from './availableShift.model';
   import { Employee } from './employee.model';
+  import { Organization } from './organization.model';
   
   @Table({
     tableName: 'assigned_shifts',
@@ -50,5 +51,19 @@ import {
   
     @BelongsTo(() => Employee)
     employee!: Employee;
+
+    @Column({
+      type: DataType.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'organizations',
+        key: 'organization_id',
+      },
+      onDelete: 'CASCADE',
+    })
+    organization_id!: number;
+
+    @BelongsTo(() => Organization, { foreignKey: 'organization_id' })
+    organization!: Organization;
   }
   

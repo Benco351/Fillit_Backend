@@ -13,6 +13,8 @@ export const createEmployee = async (data: CreateEmployeeDTO): Promise<Employee>
     employee_email: data.email,
     employee_phone: data.phone, 
     employee_password: data.password,
+    organization_id: data.organization_id,
+    ...(data.initial ? { employee_admin: true } : {}),
   } as any); 
 
   return newEmployee;
@@ -23,13 +25,13 @@ export const createEmployee = async (data: CreateEmployeeDTO): Promise<Employee>
  * @param {number} id - Employee ID.
  * @returns {Promise<Omit<Employee, 'employee_password'> | null>} The employee or null if not found.
  */
-export const getEmployeeById = async (id: number): Promise<Omit<Employee, 'employee_password'> | null> => {
+export const getEmployeeById = async (id: number, organization_id: number): Promise<Omit<Employee, 'employee_password'> | null> => {
   if (!Number.isInteger(id)) {
     throw new Error(`Invalid employee ID: ${id}`);
   }
 
   const employee = await Employee.findOne({
-    where: { employee_id: id },
+    where: { employee_id: id, organization_id },
     attributes: { exclude: ['employee_password'] }
   });
 
@@ -41,9 +43,9 @@ export const getEmployeeById = async (id: number): Promise<Omit<Employee, 'emplo
  * @param {string} email - Employee email.
  * @returns {Promise<Employee | null>} The employee or null if not found.
  */
-export const getEmployeeByEmail = async (email: string): Promise<Employee | null> => {
+export const getEmployeeByEmail = async (email: string, organization_id: number): Promise<Employee | null> => {
   const employee = await Employee.findOne({
-    where: { employee_email: email.trim() }, // Ensure email is trimmed to avoid mismatches
+    where: { employee_email: email.trim(), organization_id }, // Ensure email is trimmed and scoped
     attributes: { exclude: ['employee_password'] }
   });
   return employee;
@@ -54,9 +56,9 @@ export const getEmployeeByEmail = async (email: string): Promise<Employee | null
  * @param {string} email - Employee email.
  * @returns {Promise<boolean>} True if the employee exists, false otherwise.
  */
-export const isEmployeeExistsByEmail = async (email: string): Promise<boolean> => {
+export const isEmployeeExistsByEmail = async (email: string, organization_id: number): Promise<boolean> => {
   const employee = await Employee.findOne({
-    where: { employee_email: email.trim() },
+    where: { employee_email: email.trim(), organization_id },
     attributes: ['employee_id'] // Only fetch the ID to optimize the query
   });
   return !!employee;
@@ -81,8 +83,8 @@ export const getEmployeesByParams = async (params: EmployeeQueryDTO): Promise<Em
  * @param {number} id - Employee ID.
  * @returns {Promise<boolean>} True if the employee was deleted, false otherwise.
  */
-export const deleteEmployee = async (id: number): Promise<boolean> => {
-  const employee = await Employee.findOne({ where: { employee_id: id } });
+export const deleteEmployee = async (id: number, organization_id: number): Promise<boolean> => {
+  const employee = await Employee.findOne({ where: { employee_id: id, organization_id } });
   if (!employee) return false;
 
   await employee.destroy();
@@ -95,8 +97,8 @@ export const deleteEmployee = async (id: number): Promise<boolean> => {
  * @param {UpdateEmployeeDTO} data - Partial employee data to update.
  * @returns {Promise<Omit<Employee, 'employee_password'> | null>} The updated employee or null if not found.
  */
-export const updateEmployee = async (id: number, data: UpdateEmployeeDTO): Promise<Omit<Employee, 'employee_password'> | null> => {
-  const employee = await Employee.findOne({ where: { employee_id: id } });
+export const updateEmployee = async (id: number, data: UpdateEmployeeDTO, organization_id: number): Promise<Omit<Employee, 'employee_password'> | null> => {
+  const employee = await Employee.findOne({ where: { employee_id: id, organization_id } });
   if (!employee) return null;
 
   // Dynamically map the incoming data fields to the database column names
@@ -109,7 +111,7 @@ export const updateEmployee = async (id: number, data: UpdateEmployeeDTO): Promi
 
   // Exclude the password field from the returned employee object
   const updatedEmployee = await Employee.findOne({
-    where: { employee_id: id },
+    where: { employee_id: id, organization_id },
     attributes: { exclude: ['employee_password'] }
   });
 
@@ -122,8 +124,8 @@ export const updateEmployee = async (id: number, data: UpdateEmployeeDTO): Promi
  * @param {boolean} admin - The new admin status.
  * @returns {Promise<Omit<Employee, 'employee_password'> | null>} The updated employee or null if not found.
  */
-export const updateEmployeeAdminStatus = async (id: number, admin: boolean): Promise<Omit<Employee, 'employee_password'> | null> => {
-  const employee = await Employee.findOne({ where: { employee_id: id } });
+export const updateEmployeeAdminStatus = async (id: number, admin: boolean, organization_id: number): Promise<Omit<Employee, 'employee_password'> | null> => {
+  const employee = await Employee.findOne({ where: { employee_id: id, organization_id } });
   if (!employee) return null;
 
   // Print the employee email for debugging
@@ -134,7 +136,7 @@ export const updateEmployeeAdminStatus = async (id: number, admin: boolean): Pro
 
   // Fetch the updated employee, excluding the password
   const updatedEmployee = await Employee.findOne({
-    where: { employee_id: id },
+    where: { employee_id: id, organization_id },
     attributes: { exclude: ['employee_password'] }
   });
 
