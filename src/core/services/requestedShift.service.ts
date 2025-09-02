@@ -36,6 +36,7 @@ export const getRequestedShiftById = async (id: number, organization_id: number)
         attributes: ['shift_date', 'shift_time_start', 'shift_time_end'],
         include: [
           {
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
             model: require('../../config/postgres/models/department.model').Department,
             attributes: ['department_id', 'department_name', 'department_address'],
           },
@@ -65,6 +66,7 @@ export const getRequestedShiftsByParams = async (params: RequestedShiftQueryDTO)
         attributes: ['shift_date', 'shift_time_start', 'shift_time_end'],
         include: [
           {
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
             model: require('../../config/postgres/models/department.model').Department,
             attributes: ['department_id', 'department_name', 'department_address'],
           },
