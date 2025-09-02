@@ -63,9 +63,10 @@ app.use('/admin', adminRoutes);
 
 // ── PROTECTED ROUTES ──
 // all /api/* endpoints now require a valid Bearer token
+// Apply tokenAuthentication to all /api routes except /api/organizations
+app.use('/api/organizations', organizationRoutes); // Public signup
 app.use('/api', tokenAuthentication);
 // mount versioned routers under /api
-
 app.use('/api/employees',        employeeRoutes);
 app.use('/api/available-shifts', availableShiftRoutes);
 app.use('/api/requested-shifts', requestedShiftRoutes);
@@ -73,7 +74,6 @@ app.use('/api/assigned-shifts',  assignedShiftRoutes);
 app.use('/api/login', loginRoutes);
 app.use('/api/shift-swap-requests', shiftSwapRequestRoutes);
 app.use('/api/departments', departmentRoutes);
-app.use('/api/organizations', organizationRoutes);
 
 // global error handler
 app.use(errorHandler);
