@@ -12,6 +12,7 @@ export const getAwsCredentialsFromSSM = async (): Promise<{ accessKeyId: string;
   }).promise();
 
   const accessKeyId = accessKeyIdParam.Parameter?.Value;
+  
   const secretAccessKey = secretAccessKeyParam.Parameter?.Value;
 
   if (!accessKeyId || !secretAccessKey) {
