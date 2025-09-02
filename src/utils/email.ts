@@ -1,12 +1,22 @@
 import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
+import { getAwsCredentialsFromSSM } from "./aws";
 
-const sesClient = new SESClient({
-  region: process.env.COGNITO_REGION || process.env.AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
-});
+
+let sesClient: SESClient | null = null;
+
+async function getSesClient(): Promise<SESClient> {
+  if (!sesClient) {
+    const creds = await getAwsCredentialsFromSSM();
+    sesClient = new SESClient({
+      region: process.env.COGNITO_REGION || process.env.AWS_REGION,
+      credentials: {
+        accessKeyId: creds.accessKeyId,
+        secretAccessKey: creds.secretAccessKey,
+      },
+    });
+  }
+  return sesClient;
+}
 
 export async function sendEmail(to: string, subject: string, htmlBody: string, textBody?: string) {
   const params = {
@@ -22,7 +32,8 @@ export async function sendEmail(to: string, subject: string, htmlBody: string, t
   };
 
   try {
-    await sesClient.send(new SendEmailCommand(params));
+    const client = await getSesClient();
+    await client.send(new SendEmailCommand(params));
     return true;
   } catch (error) {
     console.error("SES sendEmail error:", error);
