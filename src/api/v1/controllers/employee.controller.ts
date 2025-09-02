@@ -18,7 +18,7 @@ import {
   InvalidAdminFilterValue
 } from '../../../assets/messages/employeeMessages';
 import { z } from 'zod';
-//import { createCognitoClient } from './auth.controller'; // Add this import
+import { createCognitoClient } from './auth.controller'; // Add this import
 
 //body:
 //{ 
@@ -53,7 +53,7 @@ export const assignAdmin = async (req: Request, res: Response, next: NextFunctio
     const updatedEmployee = await employeeService.updateEmployeeAdminStatus(empId, requestedAdmin, organization_id);
 
     // Cognito group management
-    /*
+    
     try {
       const cognito = await createCognitoClient();
 
@@ -95,7 +95,7 @@ export const assignAdmin = async (req: Request, res: Response, next: NextFunctio
       res.status(500).json({ error: 'Failed to update Cognito admin group', details: cognitoError.message });
       return;
     }
-    */
+    
 
     res.json(apiResponse(updatedEmployee, `Employee admin status updated to ${requestedAdmin}`));
   } catch (err) {

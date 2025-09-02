@@ -10,7 +10,7 @@ import {
   EmailExists,
   CreateEmployeeErrorLog,
 } from '../../../assets/messages/employeeMessages';
-// import AWS from 'aws-sdk';
+import AWS from 'aws-sdk';
 
 /**
  * Creates a new employee.
@@ -79,7 +79,6 @@ export const createEmployee = async (req: Request, res: Response, next: NextFunc
   }
 };
 
-/*
 export const addToGroup = async (req: Request, res: Response) => {
   const { email, group } = req.body;
   if (!email || !group) {
@@ -116,9 +115,8 @@ export const addToGroup = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Failed to add user to group', error: error.message });
   }
 };
-*/
 
-/*
+
 export const createCognitoClient = async (): Promise<AWS.CognitoIdentityServiceProvider> => {
   try {
     // Fetch credentials from SSM Parameter Store
@@ -160,4 +158,3 @@ export const createCognitoClient = async (): Promise<AWS.CognitoIdentityServiceP
     throw new Error('Failed to create Cognito client using SSM credentials');
   }
 };
-*/
