@@ -18,9 +18,29 @@ import {
 } from '../../../assets/messages/departmentMessages';
 import { validateId } from '../../../middlewares/validateMiddleware';
 
+// Helper to consistently determine admin status from JWT (Cognito groups) or fallback field
+const isAdminRequest = (req: Request): boolean => {
+  const user: any = (req as any).user;
+  if (!user) return false;
+
+  // Cognito may provide groups as an array under 'cognito:groups'
+  const groups = (user['cognito:groups'] as unknown) as string[] | string | undefined;
+  if (Array.isArray(groups)) {
+    if (groups.includes('Admins')) return true;
+  } else if (typeof groups === 'string') {
+    // Defensive: sometimes libraries serialize as comma-separated string
+    if (groups.split(',').map(s => s.trim()).includes('Admins')) return true;
+  }
+
+  // Fallback to boolean flag if middleware injected it
+  if (user.employee_admin === true) return true;
+
+  return false;
+};
+
 export const createDepartment = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    if (!(req as any).user?.employee_admin) {
+    if (!isAdminRequest(req)) {
       res.status(403).json({ error: 'Only admins can create departments' });
       return;
     }
@@ -70,7 +90,7 @@ export const getDepartmentsByParams = async (req: Request, res: Response, next: 
 
 export const deleteDepartment = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    if (!(req as any).user?.employee_admin) {
+    if (!isAdminRequest(req)) {
       res.status(403).json({ error: 'Only admins can delete departments' });
       return;
     }
@@ -93,7 +113,7 @@ export const deleteDepartment = async (req: Request, res: Response, next: NextFu
 
 export const updateDepartment = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    if (!(req as any).user?.employee_admin) {
+    if (!isAdminRequest(req)) {
       res.status(403).json({ error: 'Only admins can update departments' });
       return;
     }
