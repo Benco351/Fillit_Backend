@@ -15,6 +15,7 @@ import loginRoutes from './api/v1/routes/login.routes';
 import shiftSwapRequestRoutes from './api/v1/routes/shiftSwapRequest.routes';
 import departmentRoutes from './api/v1/routes/department.routes';
 import organizationRoutes from './api/v1/routes/organization.routes';
+import announcementRoutes from './api/v1/routes/announcements.routes';
 // import { tokenAuthentication } from './middlewares/authMiddleware';
 
 const app: Application = express();
@@ -74,6 +75,7 @@ app.use('/api/login', loginRoutes);
 app.use('/api/shift-swap-requests', shiftSwapRequestRoutes);
 app.use('/api/departments', departmentRoutes);
 app.use('/api/organizations', organizationRoutes);
+app.use('/api/announcements', announcementRoutes);
 
 // global error handler
 app.use(errorHandler);

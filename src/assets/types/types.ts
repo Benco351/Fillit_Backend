@@ -197,3 +197,25 @@ export const OrganizationQuerySchema = z.object({
 
 export type CreateOrganizationDTO = z.infer<typeof CreateOrganizationSchema>;
 export type OrganizationQueryDTO = z.infer<typeof OrganizationQuerySchema>;
+
+/* ---------- Announcement Types ---------- */
+export const CreateAnnouncementSchema = z.object({
+    author_id: z.coerce.number(),
+    title: z.string().nonempty(),
+    content: z.string().nonempty(),
+    start_date: z.coerce.date().optional(), // Allow start_date to be provided
+}).strict();
+
+export const UpdateAnnouncementSchema = z.object({
+    title: z.string().min(1).optional(),
+    content: z.string().min(1).optional(),
+}).strict();
+
+export const AnnouncementQuerySchema = z.object({
+    title: z.string().optional(),
+    author_id: z.coerce.number().optional(),
+}).strict();
+
+export type CreateAnnouncementDTO = z.infer<typeof CreateAnnouncementSchema>;
+export type UpdateAnnouncementDTO = z.infer<typeof UpdateAnnouncementSchema>;
+export type AnnouncementQueryDTO = z.infer<typeof AnnouncementQuerySchema>;
