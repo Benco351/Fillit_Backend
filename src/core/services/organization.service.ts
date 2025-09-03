@@ -37,7 +37,7 @@ export const createOrganizationWithAdmin = async (
   if (newAdmin && newAdmin.employee_email) {
     const htmlBody = `
       <div style="font-family: Arial, sans-serif;">
-        <img src="https://fillitshifits.com/logo.png" alt="Fillit Logo" style="height:40px;margin-bottom:16px;" />
+        <img src="https://fillitshifits.com/fillit.png" alt="Fillit Logo" style="height:40px;margin-bottom:16px;" />
         <h2>Welcome to Fillit!</h2>
         <p>Hello ${newAdmin.employee_name},</p>
         <p>Your organization has been successfully created.</p>

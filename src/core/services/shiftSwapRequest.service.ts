@@ -23,7 +23,7 @@ export const createShiftSwapRequest = async (data: CreateShiftSwapRequestDTO, or
   if (destEmployee && destEmployee.employee_email && sourceEmployee && sourceEmployee.employee_name && shiftInfo) {
     const htmlBody = `
       <div style="font-family: Arial, sans-serif;">
-        <img src="https://fillitshifits.com/logo.png" alt="Fillit Logo" style="height:40px;margin-bottom:16px;" />
+        <img src="https://fillitshifits.com/fillit.png" alt="Fillit Logo" style="height:40px;margin-bottom:16px;" />
         <h2>Shift Swap Request</h2>
         <p>Hello ${destEmployee.employee_name},</p>
         <p>You have a new shift swap request from <b>${sourceEmployee.employee_name}</b>.</p>
@@ -91,7 +91,7 @@ export const respondToShiftSwapRequest = async (id: number, data: RespondShiftSw
         // Email to source employee
         const htmlBodySource = `
           <div style="font-family: Arial, sans-serif;">
-            <img src="https://fillitshifits.com/logo.png" alt="Fillit Logo" style="height:40px;margin-bottom:16px;" />
+            <img src="https://fillitshifits.com/fillit.png" alt="Fillit Logo" style="height:40px;margin-bottom:16px;" />
             <h2>Shift Swap Approved</h2>
             <p>Hello ${sourceEmployee.employee_name},</p>
             <p>Your shift swap request has been <b>accepted</b> by ${destEmployee.employee_name}.</p>
@@ -115,7 +115,7 @@ export const respondToShiftSwapRequest = async (id: number, data: RespondShiftSw
         // Email to destination employee
         const htmlBodyDest = `
           <div style="font-family: Arial, sans-serif;">
-            <img src="https://fillitshifits.com/logo.png" alt="Fillit Logo" style="height:40px;margin-bottom:16px;" />
+            <img src="https://fillitshifits.com/fillit.png" alt="Fillit Logo" style="height:40px;margin-bottom:16px;" />
             <h2>Shift Swap Approved</h2>
             <p>Hello ${destEmployee.employee_name},</p>
             <p>You have accepted a shift swap request from ${sourceEmployee.employee_name}.</p>
