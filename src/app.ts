@@ -16,28 +16,28 @@ import shiftSwapRequestRoutes from './api/v1/routes/shiftSwapRequest.routes';
 import departmentRoutes from './api/v1/routes/department.routes';
 import organizationRoutes from './api/v1/routes/organization.routes';
 import announcementRoutes from './api/v1/routes/announcements.routes';
-// import { tokenAuthentication } from './middlewares/authMiddleware';
+import { tokenAuthentication } from './middlewares/authMiddleware';
 
 const app: Application = express();
 
-// const FRONTEND_URL = "https://www.fillitshifits.com";
-// const whitelist = [FRONTEND_URL, "localhost:3000", "http://localhost:3000"];
+const FRONTEND_URL = "https://www.fillitshifits.com";
+const whitelist = [FRONTEND_URL, "localhost:3000", "http://localhost:3000"];
 
-// const corsOptions: cors.CorsOptions = {
-//   // Only allow your SPA origin (and also allow tools like curl with no Origin header)
-//   origin: (incomingOrigin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-//     if (!incomingOrigin || whitelist.includes(incomingOrigin)) {
-//       callback(null, true);
-//     } else {
-//       callback(new Error(`CORS violation: ${incomingOrigin} not in whitelist`), undefined);
-//     }
-//   },
-//   methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
-//   allowedHeaders: ['Content-Type','Authorization','X-Requested-With'],
-//   credentials: true,
-//   optionsSuccessStatus: 204,      // some legacy browsers choke on 204 for preflight
-//   maxAge: 86400,                  // cache preflight for 24h
-// };
+const corsOptions: cors.CorsOptions = {
+  // Only allow your SPA origin (and also allow tools like curl with no Origin header)
+  origin: (incomingOrigin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    if (!incomingOrigin || whitelist.includes(incomingOrigin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS violation: ${incomingOrigin} not in whitelist`), undefined);
+    }
+  },
+  methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization','X-Requested-With'],
+  credentials: true,
+  optionsSuccessStatus: 204,      // some legacy browsers choke on 204 for preflight
+  maxAge: 86400,                  // cache preflight for 24h
+};
 
 // ── MIDDLEWARES ──
 app
@@ -46,10 +46,10 @@ app
   .use(express.json());
 
 // IMPORTANT: handle preflight across all routes
-// app.options('*', cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 // Then enable CORS on your real routes
-// app.use(cors(corsOptions));
+app.use(cors(corsOptions));
 
 // Allow all origins for development and Postman access
 app.use(cors());
@@ -64,9 +64,10 @@ app.use('/admin', adminRoutes);
 
 // ── PROTECTED ROUTES ──
 // all /api/* endpoints now require a valid Bearer token
-// app.use('/api', tokenAuthentication);
+// Apply tokenAuthentication to all /api routes except /api/organizations
+app.use('/api/organizations', organizationRoutes); // Public signup
+app.use('/api', tokenAuthentication);
 // mount versioned routers under /api
-
 app.use('/api/employees',        employeeRoutes);
 app.use('/api/available-shifts', availableShiftRoutes);
 app.use('/api/requested-shifts', requestedShiftRoutes);
@@ -74,7 +75,6 @@ app.use('/api/assigned-shifts',  assignedShiftRoutes);
 app.use('/api/login', loginRoutes);
 app.use('/api/shift-swap-requests', shiftSwapRequestRoutes);
 app.use('/api/departments', departmentRoutes);
-app.use('/api/organizations', organizationRoutes);
 app.use('/api/announcements', announcementRoutes);
 
 // global error handler

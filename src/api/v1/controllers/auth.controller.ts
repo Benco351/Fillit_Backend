@@ -10,7 +10,8 @@ import {
   EmailExists,
   CreateEmployeeErrorLog,
 } from '../../../assets/messages/employeeMessages';
-// import AWS from 'aws-sdk';
+import AWS from 'aws-sdk';
+import { getAwsCredentialsFromSSM } from '../../../utils/aws';
 
 /**
  * Creates a new employee.
@@ -79,7 +80,6 @@ export const createEmployee = async (req: Request, res: Response, next: NextFunc
   }
 };
 
-/*
 export const addToGroup = async (req: Request, res: Response) => {
   const { email, group } = req.body;
   if (!email || !group) {
@@ -116,33 +116,11 @@ export const addToGroup = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Failed to add user to group', error: error.message });
   }
 };
-*/
 
-/*
+
 export const createCognitoClient = async (): Promise<AWS.CognitoIdentityServiceProvider> => {
   try {
-    // Fetch credentials from SSM Parameter Store
-    const ssm = new AWS.SSM({ region: process.env.COGNITO_REGION });
-
-    // Get access key ID
-    const accessKeyIdParam = await ssm
-      .getParameter({
-        Name: process.env.AWS_ACCESS_KEY_ID_SSM!,
-        WithDecryption: true,
-      })
-      .promise();
-
-    // Get secret access key
-    const secretAccessKeyParam = await ssm
-      .getParameter({
-        Name: process.env.AWS_SECRET_ACCESS_KEY_SSM!,
-        WithDecryption: true,
-      })
-      .promise();
-
-    const accessKeyId = accessKeyIdParam.Parameter?.Value;
-    const secretAccessKey = secretAccessKeyParam.Parameter?.Value;
-
+    const { accessKeyId, secretAccessKey } = await getAwsCredentialsFromSSM(); // Ensure AWS credentials are loaded
     if (!accessKeyId || !secretAccessKey) {
       throw new Error('Failed to retrieve AWS credentials from SSM');
     }
@@ -160,4 +138,3 @@ export const createCognitoClient = async (): Promise<AWS.CognitoIdentityServiceP
     throw new Error('Failed to create Cognito client using SSM credentials');
   }
 };
-*/

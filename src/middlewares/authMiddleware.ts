@@ -33,7 +33,6 @@ const fetchKeys = async (): Promise<Record<string, string>> => {
 };
 
 /* ── Express middleware ─────────────────────────────────────────────── */
-/*
 export const tokenAuthentication: RequestHandler = async (req, res, next) => {
   const header = req.headers.authorization;
   if (!header?.startsWith('Bearer ')) {
@@ -72,4 +71,3 @@ export const tokenAuthentication: RequestHandler = async (req, res, next) => {
     res.status(401).json({ message: msg });
   }
 };
-*/
