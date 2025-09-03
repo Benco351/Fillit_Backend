@@ -7,9 +7,12 @@ import { Transaction } from 'sequelize';
 export interface CreateAnnouncementDTO {
   author_id: number;
   title?: string;
+  // Accept both content (API contract) and body (DB column) for flexibility
+  content?: string;
   body?: string;
   start_date?: Date;
   // end_date?: Date;
+  organization_id: number;
 }
 
 /**
@@ -31,11 +34,13 @@ export const createAnnouncement = async (data: CreateAnnouncementDTO): Promise<A
       }
     }
     
+    const bodyToSave = (data as any).content ?? data.body ?? '';
+
     const announcement = await Announcement.create(
       {
         ...data,
         title: data.title ?? '',
-        body: data.body ?? '',
+        body: bodyToSave,
         start_date: finalStartDate, // Use the validated and parsed date.
       },
       { transaction }
@@ -53,10 +58,10 @@ export const createAnnouncement = async (data: CreateAnnouncementDTO): Promise<A
  * @param {number} id - ID of the announcement.
  * @returns {Promise<boolean>} True if deleted, false otherwise.
  */
-export const deleteAnnouncement = async (id: number): Promise<boolean> => {
+export const deleteAnnouncement = async (id: number, organization_id: number): Promise<boolean> => {
   const transaction: Transaction = await sequelize.transaction();
   try {
-    const announcement = await Announcement.findByPk(id, { transaction });
+    const announcement = await Announcement.findOne({ where: { announcement_id: id, organization_id }, transaction });
     if (!announcement) {
       await transaction.rollback();
       return false;
@@ -76,9 +81,9 @@ export const deleteAnnouncement = async (id: number): Promise<boolean> => {
  * @param {number} id - ID of the announcement.
  * @returns {Promise<Announcement | null>} The announcement or null.
  */
-export const getAnnouncementById = async (id: number): Promise<Announcement | null> => {
+export const getAnnouncementById = async (id: number, organization_id: number): Promise<Announcement | null> => {
   return Announcement.findOne({
-    where: { announcement_id: id },
+    where: { announcement_id: id, organization_id },
     include: [
       {
         model: Employee,
@@ -114,17 +119,25 @@ export const getAnnouncements = async (params: any = {}): Promise<Announcement[]
  */
 export const updateAnnouncement = async (
   id: number,
-  data: Partial<CreateAnnouncementDTO>
+  data: Partial<CreateAnnouncementDTO>,
+  organization_id: number
 ): Promise<Announcement | null> => {
   const transaction: Transaction = await sequelize.transaction();
   try {
-    const announcement = await Announcement.findByPk(id, { transaction });
+    const announcement = await Announcement.findOne({ where: { announcement_id: id, organization_id }, transaction });
     if (!announcement) {
       await transaction.rollback();
       return null;
     }
 
-    await announcement.update(data, { transaction });
+    // Map content -> body if provided
+    const updatePayload: any = { ...data };
+    if ((data as any).content !== undefined) {
+      updatePayload.body = (data as any).content;
+      delete updatePayload.content;
+    }
+
+    await announcement.update(updatePayload, { transaction });
     await transaction.commit();
     return announcement;
   } catch (error) {

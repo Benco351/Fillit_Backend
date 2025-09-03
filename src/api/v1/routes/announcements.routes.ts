@@ -6,7 +6,7 @@ import { getAnnouncements, getAnnouncementById, createAnnouncement, updateAnnoun
 const router = Router();
 
 router.get('/', validateQuery(AnnouncementQuerySchema), getAnnouncements);
-router.get('/:id', getAnnouncementById);
+router.get('/:id', validateQuery(AnnouncementQuerySchema), getAnnouncementById);
 router.post('/', validate(CreateAnnouncementSchema), createAnnouncement);
 router.put('/:id', validate(UpdateAnnouncementSchema), updateAnnouncement);
 router.delete('/:id', deleteAnnouncement);

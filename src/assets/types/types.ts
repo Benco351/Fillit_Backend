@@ -204,16 +204,20 @@ export const CreateAnnouncementSchema = z.object({
     title: z.string().nonempty(),
     content: z.string().nonempty(),
     start_date: z.coerce.date().optional(), // Allow start_date to be provided
+    organization_id: z.coerce.number(),
 }).strict();
 
 export const UpdateAnnouncementSchema = z.object({
     title: z.string().min(1).optional(),
     content: z.string().min(1).optional(),
+    // organization_id accepted for scoping but ignored for update
+    organization_id: z.coerce.number().optional(),
 }).strict();
 
 export const AnnouncementQuerySchema = z.object({
     title: z.string().optional(),
     author_id: z.coerce.number().optional(),
+    organization_id: z.coerce.number(),
 }).strict();
 
 export type CreateAnnouncementDTO = z.infer<typeof CreateAnnouncementSchema>;

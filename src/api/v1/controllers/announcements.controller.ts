@@ -46,7 +46,8 @@ export const deleteAnnouncement = async (req: Request, res: Response, next: Next
       return;
     }
 
-    const success = await announcementService.deleteAnnouncement(announcementId);
+    const organization_id = Number((req.query as any).organization_id ?? (req.body as any).organization_id);
+    const success = await announcementService.deleteAnnouncement(announcementId, organization_id);
     if (!success) {
       res.status(404).json({ error: AnnouncementNotFound });
       return;
@@ -70,7 +71,8 @@ export const getAnnouncementById = async (req: Request, res: Response, next: Nex
       return;
     }
 
-    const announcement = await announcementService.getAnnouncementById(announcementId);
+    const organization_id = Number((req.query as any).organization_id ?? (req.body as any).organization_id);
+    const announcement = await announcementService.getAnnouncementById(announcementId, organization_id);
     if (!announcement) {
       res.status(404).json({ error: AnnouncementNotFound });
       return;
@@ -107,7 +109,8 @@ export const updateAnnouncement = async (req: Request, res: Response, next: Next
       return;
     }
 
-    const updated = await announcementService.updateAnnouncement(announcementId, req.body);
+    const organization_id = Number((req.query as any).organization_id ?? (req.body as any).organization_id);
+    const updated = await announcementService.updateAnnouncement(announcementId, req.body, organization_id);
     if (!updated) {
       res.status(404).json({ error: AnnouncementNotFound });
       return;

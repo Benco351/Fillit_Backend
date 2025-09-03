@@ -7,6 +7,7 @@ import {
   InferAttributes, InferCreationAttributes, CreationOptional, NonAttribute
 } from 'sequelize';
 import { Employee } from './employee.model';
+import { Organization } from './organization.model';
 
 @Table({ tableName: 'announcements', timestamps: false })
 export class Announcement extends Model<
@@ -48,4 +49,18 @@ export class Announcement extends Model<
 
   @BelongsTo(() => Employee)
   declare author?: NonAttribute<Employee>;
+
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'organizations',
+      key: 'organization_id',
+    },
+    onDelete: 'CASCADE',
+  })
+  declare organization_id: number;
+
+  @BelongsTo(() => Organization, { foreignKey: 'organization_id' })
+  declare organization?: NonAttribute<Organization>;
 }
