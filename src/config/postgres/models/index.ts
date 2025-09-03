@@ -7,10 +7,11 @@ import { AvailableShift } from './availableShift.model';
 import { AssignedShift } from './assignedShift.model';
 import { RequestedShift } from './requestedShift.model';
 import { ShiftSwapRequest } from './shiftSwapRequest.model';
+import { Announcement } from './announcements.model';
 
 export function initModels(sequelize: Sequelize): void {
   // Register in dependency order so sync creates base tables first
-  sequelize.addModels([Organization, Department, Employee, AvailableShift, AssignedShift, RequestedShift, ShiftSwapRequest]);
+  sequelize.addModels([Organization, Department, Employee, AvailableShift, AssignedShift, RequestedShift, ShiftSwapRequest, Announcement]);
 }
 
-export { Employee, AvailableShift, AssignedShift, RequestedShift, ShiftSwapRequest, Department, Organization };
+export { Employee, AvailableShift, AssignedShift, RequestedShift, ShiftSwapRequest, Department, Organization, Announcement };
