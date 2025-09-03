@@ -145,6 +145,6 @@ export const updateAnnouncement = async (
     throw error;
   }
 };
-export function getAnnouncementsByParams(arg0: { title?: string | undefined; }) {
+export function getAnnouncementsByParams() {
     throw new Error('Function not implemented.');
 }

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { Announcement, Employee } from '../../../config/postgres/models';
+import { Employee } from '../../../config/postgres/models';
 import * as announcementService from '../../../core/services/announcements.service';
 import { apiResponse } from '../../../utils/apiResponse';
 import { logger } from '../../../config/logger';
