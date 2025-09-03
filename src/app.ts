@@ -20,7 +20,7 @@ import { tokenAuthentication } from './middlewares/authMiddleware';
 
 const app: Application = express();
 
-const FRONTEND_URL = "https://www.fillitshifits.com";
+const FRONTEND_URL = ["https://www.fillitshifits.com","https://fillitshifits.com"];
 const whitelist = [FRONTEND_URL, "localhost:3000", "http://localhost:3000"];
 
 const corsOptions: cors.CorsOptions = {
