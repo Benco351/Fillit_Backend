@@ -21,7 +21,7 @@ import { tokenAuthentication } from './middlewares/authMiddleware';
 const app: Application = express();
 
 const FRONTEND_URL = ["https://www.fillitshifits.com","https://fillitshifits.com"];
-const whitelist = [FRONTEND_URL, "localhost:3000", "http://localhost:3000"];
+const whitelist = [FRONTEND_URL, "localhost:3000", "http://localhost:3000", "https://www.fillitshifits.com"];
 
 const corsOptions: cors.CorsOptions = {
   // Only allow your SPA origin (and also allow tools like curl with no Origin header)
