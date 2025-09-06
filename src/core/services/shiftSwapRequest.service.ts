@@ -7,7 +7,6 @@ import { getAvailableShiftById } from './availableShift.service';
 import { sendEmail } from '../../utils/email';
 
 export const createShiftSwapRequest = async (data: CreateShiftSwapRequestDTO, organization_id: number) => {
-  // ...existing code...
   // Fetch shift info for the requester shift
   const shiftInfo = await getAvailableShiftById(data.requester_shift_id, organization_id);
   const result = await ShiftSwapRequest.create({
@@ -20,7 +19,8 @@ export const createShiftSwapRequest = async (data: CreateShiftSwapRequestDTO, or
   const sourceEmployee = await getEmployeeById(data.requester_employee_id, organization_id);
   const destEmployee = await getEmployeeById(data.target_employee_id, organization_id);
 
-  if (destEmployee && destEmployee.employee_email && sourceEmployee && sourceEmployee.employee_name && shiftInfo) {
+  // Always send SES notification, using N/A if info missing
+  if (destEmployee && destEmployee.employee_email && sourceEmployee && sourceEmployee.employee_name) {
     const htmlBody = `
       <div style="font-family: Arial, sans-serif;">
         <img src="https://fillitshifits.com/fillit.png" alt="Fillit Logo" style="height:40px;margin-bottom:16px;" />
@@ -29,10 +29,10 @@ export const createShiftSwapRequest = async (data: CreateShiftSwapRequestDTO, or
         <p>You have a new shift swap request from <b>${sourceEmployee.employee_name}</b>.</p>
         <p><b>Shift Details:</b></p>
         <ul>
-          <li><b>Date:</b> ${shiftInfo.shift_date}</li>
-          <li><b>Start:</b> ${shiftInfo.shift_time_start}</li>
-          <li><b>End:</b> ${shiftInfo.shift_time_end}</li>
-          <li><b>Department:</b> ${shiftInfo.department?.department_name || 'N/A'}</li>
+          <li><b>Date:</b> ${shiftInfo?.shift_date || 'N/A'}</li>
+          <li><b>Start:</b> ${shiftInfo?.shift_time_start || 'N/A'}</li>
+          <li><b>End:</b> ${shiftInfo?.shift_time_end || 'N/A'}</li>
+          <li><b>Department:</b> ${shiftInfo?.department?.department_name || 'N/A'}</li>
         </ul>
         <p>Please log in to Fillit to review and respond to this request.</p>
         <hr />
@@ -86,7 +86,7 @@ export const respondToShiftSwapRequest = async (id: number, data: RespondShiftSw
       const sourceShift = await getAvailableShiftById(req.requester_shift_id, organization_id);
       const destShift = await getAvailableShiftById(req.target_shift_id, organization_id);
 
-      // Notify both employees
+      // Notify both employees (always send, use N/A if info missing)
       if (sourceEmployee && sourceEmployee.employee_email && destEmployee && destEmployee.employee_email) {
         // Email to source employee
         const htmlBodySource = `
