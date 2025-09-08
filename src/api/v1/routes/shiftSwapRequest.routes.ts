@@ -9,4 +9,4 @@ router.post('/', validate(CreateShiftSwapRequestSchema), createShiftSwapRequest)
 router.get('/', validateQuery(ShiftSwapRequestQuerySchema), listShiftSwapRequests);
 router.post('/:id/respond', validate(RespondShiftSwapRequestSchema), respondToShiftSwapRequest);
 
-export default router; 
+export default router;

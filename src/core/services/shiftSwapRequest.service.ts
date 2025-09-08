@@ -3,12 +3,12 @@ import { CreateShiftSwapRequestDTO, RespondShiftSwapRequestDTO, ShiftSwapRequest
 import { Op } from 'sequelize'
 import { swapAssignedShifts } from './assignedShift.service';
 import { getEmployeeById } from './employee.service';
-import { getAvailableShiftById } from './availableShift.service';
+import { getAssignedShiftById } from './assignedShift.service';
 import { sendEmail } from '../../utils/email';
 
 export const createShiftSwapRequest = async (data: CreateShiftSwapRequestDTO, organization_id: number) => {
   // Fetch shift info for the requester shift
-  const shiftInfo = await getAvailableShiftById(data.requester_shift_id, organization_id);
+  const shiftInfo = await getAssignedShiftById(data.requester_shift_id);
   const result = await ShiftSwapRequest.create({
     ...data,
     organization_id,
@@ -29,10 +29,10 @@ export const createShiftSwapRequest = async (data: CreateShiftSwapRequestDTO, or
         <p>You have a new shift swap request from <b>${sourceEmployee.employee_name}</b>.</p>
         <p><b>Shift Details:</b></p>
         <ul>
-          <li><b>Date:</b> ${shiftInfo?.shift_date || 'N/A'}</li>
-          <li><b>Start:</b> ${shiftInfo?.shift_time_start || 'N/A'}</li>
-          <li><b>End:</b> ${shiftInfo?.shift_time_end || 'N/A'}</li>
-          <li><b>Department:</b> ${shiftInfo?.department?.department_name || 'N/A'}</li>
+          <li><b>Date:</b> ${shiftInfo?.availableShift?.shift_date || 'N/A'}</li>
+          <li><b>Start:</b> ${shiftInfo?.availableShift?.shift_time_start || 'N/A'}</li>
+          <li><b>End:</b> ${shiftInfo?.availableShift?.shift_time_end || 'N/A'}</li>
+          <li><b>Department:</b> ${shiftInfo?.availableShift?.department?.department_name || 'N/A'}</li>
         </ul>
         <p>Please log in to Fillit to review and respond to this request.</p>
         <hr />
@@ -83,8 +83,8 @@ export const respondToShiftSwapRequest = async (id: number, data: RespondShiftSw
       const sourceEmployee = await getEmployeeById(req.requester_employee_id, organization_id);
       const destEmployee = await getEmployeeById(req.target_employee_id, organization_id);
       // Fetch shift info for both shifts
-      const sourceShift = await getAvailableShiftById(req.requester_shift_id, organization_id);
-      const destShift = await getAvailableShiftById(req.target_shift_id, organization_id);
+      const sourceShift = await getAssignedShiftById(req.requester_shift_id);
+      const destShift = await getAssignedShiftById(req.target_shift_id);
 
       // Notify both employees (always send, use N/A if info missing)
       if (sourceEmployee && sourceEmployee.employee_email && destEmployee && destEmployee.employee_email) {
@@ -97,10 +97,10 @@ export const respondToShiftSwapRequest = async (id: number, data: RespondShiftSw
             <p>Your shift swap request has been <b>accepted</b> by ${destEmployee.employee_name}.</p>
             <p><b>Your New Shift Details:</b></p>
             <ul>
-              <li><b>Date:</b> ${destShift?.shift_date || 'N/A'}</li>
-              <li><b>Start:</b> ${destShift?.shift_time_start || 'N/A'}</li>
-              <li><b>End:</b> ${destShift?.shift_time_end || 'N/A'}</li>
-              <li><b>Department:</b> ${destShift?.department?.department_name || 'N/A'}</li>
+              <li><b>Date:</b> ${destShift?.availableShift?.shift_date || 'N/A'}</li>
+              <li><b>Start:</b> ${destShift?.availableShift?.shift_time_start || 'N/A'}</li>
+              <li><b>End:</b> ${destShift?.availableShift?.shift_time_end || 'N/A'}</li>
+              <li><b>Department:</b> ${destShift?.availableShift?.department?.department_name || 'N/A'}</li>
             </ul>
             <hr />
             <small>This is an automated message from Fillit.</small>
@@ -121,10 +121,10 @@ export const respondToShiftSwapRequest = async (id: number, data: RespondShiftSw
             <p>You have accepted a shift swap request from ${sourceEmployee.employee_name}.</p>
             <p><b>Your New Shift Details:</b></p>
             <ul>
-              <li><b>Date:</b> ${sourceShift?.shift_date || 'N/A'}</li>
-              <li><b>Start:</b> ${sourceShift?.shift_time_start || 'N/A'}</li>
-              <li><b>End:</b> ${sourceShift?.shift_time_end || 'N/A'}</li>
-              <li><b>Department:</b> ${sourceShift?.department?.department_name || 'N/A'}</li>
+              <li><b>Date:</b> ${sourceShift?.availableShift?.shift_date || 'N/A'}</li>
+              <li><b>Start:</b> ${sourceShift?.availableShift?.shift_time_start || 'N/A'}</li>
+              <li><b>End:</b> ${sourceShift?.availableShift?.shift_time_end || 'N/A'}</li>
+              <li><b>Department:</b> ${sourceShift?.availableShift?.department?.department_name || 'N/A'}</li>
             </ul>
             <hr />
             <small>This is an automated message from Fillit.</small>
