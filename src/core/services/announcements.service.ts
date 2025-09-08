@@ -2,6 +2,8 @@ import { Announcement } from '../../config/postgres/models/announcements.model';
 import { Employee } from '../../config/postgres/models/employee.model';
 import { sequelize } from '../../config/postgres/db';
 import { Transaction } from 'sequelize';
+import { sendEmail } from '../../utils/email';
+import { getEmployeesByParams } from './employee.service';
 
 
 export interface CreateAnnouncementDTO {
@@ -46,6 +48,49 @@ export const createAnnouncement = async (data: CreateAnnouncementDTO): Promise<A
       { transaction }
     );
     await transaction.commit();
+
+    // Send email notifications to all employees in the organization
+    try {
+      // Get the author's information
+      const author = await Employee.findOne({
+        where: { employee_id: data.author_id, organization_id: data.organization_id },
+        attributes: ['employee_name', 'employee_email']
+      });
+
+      // Get all employees in the organization
+      const employees = await getEmployeesByParams({ organization_id: data.organization_id });
+
+      // Send email to each employee
+      for (const employee of employees) {
+        if (employee.employee_email && author && author.employee_name) {
+          const htmlBody = `
+            <div style="font-family: Arial, sans-serif;">
+              <img src="https://fillitshifits.com/fillit.png" alt="Fillit Logo" style="height:40px;margin-bottom:16px;" />
+              <h2>New Announcement</h2>
+              <p>Hello ${employee.employee_name},</p>
+              <p>You have received a new announcement from <b>${author.employee_name}</b>.</p>
+              <p><b>Title:</b> ${data.title || 'No title'}</p>
+              <p><b>Content:</b></p>
+              <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                ${bodyToSave || 'No content'}
+              </div>
+              <p>Please log in to Fillit to view more details.</p>
+              <hr />
+              <small>This is an automated message from Fillit.</small>
+            </div>
+          `;
+          await sendEmail(
+            employee.employee_email,
+            `New Announcement: ${data.title || 'No title'}`,
+            htmlBody
+          );
+        }
+      }
+    } catch (emailError) {
+      // Log email error but don't fail the announcement creation
+      console.error('Error sending announcement emails:', emailError);
+    }
+
     return announcement;
   } catch (error) {
     await transaction.rollback();
