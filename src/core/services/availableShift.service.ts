@@ -37,7 +37,7 @@ export const getAvailableShiftById = async (id: number, organization_id: number)
 
 export const getAvailableShiftsByParams = async (params: AvailableShiftQueryDTO): Promise<AvailableShift[]> => {
   const filters: Record<string, unknown> = {};
-
+  console.log('Test message:');
   if (params.shift_date) filters.shift_date = params.shift_date.toString();
   if (params.shift_start_before) filters.shift_time_start = { [Op.lt]: params.shift_start_before };
   if (params.shift_start_after) filters.shift_time_start = { [Op.gt]: params.shift_start_after };
